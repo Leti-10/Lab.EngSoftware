@@ -1,18 +1,17 @@
 [project]
 name = "entregas-lab-engsoftware"
 version = "0.1.0"
-description = "Add your description here"
+description = "Backend do projeto BookStore"
 readme = "README.md"
 authors = [
     { name = "Wesley Xavier", email = "wesley.xvier@gmail.com" }
 ]
 requires-python = ">=3.14"
 dependencies = [
+    "asyncpg>=0.31.0",
     "fastapi[standard]>=0.141.1",
+    "sqlalchemy>=2.0.52",
 ]
-
-[project.scripts]
-entregas-lab-engsoftware = "entregas_lab_engsoftware:main"
 
 [build-system]
 requires = ["uv_build>=0.12.3,<0.13.0"]
@@ -20,3 +19,8 @@ build-backend = "uv_build"
 
 [tool.uv]
 package = false
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
