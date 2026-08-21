@@ -1,8 +1,13 @@
-from src.model.models import User
+import pytest
+
 from sqlalchemy import select
+
 from dataclasses import asdict
 
-def test_create_user(session, mock_db_time):
+from src.model.models import User
+
+@pytest.mark.asyncio
+async def test_create_user(session, mock_db_time):
     with mock_db_time(model=User) as time:
         new_user = User(
             username="teste",
@@ -11,9 +16,9 @@ def test_create_user(session, mock_db_time):
         )
 
         session.add(new_user)
-        session.commit()
+        await session.commit()
 
-        user = session.scalar(select(User).where(User.username == "teste"))
+        user = await session.scalar(select(User).where(User.username == "teste"))
 
         assert asdict(user) == {
             "id": 1,
