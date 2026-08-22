@@ -7,6 +7,7 @@ from src.settings import Settings
 
 settings = Settings()
 
+
 def test_jwt():
     data = {"test": "test"}
     token = create_access_token(data)
@@ -16,8 +17,11 @@ def test_jwt():
     assert decoded["test"] == data["test"]
     assert "exp" in decoded
 
+
 def test_jwt_invalid_token(client):
-    response = client.delete("/user/1", headers={"Authorization": "Bearer invalid-token"})
+    response = client.delete(
+        "/user/1", headers={"Authorization": "Bearer invalid-token"}
+    )
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json() == {"detail": "Invalid token"}
