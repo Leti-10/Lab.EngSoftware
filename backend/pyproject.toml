@@ -8,10 +8,12 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
+    "aiosqlite>=0.22.1",
     "alembic>=1.19.1",
     "asyncpg>=0.31.0",
     "bcrypt>=5.0.0",
     "fastapi[standard]>=0.141.1",
+    "pwdlib[argon2]>=0.3.1",
     "pyjwt>=2.13.0",
     "sqlalchemy>=2.0.52",
 ]
@@ -26,4 +28,5 @@ package = false
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
 ]
