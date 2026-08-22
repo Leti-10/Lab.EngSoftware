@@ -5,6 +5,11 @@ services:
       dockerfile: Dockerfile
     image: backend:dev
     container_name: fastapi_app
+    environment:
+      - DATABASE_URL
+      - SECRET_KEY
+      - ALGORITHM
+      - ACCESS_TOKEN_EXPIRE_MINUTES
     ports:
       - "8000:8000"
   postgres:

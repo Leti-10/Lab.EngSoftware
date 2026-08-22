@@ -4,7 +4,8 @@ version = "0.1.0"
 description = "Backend do projeto BookStore"
 readme = "README.md"
 authors = [
-    { name = "Wesley Xavier", email = "wesley.xvier@gmail.com" }
+    { name = "Wesley Xavier", email = "wesley.xvier@gmail.com" },
+    { name = "Fabio Nawa", email = "" },
 ]
 requires-python = ">=3.14"
 dependencies = [
@@ -13,6 +14,7 @@ dependencies = [
     "asyncpg>=0.31.0",
     "bcrypt>=5.0.0",
     "fastapi[standard]>=0.141.1",
+    "httpx2>=2.12.0",
     "pwdlib[argon2]>=0.3.1",
     "pyjwt>=2.13.0",
     "sqlalchemy>=2.0.52",
