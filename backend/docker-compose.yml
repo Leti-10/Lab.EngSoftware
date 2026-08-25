@@ -5,14 +5,22 @@ services:
       dockerfile: Dockerfile
     image: backend:dev
     container_name: fastapi_app
+    environment:
+      - DATABASE_URL
+      - SECRET_KEY:=long_secret_key_string
+      - ALGORITHM:-HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES:-60
     ports:
-      - "8000:8000"
+      - "${API_PORT:-8000}:8000"
+    networks:
+      - postgres
   postgres:
     container_name: postgresdb
     image: postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mypass}
+      POSTGRES_DB: ${DATABASE:-mydb}
       PGDATA: /data/postgres
     volumes:
       - postgres:/data/postgres
