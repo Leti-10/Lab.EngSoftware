@@ -5,7 +5,7 @@ from sqlalchemy import select
 from dataclasses import asdict
 
 from src.model.models import User
-
+from src.model.list_model import List
 
 @pytest.mark.asyncio
 async def test_create_user(session, mock_db_time):
@@ -26,3 +26,20 @@ async def test_create_user(session, mock_db_time):
             "password": "password123",
             "created_at": time,
         }
+
+async def test_create_list(session):
+    new_list = List(
+        name="teste", description="exemplo", isPrivate=True
+    )
+
+    session.add(new_list)
+    await session.commit()
+
+    list = await session.scalar(select(List).where(List.name == "teste"))
+
+    assert asdict(list) == {
+        "id": 1,
+        "name": "teste",
+        "description": "exemplo",
+        "isPrivate": True
+    }
