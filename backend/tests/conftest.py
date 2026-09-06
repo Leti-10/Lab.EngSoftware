@@ -1,20 +1,16 @@
-from datetime import datetime
+from contextlib import contextmanager
+from datetime import datetime, timezone
 
 import pytest
 import pytest_asyncio
-
 from fastapi.testclient import TestClient
-
-from sqlalchemy import StaticPool
+from sqlalchemy import StaticPool, event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy import event
 
-from contextlib import contextmanager
-
-from src.main import app
-from src.model.models import User, table_registry
-from src.security import get_password_hash
 from src.database import get_session
+from src.main import app
+from src.model.user_model import User, table_registry
+from src.security import get_password_hash
 
 
 @pytest.fixture
@@ -55,7 +51,7 @@ async def session():
 
 
 @contextmanager
-def _mock_db_time(model, time=datetime(2026, 8, 20)):
+def _mock_db_time(model, time=datetime(2026, 8, 20, tzinfo=timezone.utc)):
     def fake_time_hook(mapper, connection, target):
         if hasattr(target, "created_at"):
             target.created_at = time

@@ -2,12 +2,11 @@ from http import HTTPStatus
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database import get_session
-from model.models import User
+from model.user_model import User
 from schema.schemas import TokenSchema
 from security import create_access_token, verify_password
 

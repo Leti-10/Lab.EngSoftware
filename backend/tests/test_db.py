@@ -1,10 +1,9 @@
-import pytest
-
-from sqlalchemy import select
-
 from dataclasses import asdict
 
-from src.model.models import User
+import pytest
+from sqlalchemy import select
+
+from src.model.user_model import User
 
 
 @pytest.mark.asyncio

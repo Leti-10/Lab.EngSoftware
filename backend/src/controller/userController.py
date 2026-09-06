@@ -1,22 +1,18 @@
 from http import HTTPStatus
 
-from sqlite3 import IntegrityError
-
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from fastapi import APIRouter, Depends, HTTPException
-
 from database import get_session
+from model.user_model import User
 from schema.schemas import (
-    UserListSchema,
     UserListSchema,
     UserPublicSchema,
     UserSchema,
 )
-from model.models import User
-from security import get_password_hash, get_current_user
+from security import get_current_user, get_password_hash
 
 router = APIRouter(prefix="/user", tags=["User"])
 
@@ -63,7 +59,8 @@ async def create_user(user: UserSchema, session: AsyncSession = Depends(get_sess
     return db_user
 
 
-# Suggestion: Enviar um email de confirmação antes de atualizar o usuário, e só atualizar se o email for confirmado.
+# Suggestion: Enviar um email de confirmação antes de atualizar o usuário
+# só atualizar se o email for confirmado.
 @router.put("/{user_id}", status_code=HTTPStatus.OK, response_model=UserPublicSchema)
 async def update_user(
     user_id: int,
@@ -89,7 +86,7 @@ async def update_user(
         raise HTTPException(
             status_code=HTTPStatus.CONFLICT,
             detail="Username or email already registered",
-        )
+        ) from None
 
 
 @router.delete("/{user_id}", status_code=HTTPStatus.NO_CONTENT)
