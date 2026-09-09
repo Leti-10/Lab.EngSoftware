@@ -27,8 +27,13 @@ build-backend = "uv_build"
 [tool.uv]
 package = false
 
+[tool.ruff.lint]
+select = ["E", "F", "B", "DTZ"]
+ignore = ["B008"]
+
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
+    "ruff>=0.16.6",
 ]
