@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from controller import userController, authController
+
+from src.routes.routes import api_router
 
 app = FastAPI()
-app.include_router(authController.router)
-app.include_router(userController.router)
+app.include_router(api_router)
 
 
 @app.get("/")
