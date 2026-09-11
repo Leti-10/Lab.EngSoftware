@@ -12,7 +12,8 @@ from sqlalchemy import event
 from contextlib import contextmanager
 
 from src.main import app
-from src.model.models import User, table_registry
+from src.models.base import Base
+from src.models.user import User
 from src.security import get_password_hash
 from src.database import get_session
 
@@ -39,7 +40,7 @@ async def session():
     )
 
     async with engine.begin() as connection:
-        await connection.run_sync(table_registry.metadata.create_all)
+        await connection.run_sync(Base.metadata.create_all)
 
     async_session = async_sessionmaker(
         bind=engine, class_=AsyncSession, expire_on_commit=False
@@ -49,7 +50,7 @@ async def session():
         yield session
 
     async with engine.begin() as connection:
-        await connection.run_sync(table_registry.metadata.drop_all)
+        await connection.run_sync(Base.metadata.drop_all)
 
     await engine.dispose()
 
