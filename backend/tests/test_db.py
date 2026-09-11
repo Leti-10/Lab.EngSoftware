@@ -2,8 +2,6 @@ import pytest
 
 from sqlalchemy import select
 
-from dataclasses import asdict
-
 from src.model.models import User
 
 
@@ -19,10 +17,8 @@ async def test_create_user(session, mock_db_time):
 
         user = await session.scalar(select(User).where(User.username == "teste"))
 
-        assert asdict(user) == {
-            "id": 1,
-            "username": "teste",
-            "email": "teste@example.com",
-            "password": "password123",
-            "created_at": time,
-        }
+        assert user.id == 1
+        assert user.username == "teste"
+        assert user.email == "teste@example.com"
+        assert user.password == "password123"
+        assert user.created_at == time
