@@ -32,3 +32,8 @@ dev = [
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
 ]
+
+[tool.pytest]
+minversion = "9.0"
+addopts = ["-ra", "-q"]
+pythonpath = ["."]
