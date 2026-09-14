@@ -15,7 +15,6 @@ from src.domain.entities.user import User
 def test_should_raise_error_when_user_data_is_invalid(username, email, password, expected_error):
     with pytest.raises(ValueError, match=expected_error):
         User(
-            id=1,
             username=username,
             email=email,
             password=password,
@@ -26,7 +25,6 @@ def test_should_raise_error_when_user_data_is_invalid(username, email, password,
 
 def test_should_assign_default_role_when_not_provided():
     user = User(
-        id=1,
         username="capivara",
         email="capivara@example.com",
         password="anypassword",
