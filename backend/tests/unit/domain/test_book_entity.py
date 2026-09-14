@@ -1,5 +1,4 @@
 import pytest
-from datetime import datetime
 from src.domain.entities.book import Book
 
 
