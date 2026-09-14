@@ -7,22 +7,13 @@ from src.domain.entities.book import Book
     "isbn, genre, theme, title, author, publisher, expected_error",
     [
         (
-            "1234567890123",
-            ["Fiction"],
-            ["Histórias inspiradoras"],
-            "Aventuras da Capivara",
-            ["Fabio Nawa"],
-            "Editora Fatec",
-            None,
-        ),
-        (
             "852203142X",
             ["Ficção"],
             ["Clássicos"],
             "O Pequeno Príncipe",
             [],
             "Editora Agir",
-            None,
+            "Author deve ter pelo menos 1 caracteres",
         ),
         (
             "1234567",
@@ -49,7 +40,6 @@ def test_should_raise_error_when_book_data_is_invalid(
 ):
     with pytest.raises(ValueError, match=expected_error):
         Book(
-            id=1,
             isbn=isbn,
             genre=genre,
             theme=theme,

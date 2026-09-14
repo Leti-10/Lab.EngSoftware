@@ -6,7 +6,7 @@ from src.domain.entities.user import User
     "username, email, password, expected_error",
     [
         ("", "capivara@example.com", "anypassword", "Username não pode ser vazio"),
-        ("cap", "capivara@example.com", "anypassword", "Username deve ter pelo menos 3 caracteres"),
+        ("ca", "capivara@example.com", "anypassword", "Username deve ter pelo menos 3 caracteres"),
         ("capivara", "email-sem-formato", "anypassword", "E-mail inválido"),
         ("capivara", "capivara@example.com", "", "Password não pode ser vazio"),
     ]
