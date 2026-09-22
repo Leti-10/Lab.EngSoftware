@@ -12,7 +12,7 @@ def book_repository():
 
 @pytest.fixture
 def create_book_use_case(book_repository):
-    from src.application.use_cases.create_book import CreateBookUseCase
+    from src.application.use_cases.book.create_book import CreateBookUseCase
 
     return CreateBookUseCase(book_repository)
 
