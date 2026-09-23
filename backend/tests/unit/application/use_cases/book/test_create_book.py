@@ -42,7 +42,7 @@ def test_should_raise_error_when_isbn_exists(create_book_use_case):
         "isbn": "9788522031429",
         "title": "Livro de teste 1",
         "author": ["Wesley"],
-        "publisher": "Sem editora"
+        "publisher": "Sem editora",
     }
 
     create_book_use_case.execute(**book_1)
@@ -51,7 +51,7 @@ def test_should_raise_error_when_isbn_exists(create_book_use_case):
         "isbn": "9788522031429",
         "title": "Livro de teste 2",
         "author": ["Wesley"],
-        "publisher": "Sem editora"
+        "publisher": "Sem editora",
     }
 
     with pytest.raises(ValueError, match="ISBN já cadastrado"):
