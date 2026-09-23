@@ -35,3 +35,24 @@ def test_should_create_book_successfully(create_book_use_case):
     assert result.title == book_data["title"]
     assert result.author == book_data["author"]
     assert result.publisher == book_data["publisher"]
+
+
+def test_should_raise_error_when_isbn_exists(create_book_use_case):
+    book_1 = {
+        "isbn": "9788522031429",
+        "title": "Livro de teste 1",
+        "author": ["Wesley"],
+        "publisher": "Sem editora"
+    }
+
+    create_book_use_case.execute(**book_1)
+
+    book_2 = {
+        "isbn": "9788522031429",
+        "title": "Livro de teste 2",
+        "author": ["Wesley"],
+        "publisher": "Sem editora"
+    }
+
+    with pytest.raises(ValueError, match="ISBN já cadastrado"):
+        create_book_use_case.execute(**book_2)
