@@ -9,5 +9,5 @@ class ListNameTooShortError(DomainError):
 
 
 class InvalidListOwnerError(DomainError):
-    def __init__(self):
-        super().__init__("A lista deve ter um dono.")
+    def __init__(self, reason: str):
+        super().__init__(f"A lista deve ter um dono, {reason} é inválido.")
