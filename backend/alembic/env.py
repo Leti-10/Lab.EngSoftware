@@ -4,7 +4,7 @@ from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-
+from src.model.user_model import table_registry
 from src.settings import Settings
 from src.models.base import Base
 from src.models.book import Book
