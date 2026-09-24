@@ -7,7 +7,6 @@ from security import get_password_hash
 
 
 class UserService:
-
     @staticmethod
     async def get_users(
         session: AsyncSession,
@@ -57,9 +56,7 @@ class UserService:
     ):
         current_user.username = user.username
         current_user.email = user.email
-        current_user.password = get_password_hash(
-            user.password
-        )
+        current_user.password = get_password_hash(user.password)
 
         return await UserRepository.update(
             session,

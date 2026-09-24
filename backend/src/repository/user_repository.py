@@ -5,18 +5,13 @@ from model.user_model import User
 
 
 class UserRepository:
-
     @staticmethod
     async def get_users(
         session: AsyncSession,
         limit: int,
         offset: int,
     ):
-        result = await session.scalars(
-            select(User)
-            .offset(offset)
-            .limit(limit)
-        )
+        result = await session.scalars(select(User).offset(offset).limit(limit))
 
         return result.all()
 
@@ -27,10 +22,7 @@ class UserRepository:
         username: str,
     ):
         return await session.scalar(
-            select(User).where(
-                (User.email == email) |
-                (User.username == username)
-            )
+            select(User).where((User.email == email) | (User.username == username))
         )
 
     @staticmethod
