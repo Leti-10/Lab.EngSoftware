@@ -1,23 +1,22 @@
-from src.domain.entities.book import Book
-from src.domain.repositories.book_repository import BookRepository
+from src.domain.entities import Book
+from src.domain.repositories import BookRepository
 
 
 class InMemoryBookRepository(BookRepository):
     def __init__(self):
-        self.books = []
+        self.id = 0
+        self.books: dict[int, Book] = {}
 
     def save(self, book: Book) -> Book:
-        self.books.append(book)
+        self.books[self.id + 1] = book
+        self.id += 1
         return book
 
     def get_by_id(self, book_id: int) -> Book | None:
-        for book in self.books:
-            if book.id == book_id:
-                return book
-        return None
+        return self.books.get(book_id)
 
     def get_by_isbn(self, isbn: str) -> Book | None:
-        for book in self.books:
+        for _, book in self.books.items():
             if book.isbn == isbn:
                 return book
         return None
@@ -31,7 +30,7 @@ class InMemoryBookRepository(BookRepository):
         publisher: str | None = None,
     ) -> list[Book | None]:
         results = []
-        for book in self.books:
+        for _, book in self.books.items():
             if title and title not in book.title:
                 continue
             if author and author not in book.author:

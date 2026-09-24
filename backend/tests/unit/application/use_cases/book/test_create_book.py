@@ -1,11 +1,11 @@
 import pytest
 
-from src.domain.entities.book import Book
+from src.domain.entities import Book
 
 
 @pytest.fixture
 def book_repository():
-    from src.infrastructure.persistence.repositories.inmemory_book_repository import (
+    from src.infrastructure.persistence.repositories import (
         InMemoryBookRepository,
     )
 
@@ -14,7 +14,7 @@ def book_repository():
 
 @pytest.fixture
 def create_book_use_case(book_repository):
-    from src.application.use_cases.book.create_book import CreateBookUseCase
+    from src.application.use_cases import CreateBookUseCase
 
     return CreateBookUseCase(book_repository)
 

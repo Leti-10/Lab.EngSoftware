@@ -1,6 +1,6 @@
 import pytest
-from src.application.use_cases.user.create_user import CreateUserUseCase
-from src.infrastructure.persistence.repositories.inmemory_user_repository import (
+from src.application.use_cases import CreateUserUseCase
+from src.infrastructure.persistence.repositories import (
     InMemoryUserRepository,
 )
 
