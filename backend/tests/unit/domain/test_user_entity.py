@@ -1,6 +1,6 @@
 import pytest
 from datetime import datetime
-from src.domain.entities.user import User
+from src.domain.entities import User
 
 
 @pytest.mark.parametrize(

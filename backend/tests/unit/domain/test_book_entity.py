@@ -1,5 +1,5 @@
 import pytest
-from src.domain.entities.book import Book
+from src.domain.entities import Book
 
 
 @pytest.mark.parametrize(
