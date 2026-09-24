@@ -4,7 +4,7 @@ from .book import (
     BookAlreadyPublishedError,
     InvalidISBNError,
 )
-from .list import ListNameTooShortError, InvalidListOwnerError
+from .book_list import ListNameTooShortError, InvalidListOwnerError
 
 __all__ = [
     "DomainError",

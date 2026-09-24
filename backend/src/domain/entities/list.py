@@ -4,7 +4,7 @@ from src.domain.exceptions import InvalidListOwnerError, ListNameTooShortError
 
 
 @dataclass
-class DataList:
+class BookList:
     id: int = field(init=False)
     owner: int = field(init=True)
     name: str = field(default="")

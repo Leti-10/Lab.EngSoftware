@@ -1,5 +1,5 @@
 from .book import Book
 from .user import User
-from .list import DataList
+from .list import BookList
 
-__all__ = ["Book", "User", "DataList"]
+__all__ = ["Book", "User", "BookList"]

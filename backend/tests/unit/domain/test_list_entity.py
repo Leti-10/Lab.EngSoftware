@@ -1,6 +1,6 @@
 import pytest
 
-from src.domain.entities import DataList
+from src.domain.entities import BookList
 from src.domain.exceptions import ListNameTooShortError, InvalidListOwnerError
 
 
@@ -12,7 +12,7 @@ def test_create_list_successfully():
     private = True
     books = [1, 2]
 
-    new_list = DataList(owner, name, description, private, books)
+    new_list = BookList(owner, name, description, private, books)
 
     assert new_list.owner == owner
     assert new_list.name == name
@@ -23,9 +23,9 @@ def test_create_list_successfully():
 
 def test_should_not_create_list_with_short_name():
     with pytest.raises(ListNameTooShortError):
-        DataList(owner=1, name="ab", description="desc", private=True, books=[])
+        BookList(owner=1, name="ab", description="desc", private=True, books=[])
 
 
 def test_should_not_create_list_without_owner():
     with pytest.raises(InvalidListOwnerError):
-        DataList(owner=None, name="generic", description="desc", private=True, books=[])
+        BookList(owner=None, name="generic", description="desc", private=True, books=[])
