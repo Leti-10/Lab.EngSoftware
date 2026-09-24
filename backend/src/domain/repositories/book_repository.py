@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.domain.entities.book import Book
+from src.domain.entities import Book
 
 
 class BookRepository(ABC):

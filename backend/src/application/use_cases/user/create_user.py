@@ -1,5 +1,5 @@
-from src.domain.entities.user import User
-from src.domain.repositories.user_repository import UserRepository
+from src.domain.entities import User
+from src.domain.repositories import UserRepository
 from src.infrastructure.security.password_hasher import PasswordHasher
 
 
