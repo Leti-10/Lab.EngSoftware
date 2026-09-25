@@ -37,3 +37,8 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "ruff>=0.16.6",
 ]
+
+[tool.pytest]
+minversion = "9.0"
+addopts = ["-ra"]
+pythonpath = ["."]
