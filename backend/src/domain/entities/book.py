@@ -8,7 +8,7 @@ class Book:
     genre: list = field(default_factory=list)
     theme: list = field(default_factory=list)
     title: str = field(default="")
-    author: list = field(default_factory=list)
+    author: str | list = field(default="unknown")
     publisher: str = field(default="")
 
     def __post_init__(self):
@@ -18,7 +18,7 @@ class Book:
         if not self.title or len(self.title) < 1:
             raise ValueError("Title deve ter pelo menos 1 caracteres")
 
-        if not self.author or len(self.author) < 1:
+        if not self.author or len(self.author) < 1: # TODO: ajustar essa regra
             raise ValueError("Author deve ter pelo menos 1 caracteres")
 
         if not self.publisher or len(self.publisher) < 1:
