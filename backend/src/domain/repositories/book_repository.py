@@ -4,19 +4,19 @@ from src.domain.entities import Book
 
 class BookRepository(ABC):
     @abstractmethod
-    def save(self, book: Book) -> Book:
+    async def save(self, book: Book) -> Book:
         pass
 
     @abstractmethod
-    def get_by_id(self, book_id: int) -> Book | None:
+    async def get_by_id(self, book_id: int) -> Book | None:
         pass
 
     @abstractmethod
-    def get_by_isbn(self, isbn: str) -> Book | None:
+    async def get_by_isbn(self, isbn: str) -> Book | None:
         pass
 
     @abstractmethod
-    def find_by_filter(
+    async def find_by_filter(
         self,
         title: str | None = None,
         author: str | None = None,
