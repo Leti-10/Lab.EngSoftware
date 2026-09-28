@@ -43,6 +43,6 @@ def test_should_raise_error_when_book_data_is_invalid(
             genre=genre,
             theme=theme,
             title=title,
-            author=author,
+            authors=author,
             publisher=publisher,
         )
