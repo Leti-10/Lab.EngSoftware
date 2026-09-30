@@ -6,6 +6,8 @@ from .book import (
 )
 from .book_list import ListNameTooShortError, InvalidListOwnerError
 
+from .report import ReportDescriptionTooShortError, InvalidReportTargetError
+
 __all__ = [
     "DomainError",
     "BookTitleTooShortError",
@@ -13,4 +15,6 @@ __all__ = [
     "InvalidISBNError",
     "ListNameTooShortError",
     "InvalidListOwnerError",
+    "ReportDescriptionTooShortError",
+    "InvalidReportTargetError",
 ]
