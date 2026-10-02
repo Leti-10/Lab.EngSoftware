@@ -1,19 +1,3 @@
-import pytest
-from fastapi.testclient import TestClient
-
-from src.infrastructure.persistence.repositories import InMemoryUserRepository
-from src.presentation.api.dependencies import get_user_repository
-from src.presentation.api.main import app
-
-
-@pytest.fixture
-def client():
-    repo = InMemoryUserRepository()
-    app.dependency_overrides[get_user_repository] = lambda: repo
-    yield TestClient(app)
-    app.dependency_overrides.clear()
-
-
 def _register(client, email="ana@example.com"):
     return client.post(
         "/auth/register",

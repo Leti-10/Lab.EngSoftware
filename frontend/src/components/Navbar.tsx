@@ -25,6 +25,9 @@ export function Navbar() {
           </NavLink>
           {user ? (
             <>
+              <NavLink to="/livros/novo" className={linkClass}>
+                Cadastrar obra
+              </NavLink>
               <span className="hidden text-sm text-ink-soft sm:inline">Olá, {user.username}</span>
               <button
                 onClick={handleLogout}

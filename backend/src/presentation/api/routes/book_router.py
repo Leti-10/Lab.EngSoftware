@@ -1,22 +1,26 @@
-from fastapi import APIRouter, Depends, status
-from src.domain.entities.book import Book
-from src.application.use_cases.book import CreateBookUseCase
-from src.presentation.api.schemas import CreateBookSchema
-from src.infrastructure.persistence.repositories import (
-    SQLAlchemyRepository,
-    InMemoryBookRepository
-)
-from src.domain.repositories import BookRepository
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.application.use_cases.book import CreateBookUseCase
+from src.domain.entities import User
+from src.domain.entities.book import Book
+from src.domain.repositories import BookRepository
 from src.infrastructure.persistence.database import get_db_context
+from src.infrastructure.persistence.repositories import (
+    InMemoryBookRepository,
+    SQLAlchemyRepository,
+)
+from src.presentation.api.dependencies import get_current_user
+from src.presentation.api.schemas import BookResponseSchema, CreateBookSchema
 
 router = APIRouter(prefix="/books", tags=["Books"])
 
 in_memory_repo_instance = InMemoryBookRepository()
 
-# 2. Cria uma função de fábrica para o Depends consumir
+
 def get_book_m_repository() -> BookRepository:
     return in_memory_repo_instance
+
 
 async def get_book_repository(
     session: AsyncSession = Depends(get_db_context),
@@ -24,20 +28,35 @@ async def get_book_repository(
     return SQLAlchemyRepository(session)
 
 
+def to_response(book: Book) -> BookResponseSchema:
+    authors = [book.authors] if isinstance(book.authors, str) else list(book.authors)
+    return BookResponseSchema(
+        id=book.id,
+        isbn=book.isbn,
+        title=book.title,
+        publisher=book.publisher,
+        authors=authors,
+        genre=list(book.genre),
+        theme=list(book.theme),
+    )
+
+
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_book(
     payload: CreateBookSchema,
     repository: BookRepository = Depends(get_book_m_repository),
-):
+    _current_user: User = Depends(get_current_user),
+) -> BookResponseSchema:
     try:
-        use_case = CreateBookUseCase(repository)
-        novo_book = await use_case.execute(Book(**payload.model_dump()))
+        book = Book(**payload.model_dump())
+        created = await CreateBookUseCase(repository).execute(book)
+    except ValueError as error:
+        conflict = str(error) == "ISBN já cadastrado"
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT
+            if conflict
+            else status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(error),
+        ) from error
 
-        return novo_book
-    except Exception as e:
-        return e
-
-
-@router.get("/{book_id}")
-async def get_book(book_id: int):
-    return {"book_id": book_id}
+    return to_response(created)
