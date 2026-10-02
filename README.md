@@ -67,7 +67,15 @@ flowchart LR
     R --> DB[("PostgreSQL")]
 ```
 
-O backend segue **Clean Architecture / DDD**. A explicação completa, com diagrama de camadas e os design patterns usados, está em [**docs/ARQUITETURA.md**](docs/ARQUITETURA.md).
+### Arquitetura e design patterns
+
+- **Arquitetura:** o backend segue **Clean Architecture / DDD**, em camadas (`presentation → application → domain`, com a `infrastructure` implementando as interfaces do domínio). O frontend é uma SPA em React que consome a API REST.
+- **Design patterns aplicados:**
+  - **Repository:** os casos de uso dependem de interfaces (`BookRepository`, `UserRepository`, `BookListRepository`), com implementações em memória e SQLAlchemy.
+  - **Data Mapper:** o `BookMapper` converte entre a entidade de domínio e o modelo do banco, mantendo o domínio livre de ORM.
+  - **Dependency Injection:** o `Depends` do FastAPI injeta repositórios e o usuário logado.
+
+A explicação completa, com diagramas e exemplos de código, está em [**docs/ARQUITETURA.md**](docs/ARQUITETURA.md).
 
 ## 🗺️ Estrutura do repositório
 
@@ -79,7 +87,8 @@ O backend segue **Clean Architecture / DDD**. A explicação completa, com diagr
 │   └── alembic/        # migrations
 ├── frontend/           # React + Vite + Tailwind
 │   └── src/            # pages, components, auth, lib, testes (*.test.ts[x])
-├── docs/               # especificação, arquitetura, modelagem e manual
+├── docs/               # especificação, arquitetura, modelagem, testes e manual
+│   └── pdf/            # versões em PDF para entrega
 └── img/der.png         # Diagrama Entidade-Relacionamento
 ```
 
