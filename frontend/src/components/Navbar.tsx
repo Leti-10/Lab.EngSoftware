@@ -23,6 +23,9 @@ export function Navbar() {
           <NavLink to="/" end className={linkClass}>
             Início
           </NavLink>
+          <NavLink to="/livros" className={linkClass}>
+            Estante
+          </NavLink>
           {user ? (
             <>
               <NavLink to="/livros/novo" className={linkClass}>

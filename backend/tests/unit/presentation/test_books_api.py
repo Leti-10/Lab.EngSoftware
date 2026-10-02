@@ -33,3 +33,20 @@ def test_create_book_with_invalid_isbn_returns_422(client, auth_headers):
     response = client.post("/books", json={**BOOK, "isbn": "123"}, headers=auth_headers)
 
     assert response.status_code == 422
+
+
+def test_list_books_is_public_and_filters(client, auth_headers):
+    client.post("/books", json=BOOK, headers=auth_headers)
+    client.post(
+        "/books",
+        json={**BOOK, "isbn": "9788542603835", "title": "One Piece", "genre": ["Mangá"]},
+        headers=auth_headers,
+    )
+
+    everything = client.get("/books")
+    searched = client.get("/books", params={"q": "casmurro"})
+    by_genre = client.get("/books", params={"genre": "Mangá"})
+
+    assert [b["title"] for b in everything.json()] == ["Dom Casmurro", "One Piece"]
+    assert [b["title"] for b in searched.json()] == ["Dom Casmurro"]
+    assert [b["title"] for b in by_genre.json()] == ["One Piece"]

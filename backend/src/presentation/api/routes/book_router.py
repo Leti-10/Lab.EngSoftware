@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.application.use_cases.book import CreateBookUseCase
+from src.application.use_cases.book import CreateBookUseCase, SearchBooksUseCase
 from src.domain.entities import User
 from src.domain.entities.book import Book
 from src.domain.repositories import BookRepository
@@ -60,3 +60,13 @@ async def create_book(
         ) from error
 
     return to_response(created)
+
+
+@router.get("")
+async def list_books(
+    q: str | None = None,
+    genre: str | None = None,
+    repository: BookRepository = Depends(get_book_m_repository),
+) -> list[BookResponseSchema]:
+    books = await SearchBooksUseCase(repository).execute(query=q, genre=genre)
+    return [to_response(book) for book in books]
