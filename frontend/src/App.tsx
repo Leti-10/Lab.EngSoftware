@@ -3,6 +3,7 @@ import { AuthProvider } from './auth/AuthContext'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { Layout } from './components/Layout'
 import { BookFormPage } from './pages/BookFormPage'
+import { BookDetailPage } from './pages/BookDetailPage'
 import { CatalogPage } from './pages/CatalogPage'
 import { HomePage } from './pages/HomePage'
 import { LoginPage } from './pages/LoginPage'
@@ -19,6 +20,7 @@ export function AppRoutes() {
         <Route element={<ProtectedRoute />}>
           <Route path="livros/novo" element={<BookFormPage />} />
         </Route>
+        <Route path="livros/:id" element={<BookDetailPage />} />
       </Route>
     </Routes>
   )

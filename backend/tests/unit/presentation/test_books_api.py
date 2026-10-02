@@ -50,3 +50,16 @@ def test_list_books_is_public_and_filters(client, auth_headers):
     assert [b["title"] for b in everything.json()] == ["Dom Casmurro", "One Piece"]
     assert [b["title"] for b in searched.json()] == ["Dom Casmurro"]
     assert [b["title"] for b in by_genre.json()] == ["One Piece"]
+
+
+def test_get_book_returns_details(client, auth_headers):
+    created = client.post("/books", json=BOOK, headers=auth_headers).json()
+
+    response = client.get(f"/books/{created['id']}")
+
+    assert response.status_code == 200
+    assert response.json()["isbn"] == BOOK["isbn"]
+
+
+def test_get_unknown_book_returns_404(client):
+    assert client.get("/books/999").status_code == 404
