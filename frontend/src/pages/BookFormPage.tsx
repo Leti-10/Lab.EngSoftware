@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import { KINDS, splitList } from '../lib/books'
 import type { Kind } from '../lib/books'
@@ -9,10 +10,10 @@ import { Alert, Button, Card, Field } from '../components/ui'
 const emptyForm = { title: '', authors: '', isbn: '', publisher: '', genres: '', themes: '' }
 
 export function BookFormPage() {
+  const navigate = useNavigate()
   const [form, setForm] = useState(emptyForm)
   const [kind, setKind] = useState<Kind>('Livro')
   const [error, setError] = useState<string | null>(null)
-  const [created, setCreated] = useState<Book | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const set = (field: keyof typeof emptyForm) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -21,7 +22,6 @@ export function BookFormPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setError(null)
-    setCreated(null)
 
     const payload: BookPayload = {
       isbn: form.isbn.trim(),
@@ -35,9 +35,7 @@ export function BookFormPage() {
     setSubmitting(true)
     try {
       const book = await api<Book>('/books', { method: 'POST', body: JSON.stringify(payload) })
-      setCreated(book)
-      setForm(emptyForm)
-      setKind('Livro')
+      navigate(`/livros/${book.id}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível cadastrar o livro.')
     } finally {
@@ -109,14 +107,6 @@ export function BookFormPage() {
           />
 
           {error && <Alert>{error}</Alert>}
-          {created && (
-            <p
-              role="status"
-              className="rounded-xl bg-blue-warm-50 px-4 py-2.5 text-sm text-blue-warm-700"
-            >
-              “{created.title}” foi adicionado à estante.
-            </p>
-          )}
 
           <Button type="submit" disabled={submitting} className="w-full">
             {submitting ? 'Salvando…' : 'Cadastrar'}

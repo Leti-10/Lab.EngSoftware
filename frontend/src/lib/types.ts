@@ -29,3 +29,12 @@ export interface BookPayload {
   genre: string[]
   theme: string[]
 }
+
+export interface BookList {
+  id: number
+  owner: number
+  name: string
+  description: string
+  private: boolean
+  books: Book[]
+}

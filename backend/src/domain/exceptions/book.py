@@ -18,3 +18,8 @@ class BookAlreadyPublishedError(DomainError):
 class InvalidISBNError(DomainError):
     def __init__(self, isbn: str):
         super().__init__(f"O código ISBN '{isbn}' informado é inválido.")
+
+
+class BookNotFoundError(DomainError):
+    def __init__(self, book_id: int):
+        super().__init__(f"Livro {book_id} não encontrado.")

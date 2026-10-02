@@ -1,9 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.application.use_cases.book import CreateBookUseCase
+from src.application.use_cases.book import (
+    CreateBookUseCase,
+    GetBookUseCase,
+    SearchBooksUseCase,
+)
 from src.domain.entities import User
 from src.domain.entities.book import Book
+from src.domain.exceptions import BookNotFoundError
 from src.domain.repositories import BookRepository
 from src.infrastructure.persistence.database import get_db_context
 from src.infrastructure.persistence.repositories import (
@@ -55,8 +60,30 @@ async def create_book(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT
             if conflict
-            else status.HTTP_422_UNPROCESSABLE_ENTITY,
+            else status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(error),
         ) from error
 
     return to_response(created)
+
+
+@router.get("")
+async def list_books(
+    q: str | None = None,
+    genre: str | None = None,
+    repository: BookRepository = Depends(get_book_m_repository),
+) -> list[BookResponseSchema]:
+    books = await SearchBooksUseCase(repository).execute(query=q, genre=genre)
+    return [to_response(book) for book in books]
+
+
+@router.get("/{book_id}")
+async def get_book(
+    book_id: int,
+    repository: BookRepository = Depends(get_book_m_repository),
+) -> BookResponseSchema:
+    try:
+        book = await GetBookUseCase(repository).execute(book_id)
+    except BookNotFoundError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error.message) from error
+    return to_response(book)

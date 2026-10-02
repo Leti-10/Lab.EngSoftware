@@ -23,8 +23,14 @@ export function Navbar() {
           <NavLink to="/" end className={linkClass}>
             Início
           </NavLink>
+          <NavLink to="/livros" className={linkClass}>
+            Estante
+          </NavLink>
           {user ? (
             <>
+              <NavLink to="/listas" className={linkClass}>
+                Minhas listas
+              </NavLink>
               <NavLink to="/livros/novo" className={linkClass}>
                 Cadastrar obra
               </NavLink>
