@@ -67,7 +67,12 @@ uv run ruff check .      # lint
 
 # Frontend
 cd frontend
+npm test                 # Vitest (unitários e de integração)
+npm run test:coverage    # com relatório de cobertura
+npm run test:watch       # modo observação
 npm run lint             # oxlint
+npm run format:check     # verifica a formatação (Prettier)
+npm run format           # formata o código
 npm run build            # checagem de tipos (tsc) + build de produção
 ```
 

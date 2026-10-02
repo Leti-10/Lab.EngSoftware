@@ -78,7 +78,7 @@ O backend segue **Clean Architecture / DDD**. A explicação completa, com diagr
 │   ├── tests/          # pytest (unitários e de API)
 │   └── alembic/        # migrations
 ├── frontend/           # React + Vite + Tailwind
-│   └── src/            # pages, components, auth, lib
+│   └── src/            # pages, components, auth, lib, testes (*.test.ts[x])
 ├── docs/               # especificação, arquitetura, modelagem e manual
 └── img/der.png         # Diagrama Entidade-Relacionamento
 ```
@@ -105,5 +105,6 @@ Cada funcionalidade nasce em uma branch própria a partir de `develop` e entra p
 - [Especificação (RFs, RNFs, regras e rotas)](docs/ESPECIFICACAO.md)
 - [Arquitetura e design patterns](docs/ARQUITETURA.md)
 - [Modelagem de dados (DER)](docs/MODELAGEM_DADOS.md)
+- [Estratégia de testes](docs/TESTES.md)
 - [Manual de execução](docs/MANUAL_EXECUCAO.md)
 - [README do backend](backend/README.md) · [README do frontend](frontend/README.md)

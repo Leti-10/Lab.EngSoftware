@@ -17,6 +17,11 @@ O backend precisa estar rodando — veja o [Manual de Execução](../docs/MANUAL
 | `npm run dev` | Servidor de desenvolvimento com HMR |
 | `npm run build` | Checagem de tipos (`tsc`) + build de produção |
 | `npm run lint` | Lint com oxlint |
+| `npm test` | Testes unitários e de integração (Vitest) |
+| `npm run test:coverage` | Testes com relatório de cobertura |
+| `npm run test:watch` | Testes em modo observação |
+| `npm run format` | Formata o código com Prettier |
+| `npm run format:check` | Verifica a formatação (usado em CI) |
 
 ## Telas
 
@@ -40,6 +45,19 @@ src/
 ├── auth/         # AuthContext (sessão JWT) e ProtectedRoute
 └── lib/          # Cliente HTTP (api.ts), tipos e helpers
 ```
+
+## Testes
+
+Vitest + Testing Library + MSW. Estratégia completa em [Estratégia de testes](../docs/TESTES.md).
+
+| Tipo | Onde | O que cobre |
+| --- | --- | --- |
+| Unitários | `src/lib/*.test.ts`, `src/components/*.test.tsx` | Cliente HTTP, helpers e componentes de UI |
+| Integração | `src/integration/*.test.tsx` | Fluxos completos de tela contra uma API simulada |
+
+## Formatação
+
+Prettier configurado em `.prettierrc.json` (sem ponto e vírgula, aspas simples, 100 colunas).
 
 ## Tema
 
