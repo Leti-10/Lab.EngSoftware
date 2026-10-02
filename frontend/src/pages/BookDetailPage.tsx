@@ -1,18 +1,60 @@
-import { ArrowLeft, Pencil, Trash2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  Barcode,
+  Bookmark,
+  Building2,
+  Heart,
+  Layers,
+  PenLine,
+  Pencil,
+  Star,
+  Trash2,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { BookCover } from '../components/BookCard'
+import { BookShelf } from '../components/BookShelf'
 import { Alert, Button } from '../components/ui'
 import { ApiError, api } from '../lib/api'
 import { kindOf } from '../lib/books'
 import type { Book } from '../lib/types'
 
-function Chip({ children }: { children: string }) {
+const TABS = ['Detalhes', 'Gêneros', 'Temas'] as const
+type Tab = (typeof TABS)[number]
+
+function MetaPill({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
-    <span className="rounded-full bg-blue-warm-50 px-3 py-1 text-xs text-blue-warm-700">
+    <span className="inline-flex items-center gap-2 rounded-full bg-cream-200/70 px-3 py-1.5 text-xs text-ink">
+      {icon}
       {children}
     </span>
+  )
+}
+
+function SoonAction({ icon, label }: { icon: ReactNode; label: string }) {
+  return (
+    <button
+      type="button"
+      disabled
+      title="Em breve"
+      aria-label={`${label} (em breve)`}
+      className="flex flex-col items-center gap-2 px-2 py-4 text-xs text-ink-soft opacity-70"
+    >
+      {icon}
+      {label}
+    </button>
+  )
+}
+
+function Chip({ children, to }: { children: string; to?: string }) {
+  const className = 'rounded-full bg-blue-warm-50 px-3 py-1.5 text-sm text-blue-warm-700'
+  if (!to) return <span className={className}>{children}</span>
+  return (
+    <Link to={to} className={`${className} transition-colors hover:bg-blue-warm-100`}>
+      {children}
+    </Link>
   )
 }
 
@@ -22,12 +64,18 @@ export function BookDetailPage() {
   const navigate = useNavigate()
   const [book, setBook] = useState<Book | null>(null)
   const [error, setError] = useState<ApiError | null>(null)
+  const [tab, setTab] = useState<Tab>('Detalhes')
+  const [sameAuthor, setSameAuthor] = useState<Book[]>([])
+  const [similar, setSimilar] = useState<Book[]>([])
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
+    setBook(null)
+    setError(null)
+    setTab('Detalhes')
     api<Book>(`/books/${id}`)
       .then((data) => !cancelled && setBook(data))
       .catch((err: ApiError) => !cancelled && setError(err))
@@ -35,6 +83,28 @@ export function BookDetailPage() {
       cancelled = true
     }
   }, [id])
+
+  useEffect(() => {
+    if (!book) return
+    let cancelled = false
+    const others = (books: Book[]) => books.filter((other) => other.id !== book.id)
+    const firstGenre = book.genre.find((genre) => genre !== kindOf(book.genre))
+
+    setSameAuthor([])
+    setSimilar([])
+    api<Book[]>(`/books?q=${encodeURIComponent(book.authors[0])}`)
+      .then((data) => !cancelled && setSameAuthor(others(data)))
+      .catch(() => undefined)
+    if (firstGenre) {
+      api<Book[]>(`/books?genre=${encodeURIComponent(firstGenre)}`)
+        .then((data) => !cancelled && setSimilar(others(data)))
+        .catch(() => undefined)
+    }
+
+    return () => {
+      cancelled = true
+    }
+  }, [book])
 
   async function handleDelete() {
     setDeleteError(null)
@@ -64,7 +134,9 @@ export function BookDetailPage() {
   }
   if (!book) return <p className="text-ink-soft">Carregando…</p>
 
-  const genres = book.genre.filter((g) => g !== kindOf(book.genre))
+  const kind = kindOf(book.genre)
+  const genres = book.genre.filter((genre) => genre !== kind)
+  const authorName = book.authors[0]
 
   return (
     <div>
@@ -76,16 +148,45 @@ export function BookDetailPage() {
         Estante
       </Link>
 
-      <div className="mt-6 grid gap-8 sm:grid-cols-[220px_1fr]">
-        <BookCover book={book} className="w-full max-w-[220px]" />
+      <div className="mt-6 grid gap-8 md:grid-cols-[200px_1fr] lg:grid-cols-[200px_1fr_250px]">
+        <div className="mx-auto w-full max-w-[200px] md:mx-0">
+          <BookCover book={book} className="w-full" />
+          <p className="mt-3 text-center text-xs text-ink-soft">{kind}</p>
+        </div>
 
-        <div>
-          <p className="text-sm font-medium text-blue-warm-600">{kindOf(book.genre)}</p>
-          <h1 className="mt-1 text-3xl font-semibold sm:text-4xl">{book.title}</h1>
-          <p className="mt-2 text-ink-soft">por {book.authors.join(', ')}</p>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h1 className="text-3xl font-semibold sm:text-4xl">{book.title}</h1>
+          </div>
+          <p className="mt-2 text-ink-soft">
+            por{' '}
+            {book.authors.map((author, index) => (
+              <span key={author}>
+                {index > 0 && ', '}
+                <Link
+                  to={`/livros?q=${encodeURIComponent(author)}`}
+                  className="font-medium text-ink underline decoration-blue-warm-100 underline-offset-4 hover:decoration-blue-warm-500"
+                >
+                  {author}
+                </Link>
+              </span>
+            ))}
+          </p>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <MetaPill icon={<Building2 aria-hidden="true" className="size-3.5 text-ink-soft" />}>
+              {book.publisher}
+            </MetaPill>
+            <MetaPill icon={<Barcode aria-hidden="true" className="size-3.5 text-ink-soft" />}>
+              ISBN-13: {book.isbn}
+            </MetaPill>
+            <MetaPill icon={<Layers aria-hidden="true" className="size-3.5 text-ink-soft" />}>
+              {kind}
+            </MetaPill>
+          </div>
 
           {user && (
-            <div className="mt-6 flex flex-wrap items-center gap-2">
+            <div className="mt-5 flex flex-wrap items-center gap-2">
               <Link to={`/livros/${book.id}/editar`}>
                 <Button variant="ghost" className="gap-2">
                   <Pencil aria-hidden="true" className="size-4" />
@@ -130,36 +231,105 @@ export function BookDetailPage() {
               )}
             </div>
           )}
+          <div className="mt-8">
+            <div
+              role="tablist"
+              aria-label="Informações da obra"
+              className="flex gap-6 border-b border-cream-300"
+            >
+              {TABS.map((name) => (
+                <button
+                  key={name}
+                  role="tab"
+                  type="button"
+                  aria-selected={tab === name}
+                  onClick={() => setTab(name)}
+                  className={`-mb-px border-b-2 pb-2 text-xs font-semibold tracking-widest uppercase transition-colors ${
+                    tab === name
+                      ? 'border-blue-warm-600 text-ink'
+                      : 'border-transparent text-blue-warm-600 hover:text-blue-warm-700'
+                  }`}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
 
-          <dl className="mt-8 grid grid-cols-[110px_1fr] gap-y-3 text-sm">
-            <dt className="text-ink-soft">Editora</dt>
-            <dd>{book.publisher}</dd>
-            <dt className="text-ink-soft">ISBN</dt>
-            <dd>{book.isbn}</dd>
-          </dl>
-
-          {genres.length > 0 && (
-            <section className="mt-8">
-              <h2 className="text-sm font-medium text-ink-soft">Gêneros</h2>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {genres.map((genre) => (
-                  <Chip key={genre}>{genre}</Chip>
+            <div role="tabpanel" className="pt-5">
+              {tab === 'Detalhes' && (
+                <dl className="grid grid-cols-[110px_1fr] gap-y-3 text-sm">
+                  <dt className="text-ink-soft">Tipo</dt>
+                  <dd>{kind}</dd>
+                  <dt className="text-ink-soft">Autores</dt>
+                  <dd>{book.authors.join(', ')}</dd>
+                  <dt className="text-ink-soft">Editora</dt>
+                  <dd>{book.publisher}</dd>
+                  <dt className="text-ink-soft">ISBN</dt>
+                  <dd>{book.isbn}</dd>
+                </dl>
+              )}
+              {tab === 'Gêneros' &&
+                (genres.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {genres.map((genre) => (
+                      <Chip key={genre} to={`/livros?genre=${encodeURIComponent(genre)}`}>
+                        {genre}
+                      </Chip>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-ink-soft">Nenhum gênero informado.</p>
                 ))}
-              </div>
-            </section>
-          )}
-
-          {book.theme.length > 0 && (
-            <section className="mt-6">
-              <h2 className="text-sm font-medium text-ink-soft">Temas</h2>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {book.theme.map((theme) => (
-                  <Chip key={theme}>{theme}</Chip>
+              {tab === 'Temas' &&
+                (book.theme.length > 0 ? (
+                  <div className="flex flex-wrap gap-2">
+                    {book.theme.map((theme) => (
+                      <Chip key={theme}>{theme}</Chip>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-ink-soft">Nenhum tema informado.</p>
                 ))}
-              </div>
-            </section>
-          )}
+            </div>
+          </div>
         </div>
+
+        <aside
+          aria-label="Ações da obra"
+          className="h-fit overflow-hidden rounded-2xl border border-cream-300 bg-cream-50 md:col-span-2 lg:col-span-1"
+        >
+          <div className="grid grid-cols-3 divide-x divide-cream-300">
+            <SoonAction
+              icon={<Bookmark aria-hidden="true" className="size-6" />}
+              label="Quero ler"
+            />
+            <SoonAction icon={<Heart aria-hidden="true" className="size-6" />} label="Favoritar" />
+            <SoonAction icon={<PenLine aria-hidden="true" className="size-6" />} label="Resenhar" />
+          </div>
+
+          <div className="border-t border-cream-300 px-4 py-4 text-center">
+            <p className="text-xs text-ink-soft">Avaliação</p>
+            <div aria-hidden="true" className="mt-2 flex justify-center gap-1 text-cream-300">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star key={star} className="size-6 fill-current" />
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-ink-soft">Avaliações e resenhas em breve</p>
+          </div>
+        </aside>
+      </div>
+
+      <div className="mt-12 space-y-6">
+        <BookShelf
+          title={`Mais de ${authorName}`}
+          books={sameAuthor}
+          moreTo={`/livros?q=${encodeURIComponent(authorName)}`}
+        />
+        <BookShelf
+          title="Obras parecidas"
+          books={similar}
+          moreTo={genres[0] ? `/livros?genre=${encodeURIComponent(genres[0])}` : undefined}
+        />
       </div>
     </div>
   )

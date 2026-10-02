@@ -1,6 +1,6 @@
 import { SearchX, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { BookCard } from '../components/BookCard'
 import { Alert } from '../components/ui'
 import { api } from '../lib/api'
@@ -13,19 +13,20 @@ const FILTERS = [
 ]
 
 export function CatalogPage() {
-  const [query, setQuery] = useState('')
-  const [genre, setGenre] = useState('')
+  const [params] = useSearchParams()
+  const [query, setQuery] = useState(params.get('q') ?? '')
+  const [genre, setGenre] = useState(params.get('genre') ?? '')
   const [books, setBooks] = useState<Book[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
     const timer = setTimeout(() => {
-      const params = new URLSearchParams()
-      if (query.trim()) params.set('q', query.trim())
-      if (genre) params.set('genre', genre)
+      const search = new URLSearchParams()
+      if (query.trim()) search.set('q', query.trim())
+      if (genre) search.set('genre', genre)
 
-      api<Book[]>(`/books?${params}`, { signal: controller.signal })
+      api<Book[]>(`/books?${search}`, { signal: controller.signal })
         .then((data) => {
           setBooks(data)
           setError(null)
@@ -79,6 +80,16 @@ export function CatalogPage() {
             {filter.label}
           </button>
         ))}
+        {genre && !FILTERS.some((filter) => filter.genre === genre) && (
+          <button
+            aria-pressed="true"
+            aria-label={`Remover filtro ${genre}`}
+            onClick={() => setGenre('')}
+            className="rounded-full border border-blue-warm-600 bg-blue-warm-600 px-4 py-1.5 text-sm text-cream-50"
+          >
+            {genre} ×
+          </button>
+        )}
       </div>
 
       <div className="mt-8">
