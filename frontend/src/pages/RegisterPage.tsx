@@ -3,6 +3,10 @@ import type { FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { Alert, Button, Card, Field } from '../components/ui'
+import { compact, hasErrors, validateEmail } from '../lib/validation'
+import type { FieldErrors } from '../lib/validation'
+
+type RegisterField = 'username' | 'email' | 'password' | 'confirm'
 
 export function RegisterPage() {
   const { user, register } = useAuth()
@@ -12,23 +16,48 @@ export function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
+  const [errors, setErrors] = useState<FieldErrors<RegisterField>>({})
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   if (user) return <Navigate to="/" replace />
 
+  const clear = (field: RegisterField) =>
+    setErrors((current) => ({ ...current, [field]: undefined }))
+
+  function validate() {
+    let usernameError: string | undefined
+    if (!username.trim()) usernameError = 'Escolha um nome de usuário.'
+    else if (username.trim().length < 3)
+      usernameError = 'O nome de usuário deve ter pelo menos 3 caracteres.'
+
+    let passwordError: string | undefined
+    if (!password) passwordError = 'Crie uma senha.'
+    else if (password.length < 6) passwordError = 'A senha deve ter pelo menos 6 caracteres.'
+
+    let confirmError: string | undefined
+    if (!confirm) confirmError = 'Confirme sua senha.'
+    else if (confirm !== password) confirmError = 'As senhas não conferem.'
+
+    return compact<RegisterField>({
+      username: usernameError,
+      email: validateEmail(email),
+      password: passwordError,
+      confirm: confirmError,
+    })
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setError(null)
 
-    if (password !== confirm) {
-      setError('As senhas não conferem.')
-      return
-    }
+    const found = validate()
+    setErrors(found)
+    if (hasErrors(found)) return
 
     setSubmitting(true)
     try {
-      await register(username, email, password)
+      await register(username.trim(), email.trim(), password)
       navigate('/', { replace: true })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível criar a conta.')
@@ -45,42 +74,55 @@ export function RegisterPage() {
       </p>
 
       <Card className="mt-8">
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
           <Field
             label="Nome de usuário"
             autoComplete="username"
-            required
-            minLength={3}
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => {
+              setUsername(e.target.value)
+              clear('username')
+            }}
+            placeholder="Ex.: leticia"
             hint="Mínimo de 3 caracteres."
+            error={errors.username}
           />
           <Field
             label="E-mail"
             type="email"
             autoComplete="email"
-            required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value)
+              clear('email')
+            }}
             placeholder="voce@email.com"
+            error={errors.email}
           />
           <Field
             label="Senha"
             type="password"
             autoComplete="new-password"
-            required
-            minLength={6}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value)
+              clear('password')
+            }}
+            placeholder="Crie uma senha"
             hint="Mínimo de 6 caracteres."
+            error={errors.password}
           />
           <Field
             label="Confirmar senha"
             type="password"
             autoComplete="new-password"
-            required
             value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
+            onChange={(e) => {
+              setConfirm(e.target.value)
+              clear('confirm')
+            }}
+            placeholder="Repita a senha"
+            error={errors.confirm}
           />
           {error && <Alert>{error}</Alert>}
           <Button type="submit" disabled={submitting} className="w-full">
