@@ -1,4 +1,4 @@
-import type { Book, TokenResponse, User } from '../lib/types'
+import type { Book, BookList, TokenResponse, User } from '../lib/types'
 
 export const API = 'http://localhost:8000'
 
@@ -28,4 +28,13 @@ export const domCasmurro: Book = {
   authors: ['Machado de Assis'],
   genre: ['Romance'],
   theme: [],
+}
+
+export const favoritos: BookList = {
+  id: 1,
+  owner: 1,
+  name: 'Favoritos',
+  description: 'Os que eu mais amo',
+  private: false,
+  books: [],
 }
