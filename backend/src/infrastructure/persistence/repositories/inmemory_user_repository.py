@@ -4,9 +4,12 @@ from src.domain.repositories.user_repository import UserRepository
 
 class InMemoryUserRepository(UserRepository):
     def __init__(self):
-        self.users = []
+        self.users: list[User] = []
+        self._last_id = 0
 
     def save(self, user: User) -> User:
+        self._last_id += 1
+        user.id = self._last_id
         self.users.append(user)
         return user
 

@@ -1,9 +1,18 @@
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `text-sm transition-colors ${isActive ? 'font-medium text-blue-warm-600' : 'text-ink-soft hover:text-ink'}`
 
 export function Navbar() {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  function handleLogout() {
+    logout()
+    navigate('/login')
+  }
+
   return (
     <header className="border-b border-cream-300 bg-cream-50/80 backdrop-blur">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
@@ -14,6 +23,21 @@ export function Navbar() {
           <NavLink to="/" end className={linkClass}>
             Início
           </NavLink>
+          {user ? (
+            <>
+              <span className="hidden text-sm text-ink-soft sm:inline">Olá, {user.username}</span>
+              <button
+                onClick={handleLogout}
+                className="text-sm text-ink-soft transition-colors hover:text-ink"
+              >
+                Sair
+              </button>
+            </>
+          ) : (
+            <NavLink to="/login" className={linkClass}>
+              Entrar
+            </NavLink>
+          )}
         </nav>
       </div>
     </header>
