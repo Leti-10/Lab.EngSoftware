@@ -9,6 +9,8 @@ import { HomePage } from './pages/HomePage'
 import { ListDetailPage } from './pages/ListDetailPage'
 import { ListsPage } from './pages/ListsPage'
 import { LoginPage } from './pages/LoginPage'
+import { NotFoundPage } from './pages/NotFoundPage'
+import { ProfilePage } from './pages/ProfilePage'
 import { RegisterPage } from './pages/RegisterPage'
 
 export function AppRoutes() {
@@ -21,10 +23,13 @@ export function AppRoutes() {
         <Route path="livros" element={<CatalogPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="livros/novo" element={<BookFormPage />} />
+          <Route path="livros/:id/editar" element={<BookFormPage />} />
+          <Route path="perfil" element={<ProfilePage />} />
           <Route path="listas" element={<ListsPage />} />
           <Route path="listas/:id" element={<ListDetailPage />} />
         </Route>
         <Route path="livros/:id" element={<BookDetailPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
   )

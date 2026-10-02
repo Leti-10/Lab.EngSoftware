@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { Alert, Button, Card, Field } from '../components/ui'
+import { compact, hasErrors } from '../lib/validation'
+import type { FieldErrors } from '../lib/validation'
 import { api } from '../lib/api'
 import type { BookList } from '../lib/types'
 
@@ -12,6 +14,7 @@ export function ListsPage() {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [isPrivate, setIsPrivate] = useState(false)
+  const [errors, setErrors] = useState<FieldErrors<'name' | 'description'>>({})
   const [formError, setFormError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
@@ -24,6 +27,18 @@ export function ListsPage() {
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setFormError(null)
+
+    let nameError: string | undefined
+    if (!name.trim()) nameError = 'Dê um nome à lista.'
+    else if (name.trim().length < 3) nameError = 'O nome deve ter pelo menos 3 caracteres.'
+
+    const found = compact<'name' | 'description'>({
+      name: nameError,
+      description: description.trim() ? undefined : 'Escreva uma breve descrição.',
+    })
+    setErrors(found)
+    if (hasErrors(found)) return
+
     setSubmitting(true)
     try {
       const created = await api<BookList>('/lists', {
@@ -77,20 +92,26 @@ export function ListsPage() {
       <aside>
         <Card>
           <h2 className="text-lg font-semibold">Nova lista</h2>
-          <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="mt-4 space-y-4">
             <Field
               label="Nome"
-              required
-              minLength={3}
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value)
+                setErrors((current) => ({ ...current, name: undefined }))
+              }}
               placeholder="Ex.: Para ler nas férias"
+              error={errors.name}
             />
             <Field
               label="Descrição"
-              required
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => {
+                setDescription(e.target.value)
+                setErrors((current) => ({ ...current, description: undefined }))
+              }}
+              placeholder="Ex.: Mangás e HQs para o recesso"
+              error={errors.description}
             />
             <label className="flex items-center gap-2 text-sm text-ink-soft">
               <input

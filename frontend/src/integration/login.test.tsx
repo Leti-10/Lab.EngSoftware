@@ -14,7 +14,7 @@ describe('login', () => {
     await user.type(screen.getByLabelText('Senha'), 'senha123')
     await user.click(screen.getByRole('button', { name: 'Entrar' }))
 
-    expect(await screen.findByText('Olá, ana')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'ana' })).toBeInTheDocument()
     expect(tokenStorage.get()).toBe('token-123')
     expect(await screen.findByRole('heading', { name: /Sua estante/ })).toBeInTheDocument()
   })
@@ -58,7 +58,7 @@ describe('sessão', () => {
     signIn()
     renderApp('/')
 
-    expect(await screen.findByText('Olá, ana')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'ana' })).toBeInTheDocument()
   })
 
   it('descarta um token inválido', async () => {
@@ -78,7 +78,8 @@ describe('sessão', () => {
     signIn()
     const { user } = renderApp('/')
 
-    await user.click(await screen.findByRole('button', { name: 'Sair' }))
+    await user.click(await screen.findByRole('button', { name: 'ana' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Sair' }))
 
     expect(await screen.findByRole('heading', { name: 'Bem-vinda de volta' })).toBeInTheDocument()
     expect(tokenStorage.get()).toBeNull()

@@ -30,7 +30,7 @@ describe('cadastro', () => {
 
     await fillForm(user)
 
-    expect(await screen.findByText('Olá, ana')).toBeInTheDocument()
+    expect(await screen.findByRole('button', { name: 'ana' })).toBeInTheDocument()
     expect(tokenStorage.get()).toBe('token-123')
   })
 
@@ -39,7 +39,7 @@ describe('cadastro', () => {
 
     await fillForm(user, 'outra-senha')
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('As senhas não conferem.')
+    expect(await screen.findByText('As senhas não conferem.')).toBeInTheDocument()
   })
 
   it('mostra erro de e-mail já cadastrado (409)', async () => {

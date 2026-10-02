@@ -1,3 +1,4 @@
+import { SearchX, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BookCard } from '../components/BookCard'
@@ -47,14 +48,20 @@ export function CatalogPage() {
           <h1 className="text-3xl font-semibold">Estante</h1>
           <p className="mt-1 text-sm text-ink-soft">Livros, mangás e quadrinhos cadastrados.</p>
         </div>
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar por título ou autor"
-          aria-label="Buscar por título ou autor"
-          className="w-full rounded-full border border-cream-300 bg-cream-50 px-5 py-2.5 text-sm placeholder:text-ink-soft/60 focus:border-blue-warm-500 focus:outline-none sm:w-72"
-        />
+        <div className="relative w-full sm:w-80">
+          <Search
+            aria-hidden="true"
+            className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-ink-soft"
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar por título ou autor"
+            aria-label="Buscar por título ou autor"
+            className="w-full rounded-full border border-cream-300 bg-cream-50 py-2.5 pr-5 pl-11 text-sm placeholder:text-ink-soft/60 focus:border-blue-warm-500 focus:outline-none"
+          />
+        </div>
       </div>
 
       <div className="mt-6 flex gap-2">
@@ -79,6 +86,7 @@ export function CatalogPage() {
         {!error && books === null && <p className="text-ink-soft">Carregando…</p>}
         {books?.length === 0 && (
           <p className="py-16 text-center text-ink-soft">
+            <SearchX aria-hidden="true" className="mx-auto mb-3 size-8 text-blue-warm-500" />
             Nenhuma obra encontrada.{' '}
             <Link to="/livros/novo" className="font-medium text-blue-warm-600 hover:underline">
               Cadastrar uma obra

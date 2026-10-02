@@ -1,61 +1,82 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { BookOpen, House, Library, Plus } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { UserMenu } from './UserMenu'
 
-const linkClass = ({ isActive }: { isActive: boolean }) =>
-  `text-sm transition-colors ${isActive ? 'font-medium text-blue-warm-600' : 'text-ink-soft hover:text-ink'}`
+function NavItem({ to, icon, children }: { to: string; icon: ReactNode; children: ReactNode }) {
+  return (
+    <NavLink
+      to={to}
+      end={to === '/'}
+      className={({ isActive }) =>
+        `flex items-center gap-2 rounded-full px-3 py-1.5 text-sm transition-colors ${
+          isActive
+            ? 'bg-blue-warm-50 font-medium text-blue-warm-600'
+            : 'text-ink-soft hover:bg-cream-200 hover:text-ink'
+        }`
+      }
+    >
+      {icon}
+      <span className="hidden sm:inline">{children}</span>
+    </NavLink>
+  )
+}
 
 export function Navbar() {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
-
-  function handleLogout() {
-    logout()
-    navigate('/login')
-  }
+  const { user } = useAuth()
 
   return (
-    <header className="border-b border-cream-300 bg-cream-50/80 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-5 py-4">
-        <Link to="/" className="font-serif text-xl font-semibold text-blue-warm-600">
-          Estante
-        </Link>
-        <nav className="flex items-center gap-6">
-          <NavLink to="/" end className={linkClass}>
-            Início
-          </NavLink>
-          <NavLink to="/livros" className={linkClass}>
+    <header className="sticky top-0 z-10 border-b border-cream-300 bg-cream-50/85 backdrop-blur">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3">
+        <div className="flex items-center gap-6">
+          <Link
+            to="/"
+            className="flex items-center gap-2 font-serif text-xl font-semibold text-blue-warm-600"
+          >
+            <BookOpen aria-hidden="true" className="size-6" />
             Estante
-          </NavLink>
+          </Link>
+          <nav aria-label="Principal" className="flex items-center gap-1">
+            <NavItem to="/" icon={<House aria-hidden="true" className="size-4" />}>
+              Início
+            </NavItem>
+            <NavItem to="/livros" icon={<Library aria-hidden="true" className="size-4" />}>
+              Estante
+            </NavItem>
+          </nav>
+        </div>
+
+        <div className="flex items-center gap-2">
           {user ? (
             <>
-              <NavLink to="/listas" className={linkClass}>
-                Minhas listas
-              </NavLink>
-              <NavLink to="/livros/novo" className={linkClass}>
-                Cadastrar obra
-              </NavLink>
-              <span className="hidden text-sm text-ink-soft sm:inline">Olá, {user.username}</span>
-              <button
-                onClick={handleLogout}
-                className="text-sm text-ink-soft transition-colors hover:text-ink"
+              <Link
+                to="/livros/novo"
+                aria-label="Cadastrar obra"
+                className="flex items-center gap-2 rounded-full bg-blue-warm-600 px-4 py-2 text-sm font-medium text-cream-50 transition-colors hover:bg-blue-warm-700"
               >
-                Sair
-              </button>
+                <Plus aria-hidden="true" className="size-4" />
+                <span className="hidden sm:inline">Cadastrar obra</span>
+              </Link>
+              <UserMenu />
             </>
           ) : (
             <>
-              <NavLink to="/login" className={linkClass}>
+              <Link
+                to="/login"
+                className="rounded-full px-4 py-2 text-sm text-ink-soft transition-colors hover:bg-cream-200 hover:text-ink"
+              >
                 Entrar
-              </NavLink>
-              <NavLink
+              </Link>
+              <Link
                 to="/cadastro"
-                className="rounded-full bg-blue-warm-600 px-4 py-1.5 text-sm font-medium text-cream-50 transition-colors hover:bg-blue-warm-700"
+                className="rounded-full bg-blue-warm-600 px-4 py-2 text-sm font-medium text-cream-50 transition-colors hover:bg-blue-warm-700"
               >
                 Cadastrar
-              </NavLink>
+              </Link>
             </>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   )

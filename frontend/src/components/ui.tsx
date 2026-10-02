@@ -21,12 +21,15 @@ export function Button({
 export function Field({
   label,
   hint,
+  error,
   id,
   ...props
-}: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string }) {
+}: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string; error?: string }) {
   const generatedId = useId()
   const inputId = id ?? generatedId
   const hintId = `${inputId}-hint`
+  const errorId = `${inputId}-error`
+  const describedBy = error ? errorId : hint ? hintId : undefined
 
   return (
     <div>
@@ -35,14 +38,25 @@ export function Field({
       </label>
       <input
         id={inputId}
-        aria-describedby={hint ? hintId : undefined}
-        className="w-full rounded-xl border border-cream-300 bg-cream-50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:border-blue-warm-500 focus:outline-none"
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy}
+        className={`w-full rounded-xl border bg-cream-50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none ${
+          error
+            ? 'border-danger focus:border-danger'
+            : 'border-cream-300 focus:border-blue-warm-500'
+        }`}
         {...props}
       />
-      {hint && (
-        <span id={hintId} className="mt-1 block text-xs text-ink-soft">
-          {hint}
+      {error ? (
+        <span id={errorId} className="mt-1 block text-xs text-danger">
+          {error}
         </span>
+      ) : (
+        hint && (
+          <span id={hintId} className="mt-1 block text-xs text-ink-soft">
+            {hint}
+          </span>
+        )
       )}
     </div>
   )

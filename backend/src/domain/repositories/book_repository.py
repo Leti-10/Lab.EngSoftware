@@ -8,6 +8,14 @@ class BookRepository(ABC):
         pass
 
     @abstractmethod
+    async def update(self, book: Book) -> Book:
+        pass
+
+    @abstractmethod
+    async def delete(self, book_id: int) -> bool:
+        pass
+
+    @abstractmethod
     async def get_by_id(self, book_id: int) -> Book | None:
         pass
 

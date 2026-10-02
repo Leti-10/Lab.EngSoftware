@@ -22,7 +22,7 @@ describe('início', () => {
     signIn()
     renderApp('/')
 
-    await screen.findByText('Olá, ana')
+    await screen.findByRole('button', { name: 'ana' })
     expect(screen.queryByRole('link', { name: 'Criar conta' })).toBeNull()
   })
 })
