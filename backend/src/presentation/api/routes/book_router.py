@@ -3,8 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.use_cases.book import (
     CreateBookUseCase,
+    DeleteBookUseCase,
     GetBookUseCase,
     SearchBooksUseCase,
+    UpdateBookUseCase,
 )
 from src.domain.entities import User
 from src.domain.entities.book import Book
@@ -87,3 +89,40 @@ async def get_book(
     except BookNotFoundError as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error.message) from error
     return to_response(book)
+
+
+@router.put("/{book_id}")
+async def update_book(
+    book_id: int,
+    payload: CreateBookSchema,
+    repository: BookRepository = Depends(get_book_m_repository),
+    _current_user: User = Depends(get_current_user),
+) -> BookResponseSchema:
+    try:
+        updated = await UpdateBookUseCase(repository).execute(
+            book_id, Book(**payload.model_dump())
+        )
+    except BookNotFoundError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error.message) from error
+    except ValueError as error:
+        conflict = str(error) == "ISBN já cadastrado"
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT
+            if conflict
+            else status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail=str(error),
+        ) from error
+
+    return to_response(updated)
+
+
+@router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_book(
+    book_id: int,
+    repository: BookRepository = Depends(get_book_m_repository),
+    _current_user: User = Depends(get_current_user),
+) -> None:
+    try:
+        await DeleteBookUseCase(repository).execute(book_id)
+    except BookNotFoundError as error:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error.message) from error
