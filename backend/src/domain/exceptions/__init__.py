@@ -5,6 +5,11 @@ from .book import (
     InvalidISBNError,
 )
 from .book_list import ListNameTooShortError, InvalidListOwnerError
+from .review import (
+    InvalidReviewBookError, 
+    InvalidReviewRatingError, 
+    InvalidReviewUserError,
+)
 
 __all__ = [
     "DomainError",
@@ -13,4 +18,7 @@ __all__ = [
     "InvalidISBNError",
     "ListNameTooShortError",
     "InvalidListOwnerError",
+    "InvalidReviewBookError",
+    "InvalidReviewRatingError",
+    "InvalidReviewUserError",
 ]
