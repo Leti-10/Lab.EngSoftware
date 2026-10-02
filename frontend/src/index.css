@@ -1,13 +1,13 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-cream-50: #fdfaf3;
-  --color-cream-100: #faf5ea;
-  --color-cream-200: #f3ead7;
-  --color-cream-300: #e8dcc2;
+  --color-cream-50: #faf3dc;
+  --color-cream-100: #f3e9cc;
+  --color-cream-200: #eadfba;
+  --color-cream-300: #ddcfa3;
 
   --color-ink: #3a3027;
-  --color-ink-soft: #7a6c5d;
+  --color-ink-soft: #6c5f4f;
 
   --color-blue-warm-50: #eaeff5;
   --color-blue-warm-100: #d5dfec;
