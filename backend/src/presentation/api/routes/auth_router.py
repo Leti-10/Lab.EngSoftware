@@ -45,7 +45,7 @@ def register(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT
             if conflict
-            else status.HTTP_422_UNPROCESSABLE_ENTITY,
+            else status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(error),
         ) from error
 
