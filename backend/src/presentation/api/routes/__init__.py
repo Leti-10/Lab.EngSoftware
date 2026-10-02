@@ -7,6 +7,7 @@ from src.presentation.api.routes import (
     report_router,
     review_router,
     vote_router,
+    catalog_router,
 )
 
 api_router = APIRouter()
@@ -17,3 +18,4 @@ api_router.include_router(review_router.router)
 api_router.include_router(report_router.router)
 api_router.include_router(book_list_router.router)
 api_router.include_router(vote_router.router)
+api_router.include_router(catalog_router.router)

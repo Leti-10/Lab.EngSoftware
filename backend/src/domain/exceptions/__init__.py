@@ -20,6 +20,7 @@ from .review import (
     ReviewAlreadyExistsError,
     ReviewNotFoundError,
 )
+from .catalog import CatalogQueryTooShortError, CatalogUnavailableError
 from .user import InvalidCredentialsError
 from .report import (
     InvalidReportDescriptionError,
@@ -52,6 +53,8 @@ __all__ = [
     "InvalidReviewUserError",
     "ReviewAlreadyExistsError",
     "ReviewNotFoundError",
+    "CatalogQueryTooShortError",
+    "CatalogUnavailableError",
     "InvalidCredentialsError",
     "InvalidReportDescriptionError",
     "InvalidReportTargetError",
