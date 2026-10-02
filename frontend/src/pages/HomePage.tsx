@@ -1,4 +1,10 @@
+import { Link } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
+import { Button } from '../components/ui'
+
 export function HomePage() {
+  const { user } = useAuth()
+
   return (
     <section className="py-12 text-center">
       <h1 className="text-4xl font-semibold text-ink sm:text-5xl">
@@ -8,6 +14,16 @@ export function HomePage() {
         Organize livros, mangás e quadrinhos em um só lugar, monte listas e acompanhe o que você já
         leu.
       </p>
+      <div className="mt-8 flex justify-center gap-3">
+        <Link to="/livros">
+          <Button>Explorar a estante</Button>
+        </Link>
+        {!user && (
+          <Link to="/cadastro">
+            <Button variant="ghost">Criar conta</Button>
+          </Link>
+        )}
+      </div>
     </section>
   )
 }

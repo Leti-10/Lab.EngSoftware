@@ -10,3 +10,31 @@ export interface TokenResponse {
   token_type: string
   user: User
 }
+
+export interface Book {
+  id: number
+  isbn: string
+  title: string
+  publisher: string
+  authors: string[]
+  genre: string[]
+  theme: string[]
+}
+
+export interface BookPayload {
+  isbn: string
+  title: string
+  publisher: string
+  authors: string[]
+  genre: string[]
+  theme: string[]
+}
+
+export interface BookList {
+  id: number
+  owner: number
+  name: string
+  description: string
+  private: boolean
+  books: Book[]
+}

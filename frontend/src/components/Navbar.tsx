@@ -23,8 +23,17 @@ export function Navbar() {
           <NavLink to="/" end className={linkClass}>
             Início
           </NavLink>
+          <NavLink to="/livros" className={linkClass}>
+            Estante
+          </NavLink>
           {user ? (
             <>
+              <NavLink to="/listas" className={linkClass}>
+                Minhas listas
+              </NavLink>
+              <NavLink to="/livros/novo" className={linkClass}>
+                Cadastrar obra
+              </NavLink>
               <span className="hidden text-sm text-ink-soft sm:inline">Olá, {user.username}</span>
               <button
                 onClick={handleLogout}
@@ -34,9 +43,17 @@ export function Navbar() {
               </button>
             </>
           ) : (
-            <NavLink to="/login" className={linkClass}>
-              Entrar
-            </NavLink>
+            <>
+              <NavLink to="/login" className={linkClass}>
+                Entrar
+              </NavLink>
+              <NavLink
+                to="/cadastro"
+                className="rounded-full bg-blue-warm-600 px-4 py-1.5 text-sm font-medium text-cream-50 transition-colors hover:bg-blue-warm-700"
+              >
+                Cadastrar
+              </NavLink>
+            </>
           )}
         </nav>
       </div>
