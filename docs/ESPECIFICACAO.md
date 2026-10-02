@@ -46,10 +46,10 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 | RNF05 | Segurança | CORS restrito às origens do frontend; listas privadas não vazam a própria existência (404) |
 | RNF06 | Arquitetura | Backend em camadas (Clean Architecture/DDD), com regras de negócio independentes de framework |
 | RNF07 | Manutenibilidade | Persistência desacoplada por interfaces de repositório |
-| RNF08 | Testabilidade | Casos de uso e rotas cobertos por testes automatizados com `pytest` e `pytest-asyncio` |
+| RNF08 | Testabilidade | Backend coberto por `pytest` e `pytest-asyncio`; frontend coberto por testes unitários e de integração com Vitest, Testing Library e MSW (veja [Estratégia de testes](TESTES.md)) |
 | RNF09 | Portabilidade | Execução do backend e do banco via Docker Compose |
 | RNF10 | Desempenho | Busca da estante com *debounce* de 250 ms e cancelamento de requisições obsoletas |
-| RNF11 | Qualidade | Lint com `ruff` (backend) e `oxlint` (frontend); TypeScript em modo estrito |
+| RNF11 | Qualidade | Lint com `ruff` (backend) e `oxlint` (frontend); formatação do frontend padronizada com Prettier; TypeScript em modo estrito |
 
 ## Regras de negócio
 
