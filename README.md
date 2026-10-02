@@ -32,9 +32,8 @@ Projeto da disciplina **Laboratório de Engenharia de Software** · Fatec São J
 | 🧺 **Minhas listas** | `/listas` | Cria listas (públicas ou privadas) e vê todas as suas *(requer login)* |
 | 📑 **Detalhe da lista** | `/listas/:id` | Obras da lista e adição de novas obras *(requer login)* |
 
-> 🎨 **Visual:** minimalista, inspirado no Skoob — fundo creme (`#FAF5EA`), azul de tom quente (`#3A5F8A`), títulos em *Lora* e texto em *Inter*.
 
-## 🚀 Começando rápido
+## Começando rápido
 
 Você precisa de **Python 3.14 + [uv](https://docs.astral.sh/uv/)** e **Node 22+**.
 
@@ -56,7 +55,7 @@ npm run dev
 
 Pronto: crie uma conta em `/cadastro` e cadastre sua primeira obra. Mais detalhes (Docker, migrations, testes) no [**Manual de Execução**](docs/MANUAL_EXECUCAO.md).
 
-## 🧱 Como tudo se conecta
+## Como tudo se conecta
 
 ```mermaid
 flowchart LR
@@ -77,7 +76,7 @@ flowchart LR
 
 A explicação completa, com diagramas e exemplos de código, está em [**docs/ARQUITETURA.md**](docs/ARQUITETURA.md).
 
-## 🗺️ Estrutura do repositório
+## Estrutura do repositório
 
 ```text
 .
@@ -96,9 +95,9 @@ A explicação completa, com diagramas e exemplos de código, está em [**docs/A
 
 | Entregável | Situação | Onde |
 | --- | --- | --- |
-| **Backend Python** (FastAPI, REST limpa e tratada) | ✅ | [`backend/`](backend/) · erros mapeados para 401/403/404/409/422 |
+| **Backend Python** (FastAPI, REST limpa e tratada) | 🟡 | [`backend/`](backend/) · erros mapeados para 401/403/404/409/422 |
 | **Design Patterns** (mínimo de 2) | ✅ Repository, Data Mapper, Dependency Injection | [Arquitetura](docs/ARQUITETURA.md#design-patterns) |
-| **Frontend React** (TypeScript) | ✅ | [`frontend/`](frontend/) |
+| **Frontend React** (TypeScript) | 🟡 | [`frontend/`](frontend/) |
 | **Repositório Git** (commits, branches, PRs, README) | ✅ branches por funcionalidade + Conventional Commits | este repositório |
 | **Banco relacional** (PostgreSQL, sem SQLite) | 🟡 PostgreSQL configurado; persistência da API ainda em transição | [Pendências](docs/MANUAL_EXECUCAO.md#pendencias-conhecidas) |
 | **Modelagem de dados** (DER) | ✅ | [Modelagem](docs/MODELAGEM_DADOS.md) · [`img/der.png`](img/der.png) |
