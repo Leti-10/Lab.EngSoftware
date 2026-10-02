@@ -5,7 +5,13 @@ from .book import (
     BookNotFoundError,
     InvalidISBNError,
 )
-from .book_list import ListNameTooShortError, InvalidListOwnerError
+from .book_list import (
+    BookAlreadyInListError,
+    BookListForbiddenError,
+    BookListNotFoundError,
+    ListNameTooShortError,
+    InvalidListOwnerError,
+)
 from .user import InvalidCredentialsError
 
 __all__ = [
@@ -14,6 +20,9 @@ __all__ = [
     "BookAlreadyPublishedError",
     "BookNotFoundError",
     "InvalidISBNError",
+    "BookAlreadyInListError",
+    "BookListForbiddenError",
+    "BookListNotFoundError",
     "ListNameTooShortError",
     "InvalidListOwnerError",
     "InvalidCredentialsError",

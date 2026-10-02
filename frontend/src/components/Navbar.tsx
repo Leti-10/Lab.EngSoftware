@@ -28,6 +28,9 @@ export function Navbar() {
           </NavLink>
           {user ? (
             <>
+              <NavLink to="/listas" className={linkClass}>
+                Minhas listas
+              </NavLink>
               <NavLink to="/livros/novo" className={linkClass}>
                 Cadastrar obra
               </NavLink>
