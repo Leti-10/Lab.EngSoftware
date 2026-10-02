@@ -5,16 +5,6 @@ import { renderApp } from '../test/render'
 import { server } from '../test/server'
 
 describe('estante (catálogo)', () => {
-  it('cada obra aponta para o seu detalhe', async () => {
-    server.use(http.get(`${API}/books`, () => HttpResponse.json([onePiece])))
-    renderApp('/livros')
-
-    expect(await screen.findByRole('link', { name: /One Piece/ })).toHaveAttribute(
-      'href',
-      '/livros/1',
-    )
-  })
-
   it('lista as obras cadastradas', async () => {
     server.use(http.get(`${API}/books`, () => HttpResponse.json([onePiece, domCasmurro])))
     renderApp('/livros')
@@ -81,5 +71,17 @@ describe('estante (catálogo)', () => {
     renderApp('/livros')
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Falhou')
+  })
+
+  it('abre o detalhe ao clicar em uma obra', async () => {
+    server.use(
+      http.get(`${API}/books`, () => HttpResponse.json([onePiece])),
+      http.get(`${API}/books/1`, () => HttpResponse.json(onePiece)),
+    )
+    const { user } = renderApp('/livros')
+
+    await user.click(await screen.findByRole('link', { name: /One Piece/ }))
+
+    expect(await screen.findByRole('heading', { name: 'One Piece, Vol. 1' })).toBeInTheDocument()
   })
 })

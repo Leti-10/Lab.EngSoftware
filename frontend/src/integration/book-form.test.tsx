@@ -1,6 +1,6 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
-import { API, onePiece } from '../test/fixtures'
+import { API, domCasmurro, onePiece } from '../test/fixtures'
 import { renderApp, signIn } from '../test/render'
 import { server } from '../test/server'
 
@@ -20,13 +20,14 @@ describe('cadastrar obra', () => {
     expect(await screen.findByRole('heading', { name: 'Bem-vinda de volta' })).toBeInTheDocument()
   })
 
-  it('envia o payload correto (tipo Mangá entra nos gêneros) e confirma o cadastro', async () => {
+  it('envia o payload correto (tipo Mangá entra nos gêneros) e abre o detalhe', async () => {
     let body: unknown
     server.use(
       http.post(`${API}/books`, async ({ request }) => {
         body = await request.json()
         return HttpResponse.json(onePiece, { status: 201 })
       }),
+      http.get(`${API}/books/1`, () => HttpResponse.json(onePiece)),
     )
     signIn()
     const { user } = renderApp('/livros/novo')
@@ -36,7 +37,7 @@ describe('cadastrar obra', () => {
     await fill(user)
     await user.click(screen.getByRole('button', { name: 'Cadastrar' }))
 
-    expect(await screen.findByRole('status')).toHaveTextContent('foi adicionado à estante')
+    expect(await screen.findByRole('heading', { name: 'One Piece, Vol. 1' })).toBeInTheDocument()
     expect(body).toEqual({
       isbn: '9788542603835',
       title: 'One Piece, Vol. 1',
@@ -45,7 +46,25 @@ describe('cadastrar obra', () => {
       genre: ['Mangá', 'Aventura', 'Shounen'],
       theme: ['Amizade'],
     })
-    expect(screen.getByLabelText('Título')).toHaveValue('')
+  })
+
+  it('tipo Livro não adiciona gênero extra', async () => {
+    let body: { genre: string[] } | undefined
+    server.use(
+      http.post(`${API}/books`, async ({ request }) => {
+        body = (await request.json()) as { genre: string[] }
+        return HttpResponse.json(domCasmurro, { status: 201 })
+      }),
+      http.get(`${API}/books/2`, () => HttpResponse.json(domCasmurro)),
+    )
+    signIn()
+    const { user } = renderApp('/livros/novo')
+    await screen.findByRole('heading', { name: 'Cadastrar obra' })
+
+    await fill(user)
+    await user.click(screen.getByRole('button', { name: 'Cadastrar' }))
+
+    await waitFor(() => expect(body?.genre).toEqual(['Aventura', 'Shounen']))
   })
 
   it('mostra erro de ISBN duplicado e mantém o formulário preenchido', async () => {
@@ -69,15 +88,22 @@ describe('cadastrar obra', () => {
     signIn()
     const { user } = renderApp('/livros/novo')
     await screen.findByRole('heading', { name: 'Cadastrar obra' })
+    const group = screen.getByRole('group', { name: 'Tipo' })
 
-    expect(screen.getByRole('button', { name: 'Livro' })).toHaveAttribute('aria-pressed', 'true')
-
-    await user.click(screen.getByRole('button', { name: 'Quadrinhos' }))
-
-    expect(screen.getByRole('button', { name: 'Quadrinhos' })).toHaveAttribute(
+    expect(within(group).getByRole('button', { name: 'Livro' })).toHaveAttribute(
       'aria-pressed',
       'true',
     )
-    expect(screen.getByRole('button', { name: 'Livro' })).toHaveAttribute('aria-pressed', 'false')
+
+    await user.click(within(group).getByRole('button', { name: 'Quadrinhos' }))
+
+    expect(within(group).getByRole('button', { name: 'Quadrinhos' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(within(group).getByRole('button', { name: 'Livro' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    )
   })
 })
