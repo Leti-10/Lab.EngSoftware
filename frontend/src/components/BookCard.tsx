@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { kindOf } from '../lib/books'
 import type { Book } from '../lib/types'
@@ -9,15 +10,30 @@ const TINTS = [
   'bg-cream-200 text-blue-warm-700',
 ]
 
+export function coverUrl(isbn: string) {
+  return `https://covers.openlibrary.org/b/isbn/${encodeURIComponent(isbn)}-M.jpg?default=false`
+}
+
 export function BookCover({ book, className = '' }: { book: Book; className?: string }) {
+  const [failed, setFailed] = useState(false)
+
   return (
     <div
-      className={`flex aspect-[2/3] items-end rounded-md p-3 shadow-sm ${TINTS[book.id % TINTS.length]} ${className}`}
+      className={`relative flex aspect-[2/3] items-end overflow-hidden rounded-md p-3 shadow-sm ${TINTS[book.id % TINTS.length]} ${className}`}
       aria-hidden="true"
     >
       <span className="line-clamp-4 font-serif text-sm leading-snug font-semibold">
         {book.title}
       </span>
+      {!failed && (
+        <img
+          src={coverUrl(book.isbn)}
+          alt=""
+          loading="lazy"
+          onError={() => setFailed(true)}
+          className="absolute inset-0 size-full object-cover"
+        />
+      )}
     </div>
   )
 }
