@@ -49,9 +49,16 @@ npm run test:coverage    # relatório de cobertura
 | `src/lib/books.test.ts` | Unitário | `kindOf` (tipo da obra) e `splitList` |
 | `src/components/ui.test.tsx` | Unitário | `Button`, `Field` (rótulo e dica acessíveis), `Card`, `Alert` |
 | `src/components/BookCard.test.tsx` | Unitário | Card e capa da obra |
-| `src/integration/auth.test.tsx` | Integração | Login, cadastro, sessão, logout e rotas protegidas |
-| `src/integration/books.test.tsx` | Integração | Estante (busca e filtro), detalhe da obra e cadastro de obra |
+| `src/auth/ProtectedRoute.test.tsx` | Unitário | Redirecionamento de visitantes, conteúdo para logados e estado de carregamento |
+| `src/integration/home.test.tsx` | Integração | Chamada principal, links da home e navbar |
+| `src/integration/login.test.tsx` | Integração | Login, corpo enviado, erro 401, restauração de sessão, token inválido e logout |
+| `src/integration/register.test.tsx` | Integração | Cadastro, senhas diferentes (sem chamar a API), e-mail duplicado e link vindo do login |
+| `src/integration/book-form.test.tsx` | Integração | Cadastro de obra: payload, tipo, ISBN duplicado, redirecionamento ao detalhe e rota protegida |
+| `src/integration/catalog.test.tsx` | Integração | Estante: listagem, estado vazio, busca com debounce, filtro, erro de API e navegação ao detalhe |
+| `src/integration/book-detail.test.tsx` | Integração | Detalhe da obra: dados, gêneros, temas e 404 |
 | `src/integration/lists.test.tsx` | Integração | Minhas listas e detalhe da lista |
+
+Cada branch de tela traz os testes da própria tela, e cada commit deixa `npm test`, `npm run build` e `npm run format:check` passando.
 
 ### Como a API é simulada
 
