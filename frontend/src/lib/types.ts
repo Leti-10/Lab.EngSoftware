@@ -65,3 +65,12 @@ export interface Vote {
   target_id: number
   user_id: number
 }
+
+export interface CatalogBook {
+  isbn: string
+  title: string
+  authors: string[]
+  publisher: string
+  genres: string[]
+  cover_url: string | null
+}

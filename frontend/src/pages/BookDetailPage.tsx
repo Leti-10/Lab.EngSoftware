@@ -62,6 +62,11 @@ function Chip({ children, to }: { children: string; to?: string }) {
 
 export function BookDetailPage() {
   const { id } = useParams()
+
+  return <BookDetail key={id} id={id} />
+}
+
+function BookDetail({ id }: { id?: string }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [book, setBook] = useState<Book | null>(null)
@@ -76,9 +81,6 @@ export function BookDetailPage() {
 
   useEffect(() => {
     let cancelled = false
-    setBook(null)
-    setError(null)
-    setTab('Detalhes')
     api<Book>(`/books/${id}`)
       .then((data) => !cancelled && setBook(data))
       .catch((err: ApiError) => !cancelled && setError(err))
@@ -93,9 +95,6 @@ export function BookDetailPage() {
     const others = (books: Book[]) => books.filter((other) => other.id !== book.id)
     const firstGenre = book.genre.find((genre) => genre !== kindOf(book.genre))
 
-    setSameAuthor([])
-    setSimilar([])
-    setReviews([])
     api<Review[]>(`/reviews?book_id=${book.id}`)
       .then((data) => !cancelled && setReviews(data))
       .catch(() => undefined)
