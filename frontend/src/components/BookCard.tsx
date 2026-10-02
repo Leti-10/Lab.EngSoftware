@@ -4,7 +4,7 @@ import { kindOf } from '../lib/books'
 import type { Book } from '../lib/types'
 
 const TINTS = [
-  'bg-blue-warm-100 text-blue-warm-700',
+  'bg-[#cfd8e0] text-blue-warm-700',
   'bg-cream-300 text-ink',
   'bg-blue-warm-500 text-cream-50',
   'bg-cream-200 text-blue-warm-700',
