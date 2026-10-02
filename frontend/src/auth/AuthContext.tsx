@@ -7,6 +7,7 @@ interface AuthContextValue {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
+  register: (username: string, email: string, password: string) => Promise<void>
   logout: () => void
 }
 
@@ -24,21 +25,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false))
   }, [])
 
-  const login = useCallback(async (email: string, password: string) => {
-    const data = await api<TokenResponse>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    })
+  const authenticate = useCallback(async (path: string, body: object) => {
+    const data = await api<TokenResponse>(path, { method: 'POST', body: JSON.stringify(body) })
     tokenStorage.set(data.access_token)
     setUser(data.user)
   }, [])
+
+  const login = useCallback(
+    (email: string, password: string) => authenticate('/auth/login', { email, password }),
+    [authenticate],
+  )
+
+  const register = useCallback(
+    (username: string, email: string, password: string) =>
+      authenticate('/auth/register', { username, email, password }),
+    [authenticate],
+  )
 
   const logout = useCallback(() => {
     tokenStorage.clear()
     setUser(null)
   }, [])
 
-  const value = useMemo(() => ({ user, loading, login, logout }), [user, loading, login, logout])
+  const value = useMemo(
+    () => ({ user, loading, login, register, logout }),
+    [user, loading, login, register, logout],
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

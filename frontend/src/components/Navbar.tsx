@@ -34,9 +34,17 @@ export function Navbar() {
               </button>
             </>
           ) : (
-            <NavLink to="/login" className={linkClass}>
-              Entrar
-            </NavLink>
+            <>
+              <NavLink to="/login" className={linkClass}>
+                Entrar
+              </NavLink>
+              <NavLink
+                to="/cadastro"
+                className="rounded-full bg-blue-warm-600 px-4 py-1.5 text-sm font-medium text-cream-50 transition-colors hover:bg-blue-warm-700"
+              >
+                Cadastrar
+              </NavLink>
+            </>
           )}
         </nav>
       </div>
