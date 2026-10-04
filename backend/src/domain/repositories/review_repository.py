@@ -16,8 +16,8 @@ class ReviewRepository(ABC):
     async def find_by_filter(
         self,
         rating: int | None = None,
-        user_id: int | None = None,
-        book_id: int | None = None,
+        username: str | None = None,
+        book_title: str | None = None,
         comment: str | None = None,
     ) -> list[Review]:
         pass
