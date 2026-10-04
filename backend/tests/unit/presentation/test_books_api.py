@@ -63,3 +63,54 @@ def test_get_book_returns_details(client, auth_headers):
 
 def test_get_unknown_book_returns_404(client):
     assert client.get("/books/999").status_code == 404
+
+
+def test_update_book(client, auth_headers):
+    created = client.post("/books", json=BOOK, headers=auth_headers).json()
+
+    response = client.put(
+        f"/books/{created['id']}", json={**BOOK, "title": "Novo título"}, headers=auth_headers
+    )
+
+    assert response.status_code == 200
+    assert response.json()["title"] == "Novo título"
+    assert client.get(f"/books/{created['id']}").json()["title"] == "Novo título"
+
+
+def test_update_requires_login(client, auth_headers):
+    created = client.post("/books", json=BOOK, headers=auth_headers).json()
+
+    assert client.put(f"/books/{created['id']}", json=BOOK).status_code == 401
+
+
+def test_update_with_isbn_of_another_book_returns_409(client, auth_headers):
+    client.post("/books", json=BOOK, headers=auth_headers)
+    other_isbn = {**BOOK, "isbn": "9788542603835"}
+    other = client.post("/books", json=other_isbn, headers=auth_headers).json()
+
+    response = client.put(f"/books/{other['id']}", json=BOOK, headers=auth_headers)
+
+    assert response.status_code == 409
+
+
+def test_update_unknown_book_returns_404(client, auth_headers):
+    assert client.put("/books/99", json=BOOK, headers=auth_headers).status_code == 404
+
+
+def test_delete_book(client, auth_headers):
+    created = client.post("/books", json=BOOK, headers=auth_headers).json()
+
+    response = client.delete(f"/books/{created['id']}", headers=auth_headers)
+
+    assert response.status_code == 204
+    assert client.get(f"/books/{created['id']}").status_code == 404
+
+
+def test_delete_requires_login(client, auth_headers):
+    created = client.post("/books", json=BOOK, headers=auth_headers).json()
+
+    assert client.delete(f"/books/{created['id']}").status_code == 401
+
+
+def test_delete_unknown_book_returns_404(client, auth_headers):
+    assert client.delete("/books/99", headers=auth_headers).status_code == 404

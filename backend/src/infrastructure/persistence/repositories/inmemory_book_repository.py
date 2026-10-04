@@ -14,6 +14,13 @@ class InMemoryBookRepository(BookRepository):
         self.id += 1
         return book
 
+    async def update(self, book: Book) -> Book:
+        self.books[book.id] = book
+        return book
+
+    async def delete(self, book_id: int) -> bool:
+        return self.books.pop(book_id, None) is not None
+
     async def get_by_id(self, book_id: int) -> Book | None:
         return self.books.get(book_id)
 
