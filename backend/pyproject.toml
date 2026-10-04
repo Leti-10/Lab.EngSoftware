@@ -1,0 +1,48 @@
+[project]
+name = "entregas-lab-engsoftware"
+version = "0.1.0"
+description = "Backend do projeto BookStore"
+readme = "README.md"
+authors = [
+    { name = "Wesley Xavier", email = "wesley.xvier@gmail.com" },
+    { name = "Fabio Nawa", email = "" },
+]
+requires-python = ">=3.14"
+dependencies = [
+    "aiosqlite>=0.22.1",
+    "alembic>=1.19.1",
+    "asyncpg>=0.31.0",
+    "bcrypt>=5.0.0",
+    "fastapi[standard]>=0.141.1",
+    "httpx2>=2.12.0",
+    "psycopg[binary]>=3.3.6",
+    "pwdlib[argon2]>=0.3.1",
+    "pyjwt>=2.13.0",
+    "pytest-asyncio>=1.4.0",
+    "sqlalchemy>=2.0.52",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+package = false
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "DTZ"]
+ignore = ["B008"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "ruff>=0.16.6",
+]
+
+[tool.pytest]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+minversion = "9.0"
+addopts = ["-ra"]
+pythonpath = ["."]

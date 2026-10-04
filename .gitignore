@@ -1,0 +1,7 @@
+**/*venv/
+**/.vscode/
+**/.ruff_cache/
+**/.pytest_cache/
+**/node_modules/
+**/__pycache__/
+*.db
