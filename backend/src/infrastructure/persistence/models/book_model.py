@@ -1,9 +1,7 @@
-from sqlalchemy.orm import mapped_column, Mapped, DeclarativeBase, relationship
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import Column, ForeignKey, Table
 
-
-class Base(DeclarativeBase):
-    pass
+from src.infrastructure.persistence.models.base import Base
 
 
 book_author_association = Table(
