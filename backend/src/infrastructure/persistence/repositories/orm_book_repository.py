@@ -28,6 +28,9 @@ class SQLAlchemyRepository(BookRepository):
             book.id,
             options=[selectinload(BookModelSQLAlchemy.authors)],
         )
+        if model is None:
+            raise ValueError(f"Book with id {book.id} not found.")
+
         updated = BookMapper.to_sqlalchemy(book)
         model.isbn = updated.isbn
         model.title = updated.title

@@ -17,7 +17,9 @@ class TokenService:
     @staticmethod
     def decode_user_id(token: str) -> int | None:
         try:
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+            payload = jwt.decode(
+                token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+            )
             return int(payload["sub"])
-        except (jwt.PyJWTError, KeyError, ValueError):
+        except jwt.PyJWTError, KeyError, ValueError:
             return None

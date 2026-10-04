@@ -5,7 +5,7 @@ from src.domain.entities import Review
 
 class ReviewRepository(ABC):
     @abstractmethod
-    async def save(self, review: Review) -> Review:
+    async def save(self, review: Review) -> Review | None:
         pass
 
     @abstractmethod
@@ -19,5 +19,5 @@ class ReviewRepository(ABC):
         username: str | None = None,
         book_title: str | None = None,
         comment: str | None = None,
-    ) -> list[Review]:
+    ) -> list[Review | None]:
         pass

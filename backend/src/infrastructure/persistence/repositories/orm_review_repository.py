@@ -16,22 +16,28 @@ class SQLAlchemyReviewRepository(ReviewRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def save(self, review: Review) -> Review:
-        model = ReviewMapper.to_sqlalchemy(review)
-        self.session.add(model)
+    async def save(self, review: Review) -> Review | None:
         try:
+            model = ReviewMapper.to_sqlalchemy(review)
+            self.session.add(model)
             await self.session.commit()
+            await self.session.refresh(model)
+            if model is None:
+                raise ValueError(
+                    "Failed to save the review. The model is None."
+                )  # TODO: Handle correctly the case when the model is None
+            return ReviewMapper.to_domain(model)
         except IntegrityError:
             await self.session.rollback()
             raise
-        await self.session.refresh(model)
-        return ReviewMapper.to_domain(model)
 
     async def get_by_id(self, review_id: int) -> Review | None:
         result = await self.session.execute(
             select(ReviewModelSQLAlchemy).where(ReviewModelSQLAlchemy.id == review_id)
         )
         model = result.scalar_one_or_none()
+        if model is None:
+            return None
         return ReviewMapper.to_domain(model)
 
     async def find_by_filter(
@@ -40,7 +46,7 @@ class SQLAlchemyReviewRepository(ReviewRepository):
         username: str | None = None,
         book_title: str | None = None,
         comment: str | None = None,
-    ) -> list[Review]:
+    ) -> list[Review | None]:
         query = select(ReviewModelSQLAlchemy)
         if rating is not None:
             query = query.where(ReviewModelSQLAlchemy.rating == rating)

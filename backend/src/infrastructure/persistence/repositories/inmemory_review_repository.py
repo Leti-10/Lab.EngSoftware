@@ -29,7 +29,7 @@ class InMemoryReviewRepository(ReviewRepository):
         username: str | None = None,
         book_title: str | None = None,
         comment: str | None = None,
-    ) -> list[Review]:
+    ) -> list[Review | None]:
         results = []
         for review in self.reviews.values():
             if rating is not None and review.rating != rating:
