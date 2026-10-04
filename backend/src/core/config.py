@@ -4,8 +4,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    # Application settings
     APP_NAME: str = "Minha API"
+    ALGORITHM: str = "HS256"
+    SECRET_KEY: str = "your-secret-key"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    SEED_CATALOG: bool = True
 
+    # Database settings
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
     DB_USER: str = "postgres"
