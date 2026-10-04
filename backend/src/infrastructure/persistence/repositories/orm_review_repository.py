@@ -1,10 +1,15 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 
 from src.domain.entities import Review
 from src.domain.repositories import ReviewRepository
 from src.infrastructure.persistence.mappers import ReviewMapper
-from src.infrastructure.persistence.models import ReviewModelSQLAlchemy
+from src.infrastructure.persistence.models import (
+    BookModelSQLAlchemy,
+    ReviewModelSQLAlchemy,
+    UserModelSQLAlchemy,
+)
 
 
 class SQLAlchemyReviewRepository(ReviewRepository):
@@ -14,7 +19,11 @@ class SQLAlchemyReviewRepository(ReviewRepository):
     async def save(self, review: Review) -> Review:
         model = ReviewMapper.to_sqlalchemy(review)
         self.session.add(model)
-        await self.session.commit()
+        try:
+            await self.session.commit()
+        except IntegrityError:
+            await self.session.rollback()
+            raise
         await self.session.refresh(model)
         return ReviewMapper.to_domain(model)
 
@@ -28,17 +37,25 @@ class SQLAlchemyReviewRepository(ReviewRepository):
     async def find_by_filter(
         self,
         rating: int | None = None,
-        user_id: int | None = None,
-        book_id: int | None = None,
+        username: str | None = None,
+        book_title: str | None = None,
         comment: str | None = None,
     ) -> list[Review]:
         query = select(ReviewModelSQLAlchemy)
         if rating is not None:
             query = query.where(ReviewModelSQLAlchemy.rating == rating)
-        if user_id is not None:
-            query = query.where(ReviewModelSQLAlchemy.user_id == user_id)
-        if book_id is not None:
-            query = query.where(ReviewModelSQLAlchemy.book_id == book_id)
+        if username:
+            query = query.where(
+                ReviewModelSQLAlchemy.user.has(
+                    UserModelSQLAlchemy.username.ilike(f"%{username}%")
+                )
+            )
+        if book_title:
+            query = query.where(
+                ReviewModelSQLAlchemy.book.has(
+                    BookModelSQLAlchemy.title.ilike(f"%{book_title}%")
+                )
+            )
         if comment:
             query = query.where(ReviewModelSQLAlchemy.comment.ilike(f"%{comment}%"))
 
