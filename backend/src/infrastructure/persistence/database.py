@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from src.core.config import settings
 
 async_engine = create_async_engine(
-    url="sqlite+aiosqlite:///esperimento_x.db",
+    url=settings.database_url,
     echo=True,
 )
 AsyncSessionLocal = async_sessionmaker(bind=async_engine, expire_on_commit=False)

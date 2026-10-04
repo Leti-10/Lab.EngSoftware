@@ -46,22 +46,45 @@ flowchart TB
 
 ## Camadas do backend
 
-A regra de dependência aponta sempre **para dentro**: `presentation → application → domain`, e a `infrastructure` implementa as interfaces definidas no `domain`.
+A regra de dependência aponta sempre **para o núcleo**: `presentation → application → domain`, com `infrastructure` implementando as interfaces do `domain`.
 
 ```text
 backend/src/
-├── domain/            # Núcleo: entidades (Book, BookList, User), exceções e interfaces de repositório
-├── application/       # Casos de uso (CreateBook, SearchBooks, AuthenticateUser, AddBookToList…)
-├── infrastructure/    # Repositórios (memória e SQLAlchemy), mappers, hash de senha, JWT
-├── presentation/      # FastAPI: routers, schemas Pydantic, dependências (usuário logado)
-└── core/              # Configurações lidas do ambiente
+├── alembic
+│   └── versions                # Migrations da evolução do banco de dados
+├── src
+│   ├── application             # Casos de uso de cada entidade (CreateBook, SearchBooks, AuthenticateUser, ...)
+│   │   └── use_cases
+│   │       ├── book
+│   │       ├── book_list
+│   │       ├── review
+│   │       └── user
+│   ├── core                    # Configurações centralizadas para toda aplicação
+│   ├── domain                  # Núcleo da aplicação
+│   │   ├── entities            # Entidades puras mapeadas com dataclass
+│   │   ├── exceptions          # Exceptions personalizadas para os casos de uso
+│   │   └── repositories        # Implementação do respository pattern como classes abstratas
+│   ├── infrastructure          # Implementações concretas
+│   │   ├── persistence         # Elementos de persistência
+│   │   │   ├── mappers         # Mapeamento de entidades puras para implementações concretas
+│   │   │   ├── models          # Modelos do SQLAlchemy pra implementação concreta das entidades
+│   │   │   └── repositories    # Implementação concreta dos repositories com SQLAlchemy
+│   │   ├── security            # Configurações de segurança como criptografia e jwt
+│   │   └── seed                # Alimentação inicial dos dados para testes
+│   └── presentation            # Camada de apresentação
+│       └── api                 # FastAPI
+│           ├── routes          # Implementação de rotas
+│           └── schemas         # Schemas pydantic para validação de entrada/saída
+└── tests
+    └── unit                    # Testes unitários usados no TDD
+        ├── [...]
 ```
 
 | Camada | Conhece | Responsabilidade |
 | --- | --- | --- |
 | `domain` | Nada externo | Regras e invariantes (ex.: ISBN ≥ 10 caracteres) |
 | `application` | `domain` | Orquestra uma ação do usuário (ex.: impedir ISBN duplicado) |
-| `infrastructure` | `domain` | Detalhes técnicos: banco, bcrypt, JWT |
+| `infrastructure` | `domain` | Implementações concretas: banco, bcrypt, JWT |
 | `presentation` | `application`, `domain` | HTTP: valida entrada, chama o caso de uso, traduz erros em status |
 
 ## Design Patterns

@@ -15,11 +15,17 @@ class InMemoryBookRepository(BookRepository):
         return book
 
     async def update(self, book: Book) -> Book:
+        if book.id is None or book.id not in self.books:
+            raise ValueError(f"Book with id {book.id} not found.")
+        
         self.books[book.id] = book
         return book
 
     async def delete(self, book_id: int) -> bool:
-        return self.books.pop(book_id, None) is not None
+        if book_id in self.books:
+            del self.books[book_id]
+            return True
+        return False
 
     async def get_by_id(self, book_id: int) -> Book | None:
         return self.books.get(book_id)

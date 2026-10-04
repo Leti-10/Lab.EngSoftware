@@ -10,6 +10,7 @@ from .user_schema import (
     TokenResponseSchema,
     UserResponseSchema,
 )
+from .review_schema import CreateReviewSchema, ReviewResponseSchema
 
 __all__ = [
     "AddBookToListSchema",
@@ -21,4 +22,6 @@ __all__ = [
     "RegisterSchema",
     "TokenResponseSchema",
     "UserResponseSchema",
+    "ReviewResponseSchema",
+    "CreateReviewSchema",
 ]
