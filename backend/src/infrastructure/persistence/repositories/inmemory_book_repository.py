@@ -14,6 +14,13 @@ class InMemoryBookRepository(BookRepository):
         self.id += 1
         return book
 
+    async def update(self, book: Book) -> Book:
+        self.books[book.id] = book
+        return book
+
+    async def delete(self, book_id: int) -> bool:
+        return self.books.pop(book_id, None) is not None
+
     async def get_by_id(self, book_id: int) -> Book | None:
         return self.books.get(book_id)
 
@@ -31,17 +38,24 @@ class InMemoryBookRepository(BookRepository):
         theme: str | None = None,
         publisher: str | None = None,
     ) -> list[Book | None]:
+        def contains(term: str, value: str) -> bool:
+            return term.lower() in value.lower()
+
+        def any_contains(term: str, values: list[str] | str) -> bool:
+            items = [values] if isinstance(values, str) else values
+            return any(contains(term, item) for item in items)
+
         results = []
-        for _, book in self.books.items():
-            if title and title not in book.title:
+        for book in self.books.values():
+            if title and not contains(title, book.title):
                 continue
-            if author and author not in book.authors:
+            if author and not any_contains(author, book.authors):
                 continue
-            if genre and genre not in book.genre:
+            if genre and not any(genre.lower() == g.lower() for g in book.genre):
                 continue
-            if theme and theme not in book.theme:
+            if theme and not any_contains(theme, book.theme):
                 continue
-            if publisher and publisher not in book.publisher:
+            if publisher and not contains(publisher, book.publisher):
                 continue
             results.append(book)
         return results

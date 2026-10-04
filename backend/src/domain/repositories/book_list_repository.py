@@ -18,3 +18,7 @@ class BookListRepository(ABC):
     @abstractmethod
     def delete(self, list_id: int) -> bool:
         pass
+
+    @abstractmethod
+    def list_by_owner(self, owner_id: int) -> list[BookList]:
+        pass
