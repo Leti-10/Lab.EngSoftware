@@ -10,10 +10,31 @@ API provedora de serviços para a aplicação, desenvolvida em FastAPI seguindo 
 - [Tecnologias Utilizadas](#technology)
 
 ## <span id="how_to_run"> ❓ Como Executar </span>
-- Instruções de execução
+
+```bash
+cp .env.example .env
+uv sync
+uv run uvicorn src.presentation.api.main:app --reload --env-file .env
+```
+
+- API em <http://localhost:8000> e Swagger em <http://localhost:8000/docs>
+- Testes: `uv run pytest` · Lint: `uv run ruff check .`
+- Guia completo (Docker, migrations, variáveis): [Manual de Execução](../docs/MANUAL_EXECUCAO.md)
 
 ## <span id="app_architecture"> Arquitetura da aplicação </span>
-- Estrutura de diretórios e suas funções
+
+Clean Architecture / DDD, com dependências apontando para dentro (`presentation → application → domain`).
+
+| Diretório | Função |
+| --- | --- |
+| `src/domain` | Entidades (`Book`, `BookList`, `User`), exceções de domínio e interfaces de repositório |
+| `src/application/use_cases` | Um caso de uso por ação (`CreateBook`, `SearchBooks`, `AuthenticateUser`, `AddBookToList`…) |
+| `src/infrastructure` | Repositórios (memória e SQLAlchemy), mappers, hash de senha (bcrypt) e JWT |
+| `src/presentation/api` | Routers FastAPI, schemas Pydantic e dependências (usuário autenticado) |
+| `src/core` | Configurações lidas das variáveis de ambiente |
+| `tests` | Testes unitários e de API (`pytest`) |
+
+Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Injection** — detalhes em [Arquitetura](../docs/ARQUITETURA.md#design-patterns).
 
 ## <span id="der"> Diagrama de Entidade e Relacionamento (DER) </span>
 ![DER](../img/der.png)
@@ -59,7 +80,22 @@ API provedora de serviços para a aplicação, desenvolvida em FastAPI seguindo 
   - Description (Descrição do motivo da denúncia) - Obrigatório
 
 ## <span id="app_route"> ↪️ Rotas da Aplicação </span>
-- /
+
+🔒 = exige `Authorization: Bearer <token>`. Detalhes e códigos de erro na [Especificação](../docs/ESPECIFICACAO.md#rotas-da-api).
+
+| Método | Rota | Descrição |
+| --- | --- | --- |
+| `GET` | `/` | Health check |
+| `POST` | `/auth/register` | Cria conta e devolve token |
+| `POST` | `/auth/login` | Autentica e devolve token |
+| `GET` | `/auth/me` 🔒 | Usuário da sessão |
+| `GET` | `/books?q=&genre=` | Lista/busca obras |
+| `GET` | `/books/{id}` | Detalhes da obra |
+| `POST` | `/books` 🔒 | Cadastra obra |
+| `GET` | `/lists` 🔒 | Minhas listas |
+| `POST` | `/lists` 🔒 | Cria lista |
+| `GET` | `/lists/{id}` 🔒 | Detalhes da lista |
+| `POST` | `/lists/{id}/books` 🔒 | Adiciona obra à lista |
 
 ## <span id="technology"> 💻 Tecnologias Utilizadas </span>
 - Backend

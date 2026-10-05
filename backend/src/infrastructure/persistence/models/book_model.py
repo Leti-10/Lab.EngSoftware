@@ -1,9 +1,12 @@
-from sqlalchemy.orm import mapped_column, Mapped, DeclarativeBase, relationship
+from typing import TYPE_CHECKING
+
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import Column, ForeignKey, Table
 
+from src.infrastructure.persistence.models.base import Base
 
-class Base(DeclarativeBase):
-    pass
+if TYPE_CHECKING:
+    from src.infrastructure.persistence.models.review_model import ReviewModelSQLAlchemy
 
 
 book_author_association = Table(
@@ -32,4 +35,7 @@ class BookModelSQLAlchemy(Base):
     publisher: Mapped[str] = mapped_column(nullable=True)
     authors: Mapped[list["AuthorModelSQLAlchemy"]] = relationship(
         secondary=book_author_association, back_populates="books"
+    )
+    reviews: Mapped[list["ReviewModelSQLAlchemy"]] = relationship(
+        back_populates="book", cascade="all, delete-orphan"
     )
