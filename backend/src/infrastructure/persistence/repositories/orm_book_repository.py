@@ -22,6 +22,34 @@ class SQLAlchemyRepository(BookRepository):
         domain_book = BookMapper.to_domain(_book_model)
         return domain_book
 
+    async def update(self, book: Book) -> Book:
+        model = await self.session.get(
+            BookModelSQLAlchemy,
+            book.id,
+            options=[selectinload(BookModelSQLAlchemy.authors)],
+        )
+        if model is None:
+            raise ValueError(f"Book with id {book.id} not found.")
+
+        updated = BookMapper.to_sqlalchemy(book)
+        model.isbn = updated.isbn
+        model.title = updated.title
+        model.publisher = updated.publisher
+        model.authors = updated.authors
+
+        await self.session.commit()
+        await self.session.refresh(model, attribute_names=["authors"])
+        return BookMapper.to_domain(model)
+
+    async def delete(self, book_id: int) -> bool:
+        model = await self.session.get(BookModelSQLAlchemy, book_id)
+        if model is None:
+            return False
+
+        await self.session.delete(model)
+        await self.session.commit()
+        return True
+
     async def get_by_id(self, book_id: int) -> Book | None:
         query = (
             select(BookModelSQLAlchemy)

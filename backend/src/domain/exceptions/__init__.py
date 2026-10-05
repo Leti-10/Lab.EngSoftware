@@ -2,6 +2,7 @@ from .base import DomainError
 from .book import (
     BookTitleTooShortError,
     BookAlreadyPublishedError,
+    BookNotFoundError,
     InvalidISBNError,
 )
 from .book_list import ListNameTooShortError, InvalidListOwnerError
@@ -15,7 +16,11 @@ __all__ = [
     "DomainError",
     "BookTitleTooShortError",
     "BookAlreadyPublishedError",
+    "BookNotFoundError",
     "InvalidISBNError",
+    "BookAlreadyInListError",
+    "BookListForbiddenError",
+    "BookListNotFoundError",
     "ListNameTooShortError",
     "InvalidListOwnerError",
     "InvalidVoteStatusError",

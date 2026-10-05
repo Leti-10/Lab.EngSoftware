@@ -27,3 +27,6 @@ class InMemoryBookListRepository(BookListRepository):
             del self.all_book_list[list_id]
             return True
         return False
+
+    def list_by_owner(self, owner_id: int) -> list[BookList]:
+        return [bl for bl in self.all_book_list.values() if bl.owner == owner_id]
