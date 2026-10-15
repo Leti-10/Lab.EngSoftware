@@ -96,6 +96,10 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
 | `POST` | `/lists` 🔒 | Cria lista |
 | `GET` | `/lists/{id}` 🔒 | Detalhes da lista |
 | `POST` | `/lists/{id}/books` 🔒 | Adiciona obra à lista |
+| `POST` | `/votes` 🔒 | Registra voto |
+| `GET` | `/votes?status=&user_name=&target_type=&target_name=` 🔒 | Lista votos por status, username e alvo (título do livro, nome da lista ou comentário da review) |
+| `GET` | `/votes/{id}` 🔒 | Detalhes do voto |
+| `DELETE` | `/votes/{id}` 🔒 | Exclui voto |
 
 ## <span id="technology"> 💻 Tecnologias Utilizadas </span>
 - Backend
