@@ -7,10 +7,10 @@ class CreateUserUseCase:
     def __init__(self, user_repository: UserRepository):
         self.user_repository = user_repository
 
-    def execute(
+    async def execute(
         self, username: str, email: str, password: str, role: str = "user"
     ) -> User:
-        existing_user = self.user_repository.get_by_email(email)
+        existing_user = await self.user_repository.get_by_email(email)
 
         if existing_user:
             raise ValueError("E-mail já cadastrado")
@@ -22,6 +22,6 @@ class CreateUserUseCase:
             role=role,
         )
 
-        saved_user = self.user_repository.save(user)
+        saved_user = await self.user_repository.save(user)
 
         return saved_user
