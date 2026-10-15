@@ -6,12 +6,28 @@ from .book.update_book import UpdateBookUseCase
 from .book_list.add_book_to_list import AddBookToListUseCase
 from .book_list.create_list import CreateBookListUseCase
 from .book_list.get_book_list import GetBookListUseCase
+from .user.authenticate_user import AuthenticateUserUseCase
 from .user.create_user import CreateUserUseCase
-from .vote.create_vote import CreateVoteUseCase
+from .vote import (
+    CreateVoteUseCase,
+    DeleteVoteUseCase,
+    FilterVotesUseCase,
+    GetVoteByIdUseCase,
+)
 
 __all__ = [
-	"CreateBookUseCase",
-	"CreateBookListUseCase",
-	"CreateUserUseCase",
-	"CreateVoteUseCase",
+    "CreateBookUseCase",
+    "DeleteBookUseCase",
+    "GetBookUseCase",
+    "SearchBooksUseCase",
+    "UpdateBookUseCase",
+    "AddBookToListUseCase",
+    "CreateBookListUseCase",
+    "GetBookListUseCase",
+    "AuthenticateUserUseCase",
+    "CreateUserUseCase",
+    "CreateVoteUseCase",
+    "DeleteVoteUseCase",
+    "FilterVotesUseCase",
+    "GetVoteByIdUseCase",
 ]
