@@ -14,6 +14,10 @@ class VoteRepository(ABC):
         pass
 
     @abstractmethod
+    async def delete(self, vote_id: int) -> bool:
+        pass
+
+    @abstractmethod
     async def find_by_filter(
         self,
         status: str | None = None,

@@ -1,11 +1,18 @@
 from src.domain.entities import Vote
+from src.domain.enums.enums import VoteTarget
 from src.domain.repositories import VoteRepository
 
 
 class InMemoryVoteRepository(VoteRepository):
-    def __init__(self):
+    def __init__(
+        self,
+        user_names: dict[int, str] | None = None,
+        target_names: dict[tuple[VoteTarget, int], str] | None = None,
+    ):
         self.votes: dict[int, Vote] = {}
         self._next_id = 1
+        self.user_names = user_names or {}
+        self.target_names = target_names or {}
 
     async def save(self, vote: Vote) -> Vote:
         if vote.id is None:
@@ -17,11 +24,33 @@ class InMemoryVoteRepository(VoteRepository):
     async def get_by_id(self, vote_id: int) -> Vote | None:
         return self.votes.get(vote_id)
 
+    async def delete(self, vote_id: int) -> bool:
+        return self.votes.pop(vote_id, None) is not None
+
     async def find_by_filter(
         self,
         status: str | None = None,
         user_name: str | None = None,
-        target_type: str | None = None,
+        target_type: VoteTarget | None = None,
         target_name: str | None = None,
     ) -> list[Vote]:
-        raise NotImplementedError("Os filtros de vote dependem das modelagens relacionadas.")
+        normalized_user_name = user_name.casefold() if user_name else None
+        normalized_target_name = target_name.casefold() if target_name else None
+        return [
+            vote
+            for vote in self.votes.values()
+            if (status is None or vote.status == status)
+            and (
+                normalized_user_name is None
+                or normalized_user_name
+                in self.user_names.get(vote.user_id, "").casefold()
+            )
+            and (target_type is None or vote.target_entity == target_type)
+            and (
+                normalized_target_name is None
+                or normalized_target_name
+                in self.target_names.get(
+                    (vote.target_entity, vote.target_id), ""
+                ).casefold()
+            )
+        ]
