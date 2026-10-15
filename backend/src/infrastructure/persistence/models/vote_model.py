@@ -15,4 +15,6 @@ class VoteModelSQLAlchemy(Base):
 
     target_id: Mapped[int] = mapped_column(nullable=False)
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
