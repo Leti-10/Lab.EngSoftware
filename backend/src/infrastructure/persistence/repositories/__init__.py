@@ -5,6 +5,7 @@ from .inmemory_user_repository import InMemoryUserRepository
 from .inmemory_vote_repository import InMemoryVoteRepository
 from .orm_book_repository import SQLAlchemyRepository
 from .orm_review_repository import SQLAlchemyReviewRepository
+from .orm_user_repository import SQLAlchemyUserRepository
 from .orm_vote_repository import SQLAlchemyVoteRepository
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "InMemoryVoteRepository",
     "SQLAlchemyRepository",
     "SQLAlchemyReviewRepository",
+    "SQLAlchemyUserRepository",
     "SQLAlchemyVoteRepository",
 ]
