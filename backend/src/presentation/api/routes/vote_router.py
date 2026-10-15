@@ -8,6 +8,7 @@ from src.application.use_cases.vote import (
     FilterVotesUseCase,
     GetVoteByIdUseCase,
 )
+from src.domain.entities import User
 from src.domain.entities.vote import Vote
 from src.domain.enums.enums import VoteTarget
 from src.domain.repositories import BookListRepository, VoteRepository
@@ -38,10 +39,22 @@ async def get_vote_repository(
 async def create_vote(
     payload: CreateVoteSchema,
     repository: VoteRepository = Depends(get_vote_repository),
+    current_user: User = Depends(get_current_user),
 ) -> VoteResponseSchema:
+    if payload.user_id is not None and payload.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="O user_id deve corresponder ao usuário autenticado.",
+        )
+
     try:
         new_vote = await CreateVoteUseCase(repository).execute(
-            Vote(**payload.model_dump())
+            Vote(
+                status=payload.status,
+                target_entity=payload.target_entity,
+                target_id=payload.target_id,
+                user_id=current_user.id,
+            )
         )
     except IntegrityError as exc:
         raise HTTPException(

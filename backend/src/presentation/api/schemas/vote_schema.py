@@ -7,7 +7,7 @@ class CreateVoteSchema(BaseModel):
     status: str = Field(..., min_length=1)
     target_entity: VoteTarget
     target_id: int = Field(..., gt=0)
-    user_id: int = Field(..., gt=0)
+    user_id: int | None = Field(default=None, gt=0)
 
     @field_validator("status")
     @classmethod
