@@ -11,7 +11,7 @@ def user_repository():
 
 
 @pytest.fixture
-def create_user_use_case(user_repository):
+async def create_user_use_case(user_repository):
     return CreateUserUseCase(user_repository)
 
 

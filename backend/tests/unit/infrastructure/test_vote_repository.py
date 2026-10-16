@@ -4,6 +4,7 @@ import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from src.domain.entities import Vote
+from src.domain.exceptions import VoteAlreadyExistsError
 from src.domain.entities import BookList
 from src.domain.enums.enums import EnumVoteTarget
 from src.infrastructure.persistence.models.base import Base
@@ -63,6 +64,34 @@ async def test_vote_repository_saves_loads_and_filters_votes():
                     user_id=user.id,
                 )
             )
+            with pytest.raises(VoteAlreadyExistsError):
+                await repository.save(
+                    Vote(
+                        status="dislike",
+                        target_entity=EnumVoteTarget.BOOK,
+                        target_id=book.id,
+                        user_id=user.id,
+                    )
+                )
+            other_user = UserModelSQLAlchemy(
+                username="reader-two",
+                email="reader-two@example.com",
+                password="test-password",
+                role="user",
+                created_at=datetime(2025, 1, 1, tzinfo=UTC),
+            )
+            session.add(other_user)
+            await session.commit()
+            other_user_vote = await repository.save(
+                Vote(
+                    status="like",
+                    target_entity=EnumVoteTarget.BOOK,
+                    target_id=book.id,
+                    user_id=other_user.id,
+                )
+            )
+            assert other_user_vote.user_id != book_vote.user_id
+
             review_vote = await repository.save(
                 Vote(
                     status="like",

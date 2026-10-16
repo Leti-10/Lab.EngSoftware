@@ -35,6 +35,23 @@ def test_create_vote_returns_201(client, auth_headers):
     assert client.get("/votes/1", headers=auth_headers).json() == response.json()
 
 
+def test_create_vote_rejects_duplicate_user_target(client, auth_headers):
+    payload = {
+        "status": "like",
+        "target_entity": "books",
+        "target_id": 3,
+    }
+    first = client.post("/votes", json=payload, headers=auth_headers)
+    duplicate = client.post(
+        "/votes",
+        json={**payload, "status": "dislike"},
+        headers=auth_headers,
+    )
+
+    assert first.status_code == 201
+    assert duplicate.status_code == 409
+
+
 def test_create_vote_rejects_invalid_input(client, auth_headers):
     response = client.post(
         "/votes",
@@ -94,10 +111,9 @@ def test_delete_unknown_vote_returns_404(client, auth_headers):
 
 
 def test_filter_votes_by_user_and_target_names(client, auth_headers):
-    for status, target_entity, target_id, user_id in [
-        ("like", "books", 3, 1),
-        ("dislike", "books", 3, 1),
-        ("like", "reviews", 3, 2),
+    for status, target_entity, target_id in [
+        ("like", "books", 3),
+        ("like", "reviews", 3),
     ]:
         response = client.post(
             "/votes",
@@ -105,7 +121,6 @@ def test_filter_votes_by_user_and_target_names(client, auth_headers):
                 "status": status,
                 "target_entity": target_entity,
                 "target_id": target_id,
-                "user_id": user_id,
             },
             headers=auth_headers,
         )
