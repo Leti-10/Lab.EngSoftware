@@ -1,7 +1,7 @@
-from .base import Base
-from .book_model import AuthorModelSQLAlchemy, BookModelSQLAlchemy
+from .book_model import AuthorModelSQLAlchemy, Base, BookModelSQLAlchemy
 from .review_model import ReviewModelSQLAlchemy
 from .user_model import UserModelSQLAlchemy
+from .vote_model import VoteModelSQLAlchemy
 
 __all__ = [
     "Base",
@@ -9,4 +9,5 @@ __all__ = [
     "AuthorModelSQLAlchemy",
     "ReviewModelSQLAlchemy",
     "UserModelSQLAlchemy",
+    "VoteModelSQLAlchemy",
 ]

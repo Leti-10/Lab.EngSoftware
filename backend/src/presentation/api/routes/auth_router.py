@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 
 from src.application.use_cases import AuthenticateUserUseCase, CreateUserUseCase
 from src.domain.entities import User
@@ -30,12 +31,12 @@ def _to_token(user: User) -> TokenResponseSchema:
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-def register(
+async def register(
     payload: RegisterSchema,
     repository: UserRepository = Depends(get_user_repository),
 ) -> TokenResponseSchema:
     try:
-        user = CreateUserUseCase(repository).execute(
+        user = await CreateUserUseCase(repository).execute(
             username=payload.username.strip(),
             email=payload.email.strip().lower(),
             password=payload.password,
@@ -48,17 +49,22 @@ def register(
             else status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=str(error),
         ) from error
+    except IntegrityError as error:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="E-mail ou username já cadastrado.",
+        ) from error
 
     return _to_token(user)
 
 
 @router.post("/login")
-def login(
+async def login(
     payload: LoginSchema,
     repository: UserRepository = Depends(get_user_repository),
 ) -> TokenResponseSchema:
     try:
-        user = AuthenticateUserUseCase(repository).execute(
+        user = await AuthenticateUserUseCase(repository).execute(
             email=payload.email.strip().lower(), password=payload.password
         )
     except InvalidCredentialsError as error:
