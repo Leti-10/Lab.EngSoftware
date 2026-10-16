@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from src.domain.enums.enums import VoteTarget
+from src.domain.enums.enums import EnumVoteTarget
 from src.domain.exceptions import (
     InvalidVoteStatusError,
     InvalidVoteTargetError,
@@ -12,7 +12,7 @@ from src.domain.exceptions import (
 class Vote:
     id: int | None = field(default=None)
     status: str = field(default="")
-    target_entity: VoteTarget | str = field(default="")
+    target_entity: EnumVoteTarget | str = field(default="")
     target_id: int = field(default=0)
     user_id: int = field(default=0)
 
@@ -20,9 +20,9 @@ class Vote:
         if not self.status.strip():
             raise InvalidVoteStatusError()
 
-        if not isinstance(self.target_entity, VoteTarget):
+        if not isinstance(self.target_entity, EnumVoteTarget):
             try:
-                self.target_entity = VoteTarget(self.target_entity)
+                self.target_entity = EnumVoteTarget(self.target_entity)
             except ValueError:
                 raise InvalidVoteTargetError(self.target_entity)
 

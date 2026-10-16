@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.domain.entities import Vote
-from src.domain.enums.enums import VoteTarget
+from src.domain.enums.enums import EnumVoteTarget
 
 
 class VoteRepository(ABC):
@@ -22,7 +22,7 @@ class VoteRepository(ABC):
         self,
         status: str | None = None,
         user_name: str | None = None,
-        target_type: VoteTarget | None = None,
+        target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
     ) -> list[Vote]:
         pass

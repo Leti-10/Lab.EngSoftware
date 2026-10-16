@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from src.domain.entities import Vote
 from src.domain.entities import BookList
-from src.domain.enums.enums import VoteTarget
+from src.domain.enums.enums import EnumVoteTarget
 from src.infrastructure.persistence.models.base import Base
 from src.infrastructure.persistence.models.book_model import BookModelSQLAlchemy
 from src.infrastructure.persistence.models.review_model import ReviewModelSQLAlchemy
@@ -58,7 +58,7 @@ async def test_vote_repository_saves_loads_and_filters_votes():
             book_vote = await repository.save(
                 Vote(
                     status="like",
-                    target_entity=VoteTarget.BOOK,
+                    target_entity=EnumVoteTarget.BOOK,
                     target_id=book.id,
                     user_id=user.id,
                 )
@@ -66,7 +66,7 @@ async def test_vote_repository_saves_loads_and_filters_votes():
             review_vote = await repository.save(
                 Vote(
                     status="like",
-                    target_entity=VoteTarget.REVIEW,
+                    target_entity=EnumVoteTarget.REVIEW,
                     target_id=review.id,
                     user_id=user.id,
                 )
@@ -74,7 +74,7 @@ async def test_vote_repository_saves_loads_and_filters_votes():
             list_vote = await repository.save(
                 Vote(
                     status="like",
-                    target_entity=VoteTarget.LIST,
+                    target_entity=EnumVoteTarget.LIST,
                     target_id=book_list.id,
                     user_id=user.id,
                 )
@@ -85,16 +85,16 @@ async def test_vote_repository_saves_loads_and_filters_votes():
             assert await repository.find_by_filter(
                 status="like",
                 user_name="vote",
-                target_type=VoteTarget.BOOK,
+                target_type=EnumVoteTarget.BOOK,
                 target_name="test book",
             ) == [book_vote]
             assert await repository.find_by_filter(
                 user_name="vote",
-                target_type=VoteTarget.REVIEW,
+                target_type=EnumVoteTarget.REVIEW,
                 target_name="excellent",
             ) == [review_vote]
             assert await repository.find_by_filter(
-                target_type=VoteTarget.LIST,
+                target_type=EnumVoteTarget.LIST,
                 target_name="Favorite List",
             ) == [list_vote]
             assert await repository.delete(list_vote.id)

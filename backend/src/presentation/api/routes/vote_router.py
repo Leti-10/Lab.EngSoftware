@@ -10,7 +10,7 @@ from src.application.use_cases.vote import (
 )
 from src.domain.entities import User
 from src.domain.entities.vote import Vote
-from src.domain.enums.enums import VoteTarget
+from src.domain.enums.enums import EnumVoteTarget
 from src.domain.repositories import BookListRepository, VoteRepository
 from src.infrastructure.persistence.database import get_db_context
 from src.infrastructure.persistence.repositories import SQLAlchemyVoteRepository
@@ -56,12 +56,13 @@ async def create_vote(
                 user_id=current_user.id,
             )
         )
+        return VoteResponseSchema.model_validate(new_vote)
+    
     except IntegrityError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="O usuário informado não existe.",
         ) from exc
-    return VoteResponseSchema.model_validate(new_vote)
 
 
 @router.get("/{vote_id}")
@@ -93,7 +94,7 @@ async def delete_vote(
 async def filter_votes(
     status_filter: str | None = Query(default=None, alias="status", min_length=1),
     user_name: str | None = Query(default=None, min_length=1),
-    target_type: VoteTarget | None = None,
+    target_type: EnumVoteTarget | None = None,
     target_name: str | None = Query(default=None, min_length=1),
     repository: VoteRepository = Depends(get_vote_repository),
 ) -> list[VoteResponseSchema]:

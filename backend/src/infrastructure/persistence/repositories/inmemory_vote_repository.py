@@ -1,5 +1,5 @@
 from src.domain.entities import Vote
-from src.domain.enums.enums import VoteTarget
+from src.domain.enums.enums import EnumVoteTarget
 from src.domain.repositories import VoteRepository
 
 
@@ -7,7 +7,7 @@ class InMemoryVoteRepository(VoteRepository):
     def __init__(
         self,
         user_names: dict[int, str] | None = None,
-        target_names: dict[tuple[VoteTarget, int], str] | None = None,
+        target_names: dict[tuple[EnumVoteTarget, int], str] | None = None,
     ):
         self.votes: dict[int, Vote] = {}
         self._next_id = 1
@@ -31,7 +31,7 @@ class InMemoryVoteRepository(VoteRepository):
         self,
         status: str | None = None,
         user_name: str | None = None,
-        target_type: VoteTarget | None = None,
+        target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
     ) -> list[Vote]:
         normalized_user_name = user_name.casefold() if user_name else None

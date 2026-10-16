@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities import Vote
-from src.domain.enums.enums import VoteTarget
+from src.domain.enums.enums import EnumVoteTarget
 from src.domain.repositories import BookListRepository, VoteRepository
 from src.infrastructure.persistence.mappers import VoteMapper
 from src.infrastructure.persistence.models.book_model import BookModelSQLAlchemy
@@ -54,7 +54,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
         self,
         status: str | None = None,
         user_name: str | None = None,
-        target_type: VoteTarget | None = None,
+        target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
     ) -> list[Vote]:
         query = select(VoteModelSQLAlchemy)
@@ -76,19 +76,19 @@ class SQLAlchemyVoteRepository(VoteRepository):
             pattern = f"%{target_name}%"
             target_filters = []
             target_types = (
-                [target_type] if target_type is not None else list(VoteTarget)
+                [target_type] if target_type is not None else list(EnumVoteTarget)
             )
 
             for current_type in target_types:
-                if current_type == VoteTarget.BOOK:
+                if current_type == EnumVoteTarget.BOOK:
                     target_ids = select(BookModelSQLAlchemy.id).where(
                         BookModelSQLAlchemy.title.ilike(pattern)
                     )
-                elif current_type == VoteTarget.REVIEW:
+                elif current_type == EnumVoteTarget.REVIEW:
                     target_ids = select(ReviewModelSQLAlchemy.id).where(
                         ReviewModelSQLAlchemy.comment.ilike(pattern)
                     )
-                elif current_type == VoteTarget.LIST:
+                elif current_type == EnumVoteTarget.LIST:
                     if self.book_list_repository is None:
                         raise ValueError(
                             "A busca pelo nome de listas exige um "

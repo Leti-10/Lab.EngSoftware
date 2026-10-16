@@ -1,7 +1,7 @@
 import pytest
 
 from src.domain.entities import Vote
-from src.domain.enums.enums import VoteTarget
+from src.domain.enums.enums import EnumVoteTarget
 from src.domain.exceptions import (
     InvalidVoteStatusError,
     InvalidVoteTargetError,
@@ -17,7 +17,7 @@ def test_vote_accepts_valid_data_and_converts_target_entity():
         user_id=1,
     )
 
-    assert vote.target_entity is VoteTarget.BOOK
+    assert vote.target_entity is EnumVoteTarget.BOOK
 
 
 @pytest.mark.parametrize("status", ["", "   "])

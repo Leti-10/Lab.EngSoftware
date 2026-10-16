@@ -1,5 +1,5 @@
 from src.domain.entities import Vote
-from src.domain.enums.enums import VoteTarget
+from src.domain.enums.enums import EnumVoteTarget
 from src.domain.repositories import VoteRepository
 
 
@@ -11,7 +11,7 @@ class FilterVotesUseCase:
         self,
         status: str | None = None,
         user_name: str | None = None,
-        target_type: VoteTarget | None = None,
+        target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
     ) -> list[Vote]:
         return await self.vote_repository.find_by_filter(
