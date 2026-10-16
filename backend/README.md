@@ -66,7 +66,7 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
   - Book_ID (ID do Livro) - O front passa automaticamente
   - Comment (Comentário) - Opcional
   - Rating (Avaliação em estrelas) - Obrigatório (vai de 1 a 5)
-- Vote (O usuário pode dar like/dislike ou adicionar marcações para livros)
+- Vote (O usuário pode registrar um único like/dislike ou marcação por alvo, alvos diferentes aceitam votos independentes)
   - ID (Identificador único) - Gerado automaticamente
   - User_ID (ID do Usuário) - O front passa automaticamente
   - Target_ID (ID do Alvo) - O front passa automaticamente
@@ -96,7 +96,7 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
 | `POST` | `/lists` 🔒 | Cria lista |
 | `GET` | `/lists/{id}` 🔒 | Detalhes da lista |
 | `POST` | `/lists/{id}/books` 🔒 | Adiciona obra à lista |
-| `POST` | `/votes` 🔒 | Registra voto |
+| `POST` | `/votes` 🔒 | Registra um voto por usuário e alvo; uma tentativa duplicada retorna `409` |
 | `GET` | `/votes?status=&user_name=&target_type=&target_name=` 🔒 | Lista votos por status, username e alvo (título do livro, nome da lista ou comentário da review) |
 | `GET` | `/votes/{id}` 🔒 | Detalhes do voto |
 | `DELETE` | `/votes/{id}` 🔒 | Exclui voto |
