@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.infrastructure.persistence.models.book_model import Base
@@ -6,6 +6,14 @@ from src.infrastructure.persistence.models.book_model import Base
 
 class VoteModelSQLAlchemy(Base):
     __tablename__ = "votes"
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id",
+            "target_entity",
+            "target_id",
+            name="uq_votes_user_target",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
 

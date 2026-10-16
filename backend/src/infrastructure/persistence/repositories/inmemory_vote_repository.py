@@ -1,5 +1,6 @@
 from src.domain.entities import Vote
 from src.domain.enums.enums import EnumVoteTarget
+from src.domain.exceptions import VoteAlreadyExistsError
 from src.domain.repositories import VoteRepository
 
 
@@ -15,6 +16,15 @@ class InMemoryVoteRepository(VoteRepository):
         self.target_names = target_names or {}
 
     async def save(self, vote: Vote) -> Vote:
+        if any(
+            existing_vote.id != vote.id
+            and existing_vote.user_id == vote.user_id
+            and existing_vote.target_entity == vote.target_entity
+            and existing_vote.target_id == vote.target_id
+            for existing_vote in self.votes.values()
+        ):
+            raise VoteAlreadyExistsError()
+
         if vote.id is None:
             vote.id = self._next_id
             self._next_id += 1

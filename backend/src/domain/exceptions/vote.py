@@ -14,3 +14,8 @@ class InvalidVoteTargetError(DomainError):
 class InvalidVoteUserError(DomainError):
     def __init__(self, user_id: int):
         super().__init__(f"O usuário com ID '{user_id}' é inválido.")
+
+
+class VoteAlreadyExistsError(DomainError):
+    def __init__(self):
+        super().__init__("O usuário já votou neste alvo.")

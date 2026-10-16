@@ -22,6 +22,7 @@ from .vote import (
     InvalidVoteStatusError,
     InvalidVoteTargetError,
     InvalidVoteUserError,
+    VoteAlreadyExistsError,
 )
 
 __all__ = [
@@ -42,4 +43,5 @@ __all__ = [
     "InvalidVoteStatusError",
     "InvalidVoteTargetError",
     "InvalidVoteUserError",
+    "VoteAlreadyExistsError",
 ]

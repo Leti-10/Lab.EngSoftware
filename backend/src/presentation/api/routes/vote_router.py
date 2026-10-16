@@ -11,6 +11,7 @@ from src.application.use_cases.vote import (
 from src.domain.entities import User
 from src.domain.entities.vote import Vote
 from src.domain.enums.enums import EnumVoteTarget
+from src.domain.exceptions import VoteAlreadyExistsError
 from src.domain.repositories import BookListRepository, VoteRepository
 from src.infrastructure.persistence.database import get_db_context
 from src.infrastructure.persistence.repositories import SQLAlchemyVoteRepository
@@ -57,7 +58,12 @@ async def create_vote(
             )
         )
         return VoteResponseSchema.model_validate(new_vote)
-    
+
+    except VoteAlreadyExistsError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
     except IntegrityError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

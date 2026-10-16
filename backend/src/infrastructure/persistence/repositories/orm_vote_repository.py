@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities import Vote
 from src.domain.enums.enums import EnumVoteTarget
+from src.domain.exceptions import VoteAlreadyExistsError
 from src.domain.repositories import BookListRepository, VoteRepository
 from src.infrastructure.persistence.mappers import VoteMapper
 from src.infrastructure.persistence.models.book_model import BookModelSQLAlchemy
@@ -22,13 +23,32 @@ class SQLAlchemyVoteRepository(VoteRepository):
         self.book_list_repository = book_list_repository
 
     async def save(self, vote: Vote) -> Vote:
+        duplicate_query = select(VoteModelSQLAlchemy.id).where(
+            VoteModelSQLAlchemy.user_id == vote.user_id,
+            VoteModelSQLAlchemy.target_entity == vote.target_entity.value,
+            VoteModelSQLAlchemy.target_id == vote.target_id,
+        )
+        if vote.id is not None:
+            duplicate_query = duplicate_query.where(
+                VoteModelSQLAlchemy.id != vote.id
+            )
+        if await self.session.scalar(duplicate_query) is not None:
+            raise VoteAlreadyExistsError()
+
         model = VoteMapper.to_sqlalchemy(vote)
         self.session.add(model)
         try:
             await self.session.commit()
             await self.session.refresh(model)
-        except IntegrityError:
+        except IntegrityError as exc:
             await self.session.rollback()
+            error = exc.orig
+            constraint_name = getattr(error, "constraint_name", None)
+            if constraint_name == "uq_votes_user_target" or (
+                "UNIQUE constraint failed: votes.user_id, "
+                "votes.target_entity, votes.target_id"
+            ) in str(error):
+                raise VoteAlreadyExistsError() from exc
             raise
         return VoteMapper.to_domain(model)
 
