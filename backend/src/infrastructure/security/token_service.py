@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 
-from src.core.config import settings
+from src.core import settings
 
 
 class TokenService:

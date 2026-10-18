@@ -101,15 +101,22 @@ O `backend/docker-compose.yml` sobe a API e o PostgreSQL:
 
 ```bash
 cd backend
-docker compose up --build
+docker compose build backend
+docker compose run --rm backend alembic upgrade head
+docker compose up
 ```
 
-Migrations do banco (Alembic):
+O Compose carrega `backend/.env`, configura o serviço da API para acessar o banco pelo hostname `postgres` e espera o banco ficar saudável antes de iniciar a API. Para chamadas feitas no computador host, use `http://localhost:8000`; `postgres` só é resolvido entre containers. Se executar com `docker compose run`, use `--service-ports` para publicar a porta da API.
+
+Para iniciar a API localmente com Uvicorn em vez de executá-la no Docker, configure `DB_HOST=localhost` no `.env` e execute:
 
 ```bash
 cd backend
 uv run alembic upgrade head
+uv run uvicorn src.presentation.api.main:app --reload --env-file .env
 ```
+
+Variáveis do `.env` não alteram automaticamente um volume PostgreSQL já inicializado.
 
 <a id="pendencias-conhecidas"></a>
 
@@ -121,6 +128,5 @@ Pontos identificados ao documentar que o time deve resolver antes da entrega fin
 | --- | --- | --- |
 | **SQLite no código** | `src/infrastructure/persistence/database.py` e `alembic.ini` ainda apontam para SQLite, **proibido** pelos critérios | Usar `settings.DATABASE_URL` (PostgreSQL) nos dois |
 | **Persistência da API** | Usuários, obras e listas usam repositórios em memória; só `books` tem repositório SQLAlchemy | Criar modelos/migrations de `users` e `lists` e trocar os `Depends` |
-| **Dockerfile** | `CMD` aponta para `src.main:app` | Trocar por `src.presentation.api.main:app` |
 | **Review, Vote e Report** | Previstas no DER, sem implementação | Ver RF13 a RF15 na [especificação](ESPECIFICACAO.md#requisitos-funcionais) |
 | **Nome de lista único global** | Duas pessoas não podem ter listas com o mesmo nome | Tornar a unicidade por dono |

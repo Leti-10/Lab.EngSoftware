@@ -5,19 +5,25 @@ from .book import (
     BookNotFoundError,
     InvalidISBNError,
 )
-from .review import (
-    InvalidReviewBookError, 
-    InvalidReviewRatingError, 
-    InvalidReviewUserError,
-)
 from .book_list import (
+    ListNameTooShortError,
+    InvalidListOwnerError,
     BookAlreadyInListError,
     BookListForbiddenError,
     BookListNotFoundError,
-    ListNameTooShortError,
-    InvalidListOwnerError,
+)
+from .review import (
+    InvalidReviewBookError,
+    InvalidReviewRatingError,
+    InvalidReviewUserError,
 )
 from .user import InvalidCredentialsError
+from .vote import (
+    InvalidVoteStatusError,
+    InvalidVoteTargetError,
+    InvalidVoteUserError,
+    VoteAlreadyExistsError,
+)
 
 __all__ = [
     "DomainError",
@@ -34,4 +40,8 @@ __all__ = [
     "InvalidReviewRatingError",
     "InvalidReviewUserError",
     "InvalidCredentialsError",
+    "InvalidVoteStatusError",
+    "InvalidVoteTargetError",
+    "InvalidVoteUserError",
+    "VoteAlreadyExistsError",
 ]
