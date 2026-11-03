@@ -1,4 +1,4 @@
-# Servidor do projeto books
+poderia # Servidor do projeto books
 
 API provedora de serviços para a aplicação, desenvolvida em FastAPI seguindo os critérios fornecidos pelo professor Juan Hassan da disciplina Laboratório de Engenharia de Software pela Fatec de São José dos Campos.
 
@@ -72,9 +72,9 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
   - Target_ID (ID do Alvo) - O front passa automaticamente
   - Target_Entity (Entidade do alvo) - O front passa automaticamente
   - Status (Indica o conteúdo do voto) - Obrigatório
-- Report (O usuário pode reportar algum conteúdo)
+- Report (Usuários autenticados podem denunciar conteúdos por meio de `/reports`)
   - ID (Identificador único) - Gerado automaticamente
-  - User_ID (ID do Usuário) - O front passa automaticamente
+  - User_ID (ID do Usuário) - Obtido da sessão autenticada
   - Target_ID (ID do Alvo) - O front passa automaticamente
   - Target_Entity (Entidade do alvo) - O front passa automaticamente
   - Description (Descrição do motivo da denúncia) - Obrigatório
@@ -88,6 +88,9 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
 | `GET` | `/` | Health check |
 | `POST` | `/auth/register` | Cria conta e devolve token |
 | `POST` | `/auth/login` | Autentica e devolve token |
+| `POST` | `/reports` 🔒 | Cria denúncia (repositório em memória); o autor vem da sessão e `target_entity` pode ser `user` |
+| `GET` | `/reports/{report_id}` 🔒 | Busca denúncia por ID |
+| `GET` | `/reports` 🔒 | Lista denúncias com filtros opcionais |
 | `GET` | `/auth/me` 🔒 | Usuário da sessão |
 | `GET` | `/books?q=&genre=` | Lista/busca obras |
 | `GET` | `/books/{id}` | Detalhes da obra |

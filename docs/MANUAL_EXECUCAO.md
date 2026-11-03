@@ -122,5 +122,6 @@ Pontos identificados ao documentar que o time deve resolver antes da entrega fin
 | **SQLite no código** | `src/infrastructure/persistence/database.py` e `alembic.ini` ainda apontam para SQLite, **proibido** pelos critérios | Usar `settings.DATABASE_URL` (PostgreSQL) nos dois |
 | **Persistência da API** | Usuários, obras e listas usam repositórios em memória; só `books` tem repositório SQLAlchemy | Criar modelos/migrations de `users` e `lists` e trocar os `Depends` |
 | **Dockerfile** | `CMD` aponta para `src.main:app` | Trocar por `src.presentation.api.main:app` |
-| **Review, Vote e Report** | Previstas no DER, sem implementação | Ver RF13 a RF15 na [especificação](ESPECIFICACAO.md#requisitos-funcionais) |
+| **Vote** | Previsto no DER, sem implementação | Ver RF14 na [especificação](ESPECIFICACAO.md#requisitos-funcionais) |
+| **Usuários de denúncias** | O ID do autor vem da sessão autenticada; a persistência de usuários ainda é em memória | Migrar usuários para persistência SQL para voltar a impor FK em `reports.user_id` |
 | **Nome de lista único global** | Duas pessoas não podem ter listas com o mesmo nome | Tornar a unicidade por dono |
