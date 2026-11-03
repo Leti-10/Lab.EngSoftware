@@ -11,6 +11,7 @@ from .user_schema import (
     UserResponseSchema,
 )
 from .review_schema import CreateReviewSchema, ReviewResponseSchema
+from .report_schema import CreateReportSchema, ReportResponseSchema
 
 __all__ = [
     "AddBookToListSchema",
@@ -24,4 +25,6 @@ __all__ = [
     "UserResponseSchema",
     "ReviewResponseSchema",
     "CreateReviewSchema",
+    "ReportResponseSchema",
+    "CreateReportSchema",
 ]
