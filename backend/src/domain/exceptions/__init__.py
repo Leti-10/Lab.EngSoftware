@@ -18,6 +18,12 @@ from .book_list import (
     InvalidListOwnerError,
 )
 from .user import InvalidCredentialsError
+from .report import (
+    InvalidReportDescriptionError,
+    InvalidReportTargetError,
+    InvalidReportTargetEntityError,
+    InvalidReportUserError,
+)
 
 __all__ = [
     "DomainError",
@@ -34,4 +40,8 @@ __all__ = [
     "InvalidReviewRatingError",
     "InvalidReviewUserError",
     "InvalidCredentialsError",
+    "InvalidReportDescriptionError",
+    "InvalidReportTargetError",
+    "InvalidReportTargetEntityError",
+    "InvalidReportUserError",
 ]
