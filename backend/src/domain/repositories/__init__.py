@@ -2,6 +2,7 @@ from .book_repository import BookRepository
 from .user_repository import UserRepository
 from .book_list_repository import BookListRepository
 from .review_repository import ReviewRepository
+from .report_repository import ReportRepository
 from .vote_repository import VoteRepository
 
 __all__ = [
@@ -9,5 +10,6 @@ __all__ = [
     "UserRepository",
     "BookListRepository",
     "ReviewRepository",
+    "ReportRepository",
     "VoteRepository",
 ]
