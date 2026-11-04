@@ -19,3 +19,8 @@ class InvalidReportTargetEntityError(DomainError):
 class InvalidReportDescriptionError(DomainError):
     def __init__(self):
         super().__init__("A descrição da denúncia deve ter entre 1 e 1000 caracteres.")
+
+
+class ReportAlreadyExistsError(DomainError):
+    def __init__(self):
+        super().__init__("O usuário já denunciou este alvo.")

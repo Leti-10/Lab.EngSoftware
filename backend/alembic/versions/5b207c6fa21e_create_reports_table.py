@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 revision: str = "5b207c6fa21e"
-down_revision: Union[str, Sequence[str], None] = "9cd1e27391de"
+down_revision: Union[str, Sequence[str], None] = "a74c620a1fbe"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -26,6 +26,12 @@ def upgrade() -> None:
         sa.Column("target_entity", sa.String(length=50), nullable=False),
         sa.Column("description", sa.String(length=1000), nullable=False),
         sa.PrimaryKeyConstraint("id"),
+        sa.UniqueConstraint(
+            "user_id",
+            "target_entity",
+            "target_id",
+            name="uq_reports_user_target",
+        ),
     )
 
 

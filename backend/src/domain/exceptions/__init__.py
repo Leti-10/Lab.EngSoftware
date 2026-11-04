@@ -23,6 +23,7 @@ from .report import (
     InvalidReportTargetError,
     InvalidReportTargetEntityError,
     InvalidReportUserError,
+    ReportAlreadyExistsError,
 )
 from .vote import (
     InvalidVoteStatusError,
@@ -50,6 +51,7 @@ __all__ = [
     "InvalidReportTargetError",
     "InvalidReportTargetEntityError",
     "InvalidReportUserError",
+    "ReportAlreadyExistsError",
     "InvalidVoteStatusError",
     "InvalidVoteTargetError",
     "InvalidVoteUserError",

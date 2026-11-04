@@ -1,4 +1,5 @@
 from src.domain.entities import Report
+from src.domain.exceptions import ReportAlreadyExistsError
 from src.domain.repositories import ReportRepository
 
 
@@ -8,6 +9,15 @@ class InMemoryReportRepository(ReportRepository):
         self._next_id = 1
 
     async def save(self, report: Report) -> Report:
+        if any(
+            existing.id != report.id
+            and existing.user_id == report.user_id
+            and existing.target_entity == report.target_entity
+            and existing.target_id == report.target_id
+            for existing in self.reports.values()
+        ):
+            raise ReportAlreadyExistsError()
+
         if report.id is None:
             report.id = self._next_id
             self._next_id += 1

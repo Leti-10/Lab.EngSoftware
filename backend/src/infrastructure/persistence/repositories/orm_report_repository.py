@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from src.domain.entities import Report
+from src.domain.exceptions import ReportAlreadyExistsError
 from src.domain.repositories import ReportRepository
 from src.infrastructure.persistence.mappers import ReportMapper
 from src.infrastructure.persistence.models import ReportModelSQLAlchemy
@@ -13,12 +14,37 @@ class SQLAlchemyReportRepository(ReportRepository):
         self.session = session
 
     async def save(self, report: Report) -> Report:
+        duplicate_query = select(ReportModelSQLAlchemy.id).where(
+            ReportModelSQLAlchemy.user_id == report.user_id,
+            ReportModelSQLAlchemy.target_entity == report.target_entity,
+            ReportModelSQLAlchemy.target_id == report.target_id,
+        )
+        if report.id is not None:
+            duplicate_query = duplicate_query.where(
+                ReportModelSQLAlchemy.id != report.id
+            )
+        if await self.session.scalar(duplicate_query) is not None:
+            raise ReportAlreadyExistsError()
+
         model = ReportMapper.to_sqlalchemy(report)
         self.session.add(model)
         try:
             await self.session.commit()
-        except IntegrityError:
+        except IntegrityError as exc:
             await self.session.rollback()
+            error = exc.orig
+            constraint_name = getattr(error, "constraint_name", None)
+            if constraint_name is None:
+                constraint_name = getattr(
+                    getattr(error, "diag", None),
+                    "constraint_name",
+                    None,
+                )
+            if constraint_name == "uq_reports_user_target" or (
+                "UNIQUE constraint failed: reports.user_id, "
+                "reports.target_entity, reports.target_id"
+            ) in str(error):
+                raise ReportAlreadyExistsError() from exc
             raise
         await self.session.refresh(model)
         return ReportMapper.to_domain(model)

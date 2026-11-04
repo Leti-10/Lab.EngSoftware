@@ -7,6 +7,7 @@ from src.application.use_cases.report import (
     GetReportByIdUseCase,
 )
 from src.domain.entities import Report, User
+from src.domain.exceptions import ReportAlreadyExistsError
 from src.domain.repositories import ReportRepository
 from src.infrastructure.persistence.repositories import InMemoryReportRepository
 from src.presentation.api.dependencies import get_current_user
@@ -35,6 +36,11 @@ async def create_report(
             Report(user_id=current_user.id, **payload.model_dump())
         )
         return ReportResponseSchema.model_validate(created)
+    except ReportAlreadyExistsError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        ) from exc
     except IntegrityError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,

@@ -59,6 +59,28 @@ def test_create_report_targeting_user(client, auth_headers):
     }
 
 
+def test_create_report_rejects_duplicate_user_target(client, auth_headers):
+    repository = InMemoryReportRepository()
+    from src.presentation.api.main import app
+
+    app.dependency_overrides[get_report_repository] = lambda: repository
+
+    payload = {
+        "target_id": 2,
+        "target_entity": "user",
+        "description": "Abuso no perfil",
+    }
+    first = client.post("/reports", json=payload, headers=auth_headers)
+    duplicate = client.post(
+        "/reports",
+        json={**payload, "description": "Outra denúncia sobre o mesmo perfil"},
+        headers=auth_headers,
+    )
+
+    assert first.status_code == 201
+    assert duplicate.status_code == 409
+
+
 def test_report_routes_get_by_id_and_filter(client, auth_headers):
     repository = InMemoryReportRepository()
     from src.presentation.api.main import app
