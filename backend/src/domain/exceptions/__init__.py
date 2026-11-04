@@ -5,17 +5,17 @@ from .book import (
     BookNotFoundError,
     InvalidISBNError,
 )
-from .review import (
-    InvalidReviewBookError, 
-    InvalidReviewRatingError, 
-    InvalidReviewUserError,
-)
 from .book_list import (
+    ListNameTooShortError,
+    InvalidListOwnerError,
     BookAlreadyInListError,
     BookListForbiddenError,
     BookListNotFoundError,
-    ListNameTooShortError,
-    InvalidListOwnerError,
+)
+from .review import (
+    InvalidReviewBookError,
+    InvalidReviewRatingError,
+    InvalidReviewUserError,
 )
 from .user import InvalidCredentialsError
 from .report import (
@@ -23,6 +23,12 @@ from .report import (
     InvalidReportTargetError,
     InvalidReportTargetEntityError,
     InvalidReportUserError,
+)
+from .vote import (
+    InvalidVoteStatusError,
+    InvalidVoteTargetError,
+    InvalidVoteUserError,
+    VoteAlreadyExistsError,
 )
 
 __all__ = [
@@ -44,4 +50,8 @@ __all__ = [
     "InvalidReportTargetError",
     "InvalidReportTargetEntityError",
     "InvalidReportUserError",
+    "InvalidVoteStatusError",
+    "InvalidVoteTargetError",
+    "InvalidVoteUserError",
+    "VoteAlreadyExistsError",
 ]

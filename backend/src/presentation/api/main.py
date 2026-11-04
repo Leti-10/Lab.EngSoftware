@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.core.config import settings
+from src.core import settings
 from src.infrastructure.seed import seed_native_catalog
 from src.presentation.api.routes import api_router
 from src.presentation.api.routes.book_router import in_memory_repo_instance

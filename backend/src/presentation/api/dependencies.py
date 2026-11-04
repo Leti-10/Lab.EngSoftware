@@ -1,21 +1,23 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities import User
 from src.domain.repositories import UserRepository
-from src.infrastructure.persistence.repositories import InMemoryUserRepository
+from src.infrastructure.persistence.database import get_db_context
+from src.infrastructure.persistence.repositories import SQLAlchemyUserRepository
 from src.infrastructure.security.token_service import TokenService
-
-_user_repository = InMemoryUserRepository()
 
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
-def get_user_repository() -> UserRepository:
-    return _user_repository
+async def get_user_repository(
+    session: AsyncSession = Depends(get_db_context),
+) -> UserRepository:
+    return SQLAlchemyUserRepository(session)
 
 
-def get_current_user(
+async def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     repository: UserRepository = Depends(get_user_repository),
 ) -> User:
@@ -28,7 +30,7 @@ def get_current_user(
         raise unauthorized
 
     user_id = TokenService.decode_user_id(credentials.credentials)
-    user = repository.get_by_id(user_id) if user_id is not None else None
+    user = await repository.get_by_id(user_id) if user_id is not None else None
     if user is None:
         raise unauthorized
     return user
