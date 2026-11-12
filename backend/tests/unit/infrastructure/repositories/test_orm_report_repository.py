@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from src.domain.entities import Report
 from src.domain.exceptions import ReportAlreadyExistsError
@@ -8,8 +8,8 @@ from src.infrastructure.persistence.repositories import SQLAlchemyReportReposito
 
 
 @pytest.mark.asyncio
-async def test_report_repository_persists_and_filters_reports():
-    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+async def test_report_repository_persists_and_filters_reports(postgres_engine):
+    engine = postgres_engine
     async with engine.begin() as connection:
         await connection.run_sync(ReportModelSQLAlchemy.__table__.create)
 
@@ -26,19 +26,15 @@ async def test_report_repository_persists_and_filters_reports():
         )
 
         found = await repository.get_by_id(saved.id)
-        filtered = await repository.find_by_filter(
-            target_id=2, target_entity="user"
-        )
-
-    await engine.dispose()
+        filtered = await repository.find_by_filter(target_id=2, target_entity="user")
 
     assert found == saved
     assert filtered == [saved]
 
 
 @pytest.mark.asyncio
-async def test_report_repository_rejects_duplicate_user_target():
-    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+async def test_report_repository_rejects_duplicate_user_target(postgres_engine):
+    engine = postgres_engine
     async with engine.begin() as connection:
         await connection.run_sync(ReportModelSQLAlchemy.__table__.create)
 
@@ -62,5 +58,3 @@ async def test_report_repository_rejects_duplicate_user_target():
                     description="Outra denúncia sobre o mesmo perfil",
                 )
             )
-
-    await engine.dispose()

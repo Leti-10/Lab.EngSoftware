@@ -18,7 +18,7 @@ uv run uvicorn src.presentation.api.main:app --reload --env-file .env
 ```
 
 - API em <http://localhost:8000> e Swagger em <http://localhost:8000/docs>
-- Testes: `uv run pytest` · Lint: `uv run ruff check .`
+- Testes (com PostgreSQL disponível): `uv run pytest` · Lint: `uv run ruff check .`
 - Guia completo (Docker, migrations, variáveis): [Manual de Execução](../docs/MANUAL_EXECUCAO.md)
 
 ## <span id="app_architecture"> Arquitetura da aplicação </span>
