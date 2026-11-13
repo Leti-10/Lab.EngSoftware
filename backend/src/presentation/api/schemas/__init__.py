@@ -11,6 +11,7 @@ from .user_schema import (
     UserResponseSchema,
 )
 from .review_schema import CreateReviewSchema, ReviewResponseSchema
+from .report_schema import CreateReportSchema, ReportResponseSchema
 from .vote_schema import CreateVoteSchema, VoteResponseSchema
 
 __all__ = [
@@ -25,6 +26,8 @@ __all__ = [
     "UserResponseSchema",
     "ReviewResponseSchema",
     "CreateReviewSchema",
+    "ReportResponseSchema",
+    "CreateReportSchema",
     "CreateVoteSchema",
     "VoteResponseSchema",
 ]

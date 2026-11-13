@@ -33,7 +33,7 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 | RF12 | O dono da lista deve adicionar obras a ela | Detalhe da lista | ✅ |
 | RF13 | O usuário deve avaliar obras com nota de 1 a 5 e comentário (Review) | — | 🔜 previsto no DER |
 | RF14 | O usuário deve votar (like/dislike/marcações) em conteúdos (Vote) | — | 🔜 previsto no DER |
-| RF15 | O usuário deve denunciar conteúdos (Report) | — | 🔜 previsto no DER |
+| RF15 | O usuário deve denunciar conteúdos (Report) | — | ✅ |
 
 ## Requisitos não funcionais
 
@@ -87,6 +87,14 @@ Documentação interativa (Swagger) em `http://localhost:8000/docs`. 🔒 = exig
 | `POST` | `/lists` 🔒 | Cria uma lista | `201` |
 | `GET` | `/lists/{id}` 🔒 | Detalhes de uma lista (com as obras) | `200` |
 | `POST` | `/lists/{id}/books` 🔒 | Adiciona uma obra à lista (`{"book_id": 1}`) | `200` |
+
+### Denúncias
+
+| Método | Rota | Descrição | Sucesso |
+| --- | --- | --- | --- |
+| `POST` | `/reports` 🔒 | Cria denúncia; `user_id` é obtido da sessão autenticada | `201` |
+| `GET` | `/reports/{report_id}` 🔒 | Busca denúncia por ID | `200` |
+| `GET` | `/reports` 🔒 | Lista denúncias; aceita filtros `user_id`, `target_id` e `target_entity` | `200` |
 
 ## Tratamento de erros
 

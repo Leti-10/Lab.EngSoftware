@@ -76,6 +76,8 @@ npm run format           # formata o código
 npm run build            # checagem de tipos (tsc) + build de produção
 ```
 
+Os testes que exercitam repositórios SQLAlchemy precisam de PostgreSQL acessível com as credenciais configuradas no `backend/.env`; eles criam e removem schemas temporários isolados.
+
 ## Variáveis de ambiente
 
 ### Backend (`backend/.env`)
@@ -126,7 +128,8 @@ Pontos identificados ao documentar que o time deve resolver antes da entrega fin
 
 | Item | Situação | O que fazer |
 | --- | --- | --- |
-| **SQLite no código** | `src/infrastructure/persistence/database.py` e `alembic.ini` ainda apontam para SQLite, **proibido** pelos critérios | Usar `settings.DATABASE_URL` (PostgreSQL) nos dois |
 | **Persistência da API** | Usuários, obras e listas usam repositórios em memória; só `books` tem repositório SQLAlchemy | Criar modelos/migrations de `users` e `lists` e trocar os `Depends` |
-| **Review, Vote e Report** | Previstas no DER, sem implementação | Ver RF13 a RF15 na [especificação](ESPECIFICACAO.md#requisitos-funcionais) |
+| **Dockerfile** | `CMD` aponta para `src.main:app` | Trocar por `src.presentation.api.main:app` |
+| **Usuários de denúncias** | O ID do autor vem da sessão autenticada; a persistência de usuários ainda é em memória | Migrar usuários para persistência SQL para voltar a impor FK em `reports.user_id` |
+| **Review, Vote e Report** | Previstas no DER | Ver RF13 a RF15 na [especificação](ESPECIFICACAO.md#requisitos-funcionais) |
 | **Nome de lista único global** | Duas pessoas não podem ter listas com o mesmo nome | Tornar a unicidade por dono |
