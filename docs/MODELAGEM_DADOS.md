@@ -96,6 +96,9 @@ erDiagram
 | User | ✅ `domain/entities/user.py` | 🔜 | ✅ `/auth/*` |
 | Book | ✅ `domain/entities/book.py` | ✅ `books`, `authors`, `book_author` | ✅ `/books` |
 | List | ✅ `domain/entities/book_list.py` | 🔜 | ✅ `/lists` |
-| Review / Vote / Report | 🔜 | 🔜 | 🔜 |
+| Review | ✅ `domain/entities/review.py` | ✅ `reviews` | ✅ `/reviews` |
+| Report | ✅ `domain/entities/report.py` | ✅ `reports` | ✅ `/reports` |
+
+`Report.target_entity` e `Report.target_id` formam uma referência polimórfica. O alvo pode ser um usuário (por exemplo, `target_entity: "users"`) ou outro tipo de conteúdo; por isso, `target_id` não possui uma FK fixa. O autor (`user_id`) é obtido do token da sessão autenticada. Como os usuários são atualmente armazenados em um repositório em memória, `reports.user_id` não possui FK para `users.id`.
 
 > Na implementação atual, o autor é normalizado em uma tabela própria (`authors`) ligada a `books` por `book_author`; gênero e tema ainda não têm tabela.

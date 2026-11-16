@@ -18,6 +18,13 @@ from .review import (
     InvalidReviewUserError,
 )
 from .user import InvalidCredentialsError
+from .report import (
+    InvalidReportDescriptionError,
+    InvalidReportTargetError,
+    InvalidReportTargetEntityError,
+    InvalidReportUserError,
+    ReportAlreadyExistsError,
+)
 from .vote import (
     InvalidVoteStatusError,
     InvalidVoteTargetError,
@@ -40,6 +47,11 @@ __all__ = [
     "InvalidReviewRatingError",
     "InvalidReviewUserError",
     "InvalidCredentialsError",
+    "InvalidReportDescriptionError",
+    "InvalidReportTargetError",
+    "InvalidReportTargetEntityError",
+    "InvalidReportUserError",
+    "ReportAlreadyExistsError",
     "InvalidVoteStatusError",
     "InvalidVoteTargetError",
     "InvalidVoteUserError",

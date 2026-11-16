@@ -1,5 +1,7 @@
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime
+
 from src.domain.entities import User
 
 
@@ -26,7 +28,7 @@ def test_should_raise_error_when_user_data_is_invalid(
             email=email,
             password=password,
             role="user",
-            created_at=datetime(2026, 1, 1),
+            created_at=datetime(2026, 1, 1, tzinfo=UTC),
         )
 
 
@@ -34,9 +36,18 @@ def test_should_assign_default_role_when_not_provided():
     user = User(
         username="capivara",
         email="capivara@example.com",
-        password="anypassword",
-        created_at=datetime(2026, 1, 1),
-        # O argumento 'role' foi omitido intencionalmente
+        password="hashed-password",
+        created_at=datetime(2026, 1, 1, tzinfo=UTC),
     )
 
     assert user.role == "user"
+
+
+def test_should_assign_utc_timezone_to_default_created_at():
+    user = User(
+        username="capivara",
+        email="capivara@example.com",
+        password="hashed-password",
+    )
+
+    assert user.created_at.tzinfo is UTC
