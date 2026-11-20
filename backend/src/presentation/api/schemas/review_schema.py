@@ -4,8 +4,21 @@ from pydantic import BaseModel, ConfigDict, Field
 class CreateReviewSchema(BaseModel):
     rating: int = Field(..., ge=1, le=5)
     comment: str | None = None
+    isSpoiler: bool = False
     user_id: int = Field(..., gt=0)
     book_id: int = Field(..., gt=0)
+
+
+class UpdateReviewSchema(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    rating: int = Field(..., ge=1, le=5)
+    comment: str | None = None
+    isSpoiler: bool = False
+
+
+class UpdateReviewSpoilerSchema(BaseModel):
+    isSpoiler: bool
 
 
 class ReviewResponseSchema(BaseModel):
@@ -14,5 +27,6 @@ class ReviewResponseSchema(BaseModel):
     id: int | None
     rating: int
     comment: str | None
+    isSpoiler: bool
     user_id: int
     book_id: int

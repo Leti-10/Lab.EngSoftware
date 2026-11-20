@@ -9,6 +9,10 @@ class ReviewRepository(ABC):
         pass
 
     @abstractmethod
+    async def update(self, review: Review) -> Review | None:
+        pass
+
+    @abstractmethod
     async def get_by_id(self, review_id: int) -> Review | None:
         pass
 
