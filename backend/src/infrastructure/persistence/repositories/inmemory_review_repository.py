@@ -23,6 +23,12 @@ class InMemoryReviewRepository(ReviewRepository):
     async def get_by_id(self, review_id: int) -> Review | None:
         return self.reviews.get(review_id)
 
+    async def update(self, review: Review) -> Review | None:
+        if review.id is None or review.id not in self.reviews:
+            return None
+        self.reviews[review.id] = review
+        return review
+
     async def find_by_filter(
         self,
         rating: int | None = None,

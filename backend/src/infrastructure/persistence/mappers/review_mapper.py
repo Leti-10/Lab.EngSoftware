@@ -12,6 +12,7 @@ class ReviewMapper:
             id=domain.id,
             rating=domain.rating,
             comment=domain.comment,
+            isSpoiler=domain.isSpoiler,
             user_id=domain.user_id,
             book_id=domain.book_id,
         )
@@ -25,6 +26,7 @@ class ReviewMapper:
             id=db_model.id,
             rating=db_model.rating,
             comment=db_model.comment,
+            isSpoiler=db_model.isSpoiler,
             user_id=db_model.user_id,
             book_id=db_model.book_id,
         )

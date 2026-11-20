@@ -31,6 +31,29 @@ class SQLAlchemyReviewRepository(ReviewRepository):
             await self.session.rollback()
             raise
 
+    async def update(self, review: Review) -> Review | None:
+        if review.id is None:
+            return None
+
+        model = await self.session.get(ReviewModelSQLAlchemy, review.id)
+        if model is None:
+            return None
+
+        model.rating = review.rating
+        model.comment = review.comment
+        model.isSpoiler = review.isSpoiler
+        model.user_id = review.user_id
+        model.book_id = review.book_id
+
+        try:
+            await self.session.commit()
+            await self.session.refresh(model)
+        except IntegrityError:
+            await self.session.rollback()
+            raise
+
+        return ReviewMapper.to_domain(model)
+
     async def get_by_id(self, review_id: int) -> Review | None:
         result = await self.session.execute(
             select(ReviewModelSQLAlchemy).where(ReviewModelSQLAlchemy.id == review_id)

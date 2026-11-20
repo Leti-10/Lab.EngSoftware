@@ -12,6 +12,7 @@ class Review:
     id: int | None = field(default=None)
     rating: int = field(default=0)
     comment: str | None = field(default=None)
+    isSpoiler: bool = field(default=False)
     user_id: int = field(default=0)
     book_id: int = field(default=0)
 

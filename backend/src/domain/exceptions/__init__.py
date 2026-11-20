@@ -13,9 +13,11 @@ from .book_list import (
     BookListNotFoundError,
 )
 from .review import (
+    InvalidReviewError,
     InvalidReviewBookError,
     InvalidReviewRatingError,
     InvalidReviewUserError,
+    ReviewNotFoundError,
 )
 from .user import InvalidCredentialsError
 from .report import (
@@ -43,9 +45,11 @@ __all__ = [
     "BookListNotFoundError",
     "ListNameTooShortError",
     "InvalidListOwnerError",
+    "InvalidReviewError",
     "InvalidReviewBookError",
     "InvalidReviewRatingError",
     "InvalidReviewUserError",
+    "ReviewNotFoundError",
     "InvalidCredentialsError",
     "InvalidReportDescriptionError",
     "InvalidReportTargetError",
