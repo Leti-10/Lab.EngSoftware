@@ -6,11 +6,15 @@ class SearchBooksUseCase:
     def __init__(self, book_repository: BookRepository):
         self.book_repository = book_repository
 
-    async def execute(self, query: str | None = None, genre: str | None = None) -> list[Book]:
+    async def execute(
+        self, query: str | None = None, genre: str | None = None
+    ) -> list[Book]:
         query = (query or "").strip() or None
 
         if query is None:
-            return [b for b in await self.book_repository.find_by_filter(genre=genre) if b]
+            return [
+                b for b in await self.book_repository.find_by_filter(genre=genre) if b
+            ]
 
         by_title = await self.book_repository.find_by_filter(title=query, genre=genre)
         by_author = await self.book_repository.find_by_filter(author=query, genre=genre)

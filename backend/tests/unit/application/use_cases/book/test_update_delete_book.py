@@ -30,7 +30,9 @@ async def repository():
 
 
 async def test_should_update_book(repository):
-    updated = await UpdateBookUseCase(repository).execute(1, make_book(title="One Piece 2"))
+    updated = await UpdateBookUseCase(repository).execute(
+        1, make_book(title="One Piece 2")
+    )
 
     assert updated.id == 1
     assert (await repository.get_by_id(1)).title == "One Piece 2"

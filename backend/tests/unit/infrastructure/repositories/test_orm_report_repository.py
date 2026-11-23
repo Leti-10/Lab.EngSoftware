@@ -11,7 +11,7 @@ from src.infrastructure.persistence.repositories import SQLAlchemyReportReposito
 async def test_report_repository_persists_and_filters_reports(postgres_engine):
     engine = postgres_engine
     async with engine.begin() as connection:
-        await connection.run_sync(ReportModelSQLAlchemy.__table__.create)
+        await connection.run_sync(ReportModelSQLAlchemy.metadata.create_all)
 
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
     async with session_factory() as session:
@@ -25,6 +25,7 @@ async def test_report_repository_persists_and_filters_reports(postgres_engine):
             )
         )
 
+        assert saved.id is not None
         found = await repository.get_by_id(saved.id)
         filtered = await repository.find_by_filter(target_id=2, target_entity="user")
 
@@ -36,7 +37,7 @@ async def test_report_repository_persists_and_filters_reports(postgres_engine):
 async def test_report_repository_rejects_duplicate_user_target(postgres_engine):
     engine = postgres_engine
     async with engine.begin() as connection:
-        await connection.run_sync(ReportModelSQLAlchemy.__table__.create)
+        await connection.run_sync(ReportModelSQLAlchemy.metadata.create_all)
 
     session_factory = async_sessionmaker(engine, expire_on_commit=False)
     async with session_factory() as session:

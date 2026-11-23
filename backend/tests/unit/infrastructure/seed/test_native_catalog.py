@@ -43,4 +43,7 @@ async def test_seed_keeps_books_registered_by_users():
 
     await seed_native_catalog(repository)
 
-    assert (await repository.get_by_isbn(NATIVE_BOOKS[0]["isbn"])).title == "Edição da comunidade"
+    book = await repository.get_by_isbn(NATIVE_BOOKS[0]["isbn"])
+
+    assert book is not None
+    assert book.title == "Edição da comunidade"

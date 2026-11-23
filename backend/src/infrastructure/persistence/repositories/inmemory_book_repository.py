@@ -17,7 +17,7 @@ class InMemoryBookRepository(BookRepository):
     async def update(self, book: Book) -> Book:
         if book.id is None or book.id not in self.books:
             raise ValueError(f"Book with id {book.id} not found.")
-        
+
         self.books[book.id] = book
         return book
 

@@ -98,9 +98,7 @@ def test_delete_vote_returns_204_and_removes_vote(client, auth_headers):
         headers=auth_headers,
     )
 
-    response = client.delete(
-        f"/votes/{created.json()['id']}", headers=auth_headers
-    )
+    response = client.delete(f"/votes/{created.json()['id']}", headers=auth_headers)
 
     assert response.status_code == 204
     assert client.get("/votes/1", headers=auth_headers).status_code == 404

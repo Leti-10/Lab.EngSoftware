@@ -39,7 +39,12 @@ def test_list_books_is_public_and_filters(client, auth_headers):
     client.post("/books", json=BOOK, headers=auth_headers)
     client.post(
         "/books",
-        json={**BOOK, "isbn": "9788542603835", "title": "One Piece", "genre": ["Mangá"]},
+        json={
+            **BOOK,
+            "isbn": "9788542603835",
+            "title": "One Piece",
+            "genre": ["Mangá"],
+        },
         headers=auth_headers,
     )
 
@@ -69,7 +74,9 @@ def test_update_book(client, auth_headers):
     created = client.post("/books", json=BOOK, headers=auth_headers).json()
 
     response = client.put(
-        f"/books/{created['id']}", json={**BOOK, "title": "Novo título"}, headers=auth_headers
+        f"/books/{created['id']}",
+        json={**BOOK, "title": "Novo título"},
+        headers=auth_headers,
     )
 
     assert response.status_code == 200

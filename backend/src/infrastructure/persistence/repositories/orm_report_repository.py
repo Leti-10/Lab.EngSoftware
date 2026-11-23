@@ -51,9 +51,7 @@ class SQLAlchemyReportRepository(ReportRepository):
 
     async def get_by_id(self, report_id: int) -> Report | None:
         result = await self.session.execute(
-            select(ReportModelSQLAlchemy).where(
-                ReportModelSQLAlchemy.id == report_id
-            )
+            select(ReportModelSQLAlchemy).where(ReportModelSQLAlchemy.id == report_id)
         )
         model = result.scalar_one_or_none()
         if model is None:
@@ -72,9 +70,7 @@ class SQLAlchemyReportRepository(ReportRepository):
         if target_id is not None:
             query = query.where(ReportModelSQLAlchemy.target_id == target_id)
         if target_entity:
-            query = query.where(
-                ReportModelSQLAlchemy.target_entity == target_entity
-            )
+            query = query.where(ReportModelSQLAlchemy.target_entity == target_entity)
 
         result = await self.session.execute(query)
         return [ReportMapper.to_domain(model) for model in result.scalars().all()]

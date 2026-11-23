@@ -10,12 +10,22 @@ async def repository():
     repo = InMemoryBookRepository()
     create = CreateBookUseCase(repo)
     await create.execute(
-        Book(isbn="9788542603835", title="One Piece", authors=["Eiichiro Oda"],
-             publisher="Panini", genre=["Mangá", "Aventura"])
+        Book(
+            isbn="9788542603835",
+            title="One Piece",
+            authors=["Eiichiro Oda"],
+            publisher="Panini",
+            genre=["Mangá", "Aventura"],
+        )
     )
     await create.execute(
-        Book(isbn="9788535902778", title="Dom Casmurro", authors=["Machado de Assis"],
-             publisher="Companhia", genre=["Romance"])
+        Book(
+            isbn="9788535902778",
+            title="Dom Casmurro",
+            authors=["Machado de Assis"],
+            publisher="Companhia",
+            genre=["Romance"],
+        )
     )
     return repo
 

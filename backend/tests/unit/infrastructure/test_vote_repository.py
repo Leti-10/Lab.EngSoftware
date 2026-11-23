@@ -108,6 +108,7 @@ async def test_vote_repository_saves_loads_and_filters_votes(postgres_engine):
             )
         )
 
+        assert book_vote.id is not None
         assert await repository.get_by_id(book_vote.id) == book_vote
         assert await repository.get_by_id(999) is None
         assert await repository.find_by_filter(
@@ -125,5 +126,6 @@ async def test_vote_repository_saves_loads_and_filters_votes(postgres_engine):
             target_type=EnumVoteTarget.LIST,
             target_name="Favorite List",
         ) == [list_vote]
+        assert list_vote.id is not None
         assert await repository.delete(list_vote.id)
         assert not await repository.delete(list_vote.id)

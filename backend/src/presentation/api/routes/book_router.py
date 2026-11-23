@@ -87,7 +87,9 @@ async def get_book(
     try:
         book = await GetBookUseCase(repository).execute(book_id)
     except BookNotFoundError as error:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error.message) from error
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=error.message
+        ) from error
     return to_response(book)
 
 
@@ -103,7 +105,9 @@ async def update_book(
             book_id, Book(**payload.model_dump())
         )
     except BookNotFoundError as error:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error.message) from error
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=error.message
+        ) from error
     except ValueError as error:
         conflict = str(error) == "ISBN já cadastrado"
         raise HTTPException(
@@ -125,4 +129,6 @@ async def delete_book(
     try:
         await DeleteBookUseCase(repository).execute(book_id)
     except BookNotFoundError as error:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error.message) from error
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=error.message
+        ) from error

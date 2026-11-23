@@ -29,9 +29,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
             VoteModelSQLAlchemy.target_id == vote.target_id,
         )
         if vote.id is not None:
-            duplicate_query = duplicate_query.where(
-                VoteModelSQLAlchemy.id != vote.id
-            )
+            duplicate_query = duplicate_query.where(VoteModelSQLAlchemy.id != vote.id)
         if await self.session.scalar(duplicate_query) is not None:
             raise VoteAlreadyExistsError()
 
@@ -89,9 +87,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
                 )
             )
         if target_type is not None:
-            query = query.where(
-                VoteModelSQLAlchemy.target_entity == target_type.value
-            )
+            query = query.where(VoteModelSQLAlchemy.target_entity == target_type.value)
         if target_name:
             pattern = f"%{target_name}%"
             target_filters = []
