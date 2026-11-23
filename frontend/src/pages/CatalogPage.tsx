@@ -1,10 +1,13 @@
 import { SearchX, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 import { BookCard } from '../components/BookCard'
+import { ExternalBookCard } from '../components/ExternalBookCard'
 import { Alert } from '../components/ui'
 import { api } from '../lib/api'
-import type { Book } from '../lib/types'
+import { importBook } from '../lib/catalog'
+import type { Book, CatalogBook } from '../lib/types'
 
 const FILTERS = [
   { label: 'Tudo', genre: '' },
@@ -14,10 +17,18 @@ const FILTERS = [
 
 export function CatalogPage() {
   const [params] = useSearchParams()
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [query, setQuery] = useState(params.get('q') ?? '')
   const [genre, setGenre] = useState(params.get('genre') ?? '')
   const [books, setBooks] = useState<Book[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [external, setExternal] = useState<CatalogBook[]>([])
+  const [searching, setSearching] = useState(false)
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState<string | null>(null)
+  const term = query.trim()
+  const searchesExternal = Boolean(user) && term.length >= 2 && !genre
 
   useEffect(() => {
     const controller = new AbortController()
@@ -41,6 +52,46 @@ export function CatalogPage() {
       controller.abort()
     }
   }, [query, genre])
+
+  useEffect(() => {
+    if (!searchesExternal) return
+    const controller = new AbortController()
+    const timer = setTimeout(() => {
+      setSearching(true)
+      api<CatalogBook[]>(`/catalog/search?q=${encodeURIComponent(term)}`, {
+        signal: controller.signal,
+      })
+        .then((data) => setExternal(data))
+        .catch((err: Error) => {
+          if (err.name !== 'AbortError') setExternal([])
+        })
+        .finally(() => !controller.signal.aborted && setSearching(false))
+    }, 600)
+
+    return () => {
+      clearTimeout(timer)
+      controller.abort()
+      setSearching(false)
+    }
+  }, [searchesExternal, term])
+
+  async function handlePick(book: CatalogBook) {
+    setImportError(null)
+    setImporting(true)
+    try {
+      const saved = await importBook(book)
+      navigate(`/livros/${saved.id}`)
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : 'Não foi possível adicionar a obra.')
+      setImporting(false)
+    }
+  }
+
+  const known = new Set((books ?? []).flatMap((book) => [book.isbn, book.title.toLowerCase()]))
+  const fromOutside = searchesExternal
+    ? external.filter((book) => !known.has(book.isbn) && !known.has(book.title.toLowerCase()))
+    : []
+  const empty = books?.length === 0 && fromOutside.length === 0 && !searching
 
   return (
     <div>
@@ -95,7 +146,8 @@ export function CatalogPage() {
       <div className="mt-8">
         {error && <Alert>{error}</Alert>}
         {!error && books === null && <p className="text-ink-soft">Carregando…</p>}
-        {books?.length === 0 && (
+        {importError && <Alert>{importError}</Alert>}
+        {empty && (
           <p className="py-16 text-center text-ink-soft">
             <SearchX aria-hidden="true" className="mx-auto mb-3 size-8 text-blue-warm-500" />
             Nenhuma obra encontrada.{' '}
@@ -104,13 +156,17 @@ export function CatalogPage() {
             </Link>
           </p>
         )}
-        {books && books.length > 0 && (
+        {((books && books.length > 0) || fromOutside.length > 0) && (
           <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {books.map((book) => (
+            {books?.map((book) => (
               <BookCard key={book.id} book={book} />
+            ))}
+            {fromOutside.map((book) => (
+              <ExternalBookCard key={book.isbn} book={book} busy={importing} onPick={handlePick} />
             ))}
           </div>
         )}
+        {searching && <p className="mt-6 text-sm text-ink-soft">Buscando mais obras…</p>}
       </div>
     </div>
   )
