@@ -17,6 +17,7 @@ from .review import (
     InvalidReviewBookError,
     InvalidReviewRatingError,
     InvalidReviewUserError,
+    ReviewAlreadyExistsError,
     ReviewNotFoundError,
 )
 from .user import InvalidCredentialsError
@@ -49,6 +50,7 @@ __all__ = [
     "InvalidReviewBookError",
     "InvalidReviewRatingError",
     "InvalidReviewUserError",
+    "ReviewAlreadyExistsError",
     "ReviewNotFoundError",
     "InvalidCredentialsError",
     "InvalidReportDescriptionError",

@@ -35,10 +35,16 @@ class InMemoryReviewRepository(ReviewRepository):
         username: str | None = None,
         book_title: str | None = None,
         comment: str | None = None,
+        book_id: int | None = None,
+        user_id: int | None = None,
     ) -> list[Review | None]:
         results = []
         for review in self.reviews.values():
             if rating is not None and review.rating != rating:
+                continue
+            if book_id is not None and review.book_id != book_id:
+                continue
+            if user_id is not None and review.user_id != user_id:
                 continue
             if username and (
                 review.user_id not in self.users

@@ -21,6 +21,11 @@ class InvalidReviewBookError(DomainError):
         super().__init__(f"O livro com ID '{book_id}' é inválido.")
 
 
+class ReviewAlreadyExistsError(DomainError):
+    def __init__(self):
+        super().__init__("Você já avaliou este livro. Edite a sua resenha.")
+
+
 class ReviewNotFoundError(DomainError):
     def __init__(self, review_id: int):
         super().__init__(f"Review {review_id} não encontrada.")

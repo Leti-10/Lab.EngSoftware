@@ -5,7 +5,6 @@ class CreateReviewSchema(BaseModel):
     rating: int = Field(..., ge=1, le=5)
     comment: str | None = None
     isSpoiler: bool = False
-    user_id: int = Field(..., gt=0)
     book_id: int = Field(..., gt=0)
 
 
@@ -30,3 +29,7 @@ class ReviewResponseSchema(BaseModel):
     isSpoiler: bool
     user_id: int
     book_id: int
+    username: str | None = None
+    likes: int = 0
+    liked_by_me: bool = False
+    like_vote_id: int | None = None
