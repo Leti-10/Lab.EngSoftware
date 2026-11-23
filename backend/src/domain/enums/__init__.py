@@ -1,3 +1,3 @@
-from .enums import EnumVoteTarget
+from .enums import EnumReadingStatus, EnumVoteTarget
 
-__all__ = ["EnumVoteTarget"]
+__all__ = ["EnumReadingStatus", "EnumVoteTarget"]
