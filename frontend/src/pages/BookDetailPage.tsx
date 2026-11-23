@@ -7,7 +7,6 @@ import {
   Layers,
   PenLine,
   Pencil,
-  Star,
   Trash2,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -16,10 +15,13 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { BookCover } from '../components/BookCard'
 import { BookShelf } from '../components/BookShelf'
+import { ReviewSection } from '../components/ReviewSection'
+import { Stars } from '../components/StarRating'
 import { Alert, Button } from '../components/ui'
 import { ApiError, api } from '../lib/api'
 import { kindOf } from '../lib/books'
-import type { Book } from '../lib/types'
+import { averageOf } from '../lib/reviews'
+import type { Book, Review } from '../lib/types'
 
 const TABS = ['Detalhes', 'Gêneros', 'Temas'] as const
 type Tab = (typeof TABS)[number]
@@ -67,6 +69,7 @@ export function BookDetailPage() {
   const [tab, setTab] = useState<Tab>('Detalhes')
   const [sameAuthor, setSameAuthor] = useState<Book[]>([])
   const [similar, setSimilar] = useState<Book[]>([])
+  const [reviews, setReviews] = useState<Review[]>([])
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
@@ -92,6 +95,10 @@ export function BookDetailPage() {
 
     setSameAuthor([])
     setSimilar([])
+    setReviews([])
+    api<Review[]>(`/reviews?book_id=${book.id}`)
+      .then((data) => !cancelled && setReviews(data))
+      .catch(() => undefined)
     api<Book[]>(`/books?q=${encodeURIComponent(book.authors[0])}`)
       .then((data) => !cancelled && setSameAuthor(others(data)))
       .catch(() => undefined)
@@ -137,6 +144,7 @@ export function BookDetailPage() {
   const kind = kindOf(book.genre)
   const genres = book.genre.filter((genre) => genre !== kind)
   const authorName = book.authors[0]
+  const average = averageOf(reviews.map((review) => review.rating))
 
   return (
     <div>
@@ -304,20 +312,37 @@ export function BookDetailPage() {
               label="Quero ler"
             />
             <SoonAction icon={<Heart aria-hidden="true" className="size-6" />} label="Favoritar" />
-            <SoonAction icon={<PenLine aria-hidden="true" className="size-6" />} label="Resenhar" />
+            <a
+              href="#resenhas"
+              className="flex flex-col items-center gap-2 px-2 py-4 text-xs text-ink transition-colors hover:bg-cream-200"
+            >
+              <PenLine aria-hidden="true" className="size-6" />
+              Resenhar
+            </a>
           </div>
 
           <div className="border-t border-cream-300 px-4 py-4 text-center">
             <p className="text-xs text-ink-soft">Avaliação</p>
-            <div aria-hidden="true" className="mt-2 flex justify-center gap-1 text-cream-300">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="size-6 fill-current" />
-              ))}
-            </div>
-            <p className="mt-2 text-xs text-ink-soft">Avaliações e resenhas em breve</p>
+            {reviews.length > 0 ? (
+              <>
+                <p className="mt-1 text-3xl font-semibold text-ink">
+                  {average.toFixed(1).replace('.', ',')}
+                </p>
+                <div className="mt-1 flex justify-center">
+                  <Stars value={average} size="size-5" />
+                </div>
+                <p className="mt-2 text-xs text-ink-soft">
+                  {reviews.length} {reviews.length === 1 ? 'avaliação' : 'avaliações'}
+                </p>
+              </>
+            ) : (
+              <p className="mt-3 text-xs text-ink-soft">Ainda sem avaliações</p>
+            )}
           </div>
         </aside>
       </div>
+
+      <ReviewSection bookId={book.id} reviews={reviews} onChange={setReviews} />
 
       <div className="mt-12 space-y-6">
         <BookShelf

@@ -38,3 +38,30 @@ export interface BookList {
   private: boolean
   books: Book[]
 }
+
+export interface Review {
+  id: number
+  rating: number
+  comment: string | null
+  isSpoiler: boolean
+  user_id: number
+  book_id: number
+  username: string | null
+  likes: number
+  liked_by_me: boolean
+  like_vote_id: number | null
+}
+
+export interface ReviewPayload {
+  rating: number
+  comment: string | null
+  isSpoiler: boolean
+}
+
+export interface Vote {
+  id: number
+  status: string
+  target_entity: string
+  target_id: number
+  user_id: number
+}

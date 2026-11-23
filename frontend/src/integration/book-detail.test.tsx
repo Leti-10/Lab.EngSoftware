@@ -16,6 +16,7 @@ const otherByOda = { ...onePiece, id: 4, isbn: '9781569319123', title: 'One Piec
 
 function mockBook(book = onePiece, extra: { author?: unknown[]; genre?: unknown[] } = {}) {
   server.use(
+    http.get(`${API}/reviews`, () => HttpResponse.json([])),
     http.get(`${API}/books/${book.id}`, () => HttpResponse.json(book)),
     http.get(`${API}/books`, ({ request }) => {
       const params = new URL(request.url).searchParams
@@ -104,15 +105,15 @@ describe('detalhe da obra', () => {
     expect(screen.queryByRole('heading', { name: /Obras parecidas/ })).toBeNull()
   })
 
-  it('mostra ações futuras desabilitadas e a avaliação em breve', async () => {
+  it('mostra ações futuras desabilitadas e a avaliação vazia', async () => {
     mockBook()
     renderApp('/livros/1')
 
     await screen.findByRole('heading', { name: 'One Piece, Vol. 1' })
     expect(screen.getByRole('button', { name: 'Quero ler (em breve)' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Favoritar (em breve)' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'Resenhar (em breve)' })).toBeDisabled()
-    expect(screen.getByText('Avaliações e resenhas em breve')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Resenhar' })).toHaveAttribute('href', '#resenhas')
+    expect(screen.getByText('Ainda sem avaliações')).toBeInTheDocument()
   })
 
   it('mostra "Obra não encontrada" para 404', async () => {
