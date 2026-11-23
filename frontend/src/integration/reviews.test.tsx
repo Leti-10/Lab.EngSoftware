@@ -10,6 +10,7 @@ function mockPage(reviews: Review[]) {
     http.get(`${API}/books/1`, () => HttpResponse.json(onePiece)),
     http.get(`${API}/books`, () => HttpResponse.json([onePiece])),
     http.get(`${API}/reviews`, () => HttpResponse.json(reviews)),
+    http.get(`${API}/readings`, () => HttpResponse.json([])),
   )
 }
 

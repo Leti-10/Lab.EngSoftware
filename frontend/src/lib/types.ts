@@ -74,3 +74,11 @@ export interface CatalogBook {
   genres: string[]
   cover_url: string | null
 }
+
+export type ReadingKind = 'want_to_read' | 'reading' | 'read'
+
+export interface Reading {
+  id: number
+  book_id: number
+  status: ReadingKind
+}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { kindOf } from '../lib/books'
+import { uniqueAuthors } from '../lib/catalog'
 import type { CatalogBook } from '../lib/types'
 
 export function ExternalBookCard({
@@ -38,7 +39,7 @@ export function ExternalBookCard({
         )}
       </div>
       <p className="mt-3 truncate text-sm font-medium text-ink">{book.title}</p>
-      <p className="truncate text-xs text-ink-soft">{book.authors.join(', ')}</p>
+      <p className="truncate text-xs text-ink-soft">{uniqueAuthors(book.authors).join(', ')}</p>
       <p className="mt-1 text-xs text-blue-warm-600">{kindOf(book.genres)}</p>
     </button>
   )

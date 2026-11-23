@@ -1,20 +1,11 @@
-import {
-  ArrowLeft,
-  Barcode,
-  Bookmark,
-  Building2,
-  Heart,
-  Layers,
-  PenLine,
-  Pencil,
-  Trash2,
-} from 'lucide-react'
+import { ArrowLeft, Barcode, Building2, Heart, Layers, PenLine, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { BookCover } from '../components/BookCard'
 import { BookShelf } from '../components/BookShelf'
+import { ReadingStatus } from '../components/ReadingStatus'
 import { ReviewSection } from '../components/ReviewSection'
 import { Stars } from '../components/StarRating'
 import { Alert, Button } from '../components/ui'
@@ -305,11 +296,8 @@ function BookDetail({ id }: { id?: string }) {
           aria-label="Ações da obra"
           className="h-fit overflow-hidden rounded-2xl border border-cream-300 bg-cream-50 md:col-span-2 lg:col-span-1"
         >
-          <div className="grid grid-cols-3 divide-x divide-cream-300">
-            <SoonAction
-              icon={<Bookmark aria-hidden="true" className="size-6" />}
-              label="Quero ler"
-            />
+          <ReadingStatus bookId={book.id} />
+          <div className="grid grid-cols-2 divide-x divide-cream-300 border-t border-cream-300">
             <SoonAction icon={<Heart aria-hidden="true" className="size-6" />} label="Favoritar" />
             <a
               href="#resenhas"

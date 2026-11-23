@@ -17,6 +17,7 @@ const otherByOda = { ...onePiece, id: 4, isbn: '9781569319123', title: 'One Piec
 function mockBook(book = onePiece, extra: { author?: unknown[]; genre?: unknown[] } = {}) {
   server.use(
     http.get(`${API}/reviews`, () => HttpResponse.json([])),
+    http.get(`${API}/readings`, () => HttpResponse.json([])),
     http.get(`${API}/books/${book.id}`, () => HttpResponse.json(book)),
     http.get(`${API}/books`, ({ request }) => {
       const params = new URL(request.url).searchParams
@@ -110,7 +111,6 @@ describe('detalhe da obra', () => {
     renderApp('/livros/1')
 
     await screen.findByRole('heading', { name: 'One Piece, Vol. 1' })
-    expect(screen.getByRole('button', { name: 'Quero ler (em breve)' })).toBeDisabled()
     expect(screen.getByRole('button', { name: 'Favoritar (em breve)' })).toBeDisabled()
     expect(screen.getByRole('link', { name: 'Resenhar' })).toHaveAttribute('href', '#resenhas')
     expect(screen.getByText('Ainda sem avaliações')).toBeInTheDocument()

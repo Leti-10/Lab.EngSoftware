@@ -115,6 +115,7 @@ describe('busca com obras do Open Library', () => {
         HttpResponse.json({ ...domCasmurro, id: 50, title: 'Torto Arado', genre: ['Romance'] }),
       ),
       http.get(`${API}/reviews`, () => HttpResponse.json([])),
+      http.get(`${API}/readings`, () => HttpResponse.json([])),
     )
     const { user } = renderApp('/livros')
     await screen.findByText('Dom Casmurro', { selector: 'p' })

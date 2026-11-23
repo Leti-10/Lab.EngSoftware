@@ -1,12 +1,23 @@
 import { ApiError, api } from './api'
 import type { Book, BookPayload, CatalogBook } from './types'
 
+export function uniqueAuthors(authors: string[]): string[] {
+  const seen = new Set<string>()
+  return authors.filter((author) => {
+    const key = author.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim()
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
 export async function importBook(book: CatalogBook): Promise<Book> {
   const payload: BookPayload = {
     isbn: book.isbn,
     title: book.title,
     publisher: book.publisher || 'Não informada',
-    authors: book.authors.length > 0 ? book.authors : ['Autor desconhecido'],
+    authors:
+      uniqueAuthors(book.authors).length > 0 ? uniqueAuthors(book.authors) : ['Autor desconhecido'],
     genre: book.genres,
     theme: [],
   }
