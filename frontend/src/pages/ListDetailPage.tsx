@@ -6,12 +6,14 @@ import { BookCard } from '../components/BookCard'
 import { FollowButton } from '../components/FollowButton'
 import { Alert, Button } from '../components/ui'
 import { ApiError, api } from '../lib/api'
+import { useDocumentTitle } from '../lib/pageTitle'
 import type { Book, BookList } from '../lib/types'
 
 export function ListDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
   const [list, setList] = useState<BookList | null>(null)
+  useDocumentTitle(list?.name)
   const [catalog, setCatalog] = useState<Book[]>([])
   const [error, setError] = useState<ApiError | null>(null)
 
@@ -93,7 +95,7 @@ export function ListDetailPage() {
               aria-label="Escolher obra para adicionar"
               value={selected}
               onChange={(e) => setSelected(e.target.value)}
-              className="max-w-56 rounded-full border border-cream-300 bg-cream-50 px-4 py-2.5 text-sm text-ink focus:border-blue-warm-500 focus:outline-none"
+              className="max-w-56 rounded-full border border-line bg-cream-50 px-4 py-2.5 text-sm text-ink focus:border-blue-warm-500 focus:outline-none"
             >
               <option value="">Adicionar obra…</option>
               {available.map((book) => (

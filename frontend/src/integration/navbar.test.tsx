@@ -39,13 +39,12 @@ describe('menu do usuário', () => {
     const { trigger } = await openMenu()
 
     expect(trigger).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByRole('menu')).toHaveTextContent('ana@example.com')
-    expect(screen.getByRole('menuitem', { name: 'Meu perfil' })).toHaveAttribute('href', '/perfil')
-    expect(screen.getByRole('menuitem', { name: 'Minhas listas' })).toHaveAttribute(
-      'href',
-      '/listas',
+    expect(screen.getByRole('navigation', { name: 'Menu da conta' })).toHaveTextContent(
+      'ana@example.com',
     )
-    expect(screen.getByRole('menuitem', { name: 'Sair' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Meu perfil' })).toHaveAttribute('href', '/perfil')
+    expect(screen.getByRole('link', { name: 'Minhas listas' })).toHaveAttribute('href', '/listas')
+    expect(screen.getByRole('button', { name: 'Sair' })).toBeInTheDocument()
   })
 
   it('fecha com Esc', async () => {
@@ -53,7 +52,7 @@ describe('menu do usuário', () => {
 
     await user.keyboard('{Escape}')
 
-    expect(screen.queryByRole('menu')).toBeNull()
+    expect(screen.queryByRole('navigation', { name: 'Menu da conta' })).toBeNull()
   })
 
   it('fecha ao clicar fora', async () => {
@@ -61,23 +60,23 @@ describe('menu do usuário', () => {
 
     await user.click(screen.getByRole('heading', { name: /Sua estante/ }))
 
-    expect(screen.queryByRole('menu')).toBeNull()
+    expect(screen.queryByRole('navigation', { name: 'Menu da conta' })).toBeNull()
   })
 
   it('leva ao perfil e fecha o menu', async () => {
     server.use(http.get(`${API}/lists`, () => HttpResponse.json([])))
     const { user } = await openMenu()
 
-    await user.click(screen.getByRole('menuitem', { name: 'Meu perfil' }))
+    await user.click(screen.getByRole('link', { name: 'Meu perfil' }))
 
     expect(await screen.findByRole('heading', { name: 'ana' })).toBeInTheDocument()
-    expect(screen.queryByRole('menu')).toBeNull()
+    expect(screen.queryByRole('navigation', { name: 'Menu da conta' })).toBeNull()
   })
 
   it('sair encerra a sessão e leva ao login', async () => {
     const { user } = await openMenu()
 
-    await user.click(screen.getByRole('menuitem', { name: 'Sair' }))
+    await user.click(screen.getByRole('button', { name: 'Sair' }))
 
     expect(await screen.findByRole('heading', { name: 'Bem-vinda de volta' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Entrar' })).toBeInTheDocument()

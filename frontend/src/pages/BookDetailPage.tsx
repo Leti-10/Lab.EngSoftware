@@ -12,6 +12,7 @@ import { Stars } from '../components/StarRating'
 import { Alert, Button } from '../components/ui'
 import { ApiError, api } from '../lib/api'
 import { kindOf } from '../lib/books'
+import { useDocumentTitle } from '../lib/pageTitle'
 import { averageOf } from '../lib/reviews'
 import type { Book, Review } from '../lib/types'
 
@@ -47,6 +48,7 @@ function BookDetail({ id }: { id?: string }) {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [book, setBook] = useState<Book | null>(null)
+  useDocumentTitle(book?.title)
   const [error, setError] = useState<ApiError | null>(null)
   const [tab, setTab] = useState<Tab>('Detalhes')
   const [sameAuthor, setSameAuthor] = useState<Book[]>([])

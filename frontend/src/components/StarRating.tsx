@@ -51,8 +51,8 @@ export function RatingInput({
         >
           <Star
             aria-hidden="true"
-            className={`size-7 ${star <= shown ? 'text-star' : 'text-cream-300'}`}
-            fill="currentColor"
+            className={`size-7 ${star <= shown ? 'text-star' : 'text-line'}`}
+            fill={star <= shown ? 'currentColor' : 'none'}
           />
         </button>
       ))}

@@ -99,7 +99,7 @@ export function CommentSection({ reviewId }: { reviewId: number }) {
             value={text}
             onChange={(event) => setText(event.target.value)}
             placeholder="Escreva um comentário"
-            className="w-full rounded-xl border border-cream-300 bg-cream-50 px-3 py-2 text-sm text-ink focus:border-blue-warm-500 focus:outline-none"
+            className="w-full rounded-xl border border-line bg-cream-50 px-3 py-2 text-sm text-ink focus:border-blue-warm-500 focus:outline-none"
           />
           <Button type="submit" disabled={sending || !text.trim()}>
             {sending ? 'Enviando…' : 'Comentar'}

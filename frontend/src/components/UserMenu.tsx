@@ -20,6 +20,7 @@ export function UserMenu() {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const container = useRef<HTMLDivElement>(null)
+  const trigger = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!open) return
@@ -28,7 +29,10 @@ export function UserMenu() {
       if (!container.current?.contains(event.target as Node)) setOpen(false)
     }
     function handleKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(false)
+      if (event.key === 'Escape') {
+        setOpen(false)
+        trigger.current?.focus()
+      }
     }
 
     document.addEventListener('mousedown', handleClick)
@@ -50,8 +54,8 @@ export function UserMenu() {
   return (
     <div ref={container} className="relative">
       <button
+        ref={trigger}
         type="button"
-        aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
         className="flex items-center gap-2 rounded-full border border-cream-300 bg-cream-50 py-1 pr-3 pl-1 text-sm text-ink transition-colors hover:bg-cream-200"
@@ -69,8 +73,8 @@ export function UserMenu() {
       </button>
 
       {open && (
-        <div
-          role="menu"
+        <nav
+          aria-label="Menu da conta"
           className="absolute right-0 z-20 mt-2 w-60 rounded-2xl border border-cream-300 bg-cream-50 p-2 shadow-lg"
         >
           <div className="px-3 py-2">
@@ -78,30 +82,30 @@ export function UserMenu() {
             <p className="truncate text-xs text-ink-soft">{user.email}</p>
           </div>
           <div className="my-1 border-t border-cream-300" />
-          <Link to="/perfil" role="menuitem" onClick={() => setOpen(false)} className={itemClass}>
+          <Link to="/perfil" onClick={() => setOpen(false)} className={itemClass}>
             <UserRound aria-hidden="true" className="size-4 text-ink-soft" />
             Meu perfil
           </Link>
-          <Link to="/listas" role="menuitem" onClick={() => setOpen(false)} className={itemClass}>
+          <Link to="/listas" onClick={() => setOpen(false)} className={itemClass}>
             <ListChecks aria-hidden="true" className="size-4 text-ink-soft" />
             Minhas listas
           </Link>
           <Link
             to="/favoritos"
-            role="menuitem"
+
             onClick={() => setOpen(false)}
             className={itemClass}
           >
             <Heart aria-hidden="true" className="size-4 text-ink-soft" />
             Favoritos
           </Link>
-          <Link to="/feed" role="menuitem" onClick={() => setOpen(false)} className={itemClass}>
+          <Link to="/feed" onClick={() => setOpen(false)} className={itemClass}>
             <Newspaper aria-hidden="true" className="size-4 text-ink-soft" />
             Feed
           </Link>
           <Link
             to="/recomendacoes"
-            role="menuitem"
+
             onClick={() => setOpen(false)}
             className={itemClass}
           >
@@ -109,11 +113,11 @@ export function UserMenu() {
             Recomendações
           </Link>
           <div className="my-1 border-t border-cream-300" />
-          <button type="button" role="menuitem" onClick={handleLogout} className={itemClass}>
+          <button type="button" onClick={handleLogout} className={itemClass}>
             <LogOut aria-hidden="true" className="size-4 text-ink-soft" />
             Sair
           </button>
-        </div>
+        </nav>
       )}
     </div>
   )

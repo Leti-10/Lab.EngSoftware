@@ -5,6 +5,7 @@ import { FollowButton } from '../components/FollowButton'
 import { UserAvatar } from '../components/UserAvatar'
 import { Alert } from '../components/ui'
 import { ApiError, api } from '../lib/api'
+import { useDocumentTitle } from '../lib/pageTitle'
 import type { BookList, PublicProfile } from '../lib/types'
 
 function Cover({ url }: { url: string | null }) {
@@ -30,6 +31,7 @@ function Cover({ url }: { url: string | null }) {
 function UserProfile({ id }: { id: string | undefined }) {
   const { user } = useAuth()
   const [profile, setProfile] = useState<PublicProfile | null>(null)
+  useDocumentTitle(profile?.username)
   const [lists, setLists] = useState<BookList[]>([])
   const [error, setError] = useState<ApiError | null>(null)
 

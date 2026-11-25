@@ -76,7 +76,7 @@ function ReviewForm({
           value={comment}
           onChange={(event) => setComment(event.target.value)}
           placeholder="O que você achou da obra? (opcional)"
-          className="w-full rounded-xl border border-cream-300 bg-cream-50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:border-blue-warm-500 focus:outline-none"
+          className="w-full rounded-xl border border-line bg-cream-50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-blue-warm-500 focus:outline-none"
         />
         <p className="mt-1 text-right text-xs text-ink-soft">
           {comment.length}/{MAX_COMMENT}
@@ -155,7 +155,7 @@ export function ReviewItem({
   }
 
   return (
-    <li className="rounded-2xl border border-cream-300 bg-cream-50 p-5">
+    <li className="rounded-2xl border border-line bg-cream-50 p-5">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <Link to={`/usuarios/${review.user_id}`} className="font-medium text-ink hover:underline">
           {review.username ?? 'Leitor'}

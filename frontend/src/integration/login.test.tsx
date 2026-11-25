@@ -79,7 +79,7 @@ describe('sessão', () => {
     const { user } = renderApp('/')
 
     await user.click(await screen.findByRole('button', { name: 'ana' }))
-    await user.click(screen.getByRole('menuitem', { name: 'Sair' }))
+    await user.click(screen.getByRole('button', { name: 'Sair' }))
 
     expect(await screen.findByRole('heading', { name: 'Bem-vinda de volta' })).toBeInTheDocument()
     expect(tokenStorage.get()).toBeNull()

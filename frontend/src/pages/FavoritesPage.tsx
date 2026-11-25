@@ -45,7 +45,7 @@ export function FavoritesPage() {
                 onChange={(event) => setTitleFilter(event.target.value)}
                 placeholder="Filtrar por título"
                 aria-label="Filtrar favoritos por título"
-                className="w-full rounded-full border border-cream-300 bg-cream-50 py-2.5 pr-5 pl-11 text-sm placeholder:text-ink-soft/60 focus:border-blue-warm-500 focus:outline-none"
+                className="w-full rounded-full border border-line bg-cream-50 py-2.5 pr-5 pl-11 text-sm placeholder:text-ink-soft focus:border-blue-warm-500 focus:outline-none"
               />
             </div>
             {filteredFavorites.length === 0 ? (
