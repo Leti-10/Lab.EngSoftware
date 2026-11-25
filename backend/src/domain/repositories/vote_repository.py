@@ -18,11 +18,22 @@ class VoteRepository(ABC):
         pass
 
     @abstractmethod
+    async def delete_by_target(
+        self,
+        user_id: int,
+        target_type: EnumVoteTarget,
+        target_id: int,
+        status: str,
+    ) -> bool:
+        pass
+
+    @abstractmethod
     async def find_by_filter(
         self,
         status: str | None = None,
         user_name: str | None = None,
         target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
+        user_id: int | None = None,
     ) -> list[Vote]:
         pass

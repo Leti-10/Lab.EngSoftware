@@ -13,10 +13,12 @@ class FilterVotesUseCase:
         user_name: str | None = None,
         target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
+        user_id: int | None = None,
     ) -> list[Vote]:
         return await self.vote_repository.find_by_filter(
             status=status,
             user_name=user_name,
             target_type=target_type,
             target_name=target_name,
+            user_id=user_id,
         )
