@@ -103,13 +103,13 @@ erDiagram
 
 | Entidade | Entidade de domínio | Tabela (Alembic/SQLAlchemy) | Exposta na API |
 | --- | --- | --- | --- |
-| User | ✅ `domain/entities/user.py` | ✅ `users` | ✅ `/auth/*` |
-| Book | ✅ `domain/entities/book.py` | ✅ `books`, `authors`, `book_author` | ✅ `/books` |
-| List | ✅ `domain/entities/book_list.py` | 🔜 | ✅ `/lists` |
-| Review | ✅ `domain/entities/review.py` | ✅ `reviews` | ✅ `/reviews` |
-| Vote | ✅ `domain/entities/vote.py` | ✅ `votes` | ✅ `/votes` |
-| Reading | ✅ `domain/entities/reading.py` | ✅ `readings` | ✅ `/readings` |
-| Report | ✅ `domain/entities/report.py` | ✅ `reports` | ✅ `/reports` |
+| User | ✓ `domain/entities/user.py` | ✓ `users` | ✓ `/auth/*` |
+| Book | ✓ `domain/entities/book.py` | ✓ `books`, `authors`, `book_author` | ✓ `/books` |
+| List | ✓ `domain/entities/book_list.py` | Previsto | ✓ `/lists` |
+| Review | ✓ `domain/entities/review.py` | ✓ `reviews` | ✓ `/reviews` |
+| Vote | ✓ `domain/entities/vote.py` | ✓ `votes` | ✓ `/votes` |
+| Reading | ✓ `domain/entities/reading.py` | ✓ `readings` | ✓ `/readings` |
+| Report | ✓ `domain/entities/report.py` | ✓ `reports` | ✓ `/reports` |
 
 `Report.target_entity` e `Report.target_id` formam uma referência polimórfica. O alvo pode ser um usuário (por exemplo, `target_entity: "users"`) ou outro tipo de conteúdo; por isso, `target_id` não possui uma FK fixa. O autor (`user_id`) é obtido do token da sessão autenticada. Como os usuários são atualmente armazenados em um repositório em memória, `reports.user_id` não possui FK para `users.id`.
 

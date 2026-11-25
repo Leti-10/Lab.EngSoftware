@@ -32,9 +32,9 @@ O backend precisa estar rodando — veja o [Manual de Execução](../docs/MANUAL
 | `/cadastro` | `RegisterPage` | Público |
 | `/livros` | `CatalogPage` | Público |
 | `/livros/:id` | `BookDetailPage` | Público |
-| `/livros/novo` | `BookFormPage` | 🔒 Logado |
-| `/listas` | `ListsPage` | 🔒 Logado |
-| `/listas/:id` | `ListDetailPage` | 🔒 Logado |
+| `/livros/novo` | `BookFormPage` | Logado |
+| `/listas` | `ListsPage` | Logado |
+| `/listas/:id` | `ListDetailPage` | Logado |
 
 ## Estrutura
 

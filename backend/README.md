@@ -9,7 +9,7 @@ API provedora de serviços para a aplicação, desenvolvida em FastAPI seguindo 
 - [Rotas da Aplicação](#app_route)
 - [Tecnologias Utilizadas](#technology)
 
-## <span id="how_to_run"> ❓ Como Executar </span>
+## <span id="how_to_run"> Como Executar </span>
 
 ```bash
 cp .env.example .env
@@ -85,42 +85,42 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
   - Target_Entity (Entidade do alvo) - O front passa automaticamente
   - Description (Descrição do motivo da denúncia) - Obrigatório
 
-## <span id="app_route"> ↪️ Rotas da Aplicação </span>
+## <span id="app_route"> Rotas da Aplicação </span>
 
-🔒 = exige `Authorization: Bearer <token>`. Detalhes e códigos de erro na [Especificação](../docs/ESPECIFICACAO.md#rotas-da-api).
+[login] = exige `Authorization: Bearer <token>`. Detalhes e códigos de erro na [Especificação](../docs/ESPECIFICACAO.md#rotas-da-api).
 
 | Método | Rota | Descrição |
 | --- | --- | --- |
 | `GET` | `/` | Health check |
 | `POST` | `/auth/register` | Cria conta e devolve token |
 | `POST` | `/auth/login` | Autentica e devolve token |
-| `POST` | `/reports` 🔒 | Cria denúncia (repositório em memória); o autor vem da sessão e `target_entity` pode ser `user` |
-| `GET` | `/reports/{report_id}` 🔒 | Busca denúncia por ID |
-| `GET` | `/reports` 🔒 | Lista denúncias com filtros opcionais |
-| `GET` | `/auth/me` 🔒 | Usuário da sessão |
+| `POST` | `/reports` [login] | Cria denúncia (repositório em memória); o autor vem da sessão e `target_entity` pode ser `user` |
+| `GET` | `/reports/{report_id}` [login] | Busca denúncia por ID |
+| `GET` | `/reports` [login] | Lista denúncias com filtros opcionais |
+| `GET` | `/auth/me` [login] | Usuário da sessão |
 | `GET` | `/books?q=&genre=` | Lista/busca obras |
 | `GET` | `/books/{id}` | Detalhes da obra |
-| `POST` | `/books` 🔒 | Cadastra obra |
-| `PUT` | `/books/{id}` 🔒 | Edita obra |
-| `DELETE` | `/books/{id}` 🔒 | Exclui obra |
-| `GET` | `/catalog/search?q=` 🔒 | Busca obras no Open Library |
+| `POST` | `/books` [login] | Cadastra obra |
+| `PUT` | `/books/{id}` [login] | Edita obra |
+| `DELETE` | `/books/{id}` [login] | Exclui obra |
+| `GET` | `/catalog/search?q=` [login] | Busca obras no Open Library |
 | `GET` | `/reviews?book_id=&user_id=` | Lista resenhas (com `username`, `likes`, `liked_by_me`) |
-| `POST` | `/reviews` 🔒 | Cria a resenha do usuário logado; uma por obra (`409` se repetir) |
-| `PUT` | `/reviews/{id}` 🔒 | Edita nota, texto e spoiler; só o autor (`403` para outros) |
-| `PATCH` | `/reviews/{id}/spoiler` 🔒 | Liga ou desliga o spoiler; só o autor |
-| `GET` | `/readings?book_id=&status=` 🔒 | Status de leitura do usuário logado |
-| `PUT` | `/readings/{book_id}` 🔒 | Define Quero ler, Lendo ou Lido |
-| `DELETE` | `/readings/{book_id}` 🔒 | Remove a marcação |
-| `GET` | `/lists` 🔒 | Minhas listas |
-| `POST` | `/lists` 🔒 | Cria lista |
-| `GET` | `/lists/{id}` 🔒 | Detalhes da lista |
-| `POST` | `/lists/{id}/books` 🔒 | Adiciona obra à lista |
-| `POST` | `/votes` 🔒 | Registra um voto por usuário e alvo; uma tentativa duplicada retorna `409` |
-| `GET` | `/votes?status=&user_name=&target_type=&target_name=` 🔒 | Lista votos por status, username e alvo (título do livro, nome da lista ou comentário da review) |
-| `GET` | `/votes/{id}` 🔒 | Detalhes do voto |
-| `DELETE` | `/votes/{id}` 🔒 | Exclui voto |
+| `POST` | `/reviews` [login] | Cria a resenha do usuário logado; uma por obra (`409` se repetir) |
+| `PUT` | `/reviews/{id}` [login] | Edita nota, texto e spoiler; só o autor (`403` para outros) |
+| `PATCH` | `/reviews/{id}/spoiler` [login] | Liga ou desliga o spoiler; só o autor |
+| `GET` | `/readings?book_id=&status=` [login] | Status de leitura do usuário logado |
+| `PUT` | `/readings/{book_id}` [login] | Define Quero ler, Lendo ou Lido |
+| `DELETE` | `/readings/{book_id}` [login] | Remove a marcação |
+| `GET` | `/lists` [login] | Minhas listas |
+| `POST` | `/lists` [login] | Cria lista |
+| `GET` | `/lists/{id}` [login] | Detalhes da lista |
+| `POST` | `/lists/{id}/books` [login] | Adiciona obra à lista |
+| `POST` | `/votes` [login] | Registra um voto por usuário e alvo; uma tentativa duplicada retorna `409` |
+| `GET` | `/votes?status=&user_name=&target_type=&target_name=` [login] | Lista votos por status, username e alvo (título do livro, nome da lista ou comentário da review) |
+| `GET` | `/votes/{id}` [login] | Detalhes do voto |
+| `DELETE` | `/votes/{id}` [login] | Exclui voto |
 
-## <span id="technology"> 💻 Tecnologias Utilizadas </span>
+## <span id="technology"> Tecnologias Utilizadas </span>
 - Backend
 ![Python](https://img.shields.io/badge/python-%233670A0.svg?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![FastAPI](https://img.shields.io/badge/fastapi-%23009688.svg?style=for-the-badge&logo=fastapi&logoColor=white)
