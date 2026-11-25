@@ -12,11 +12,20 @@ class LoginSchema(BaseModel):
     password: str
 
 
+class UpdateProfileSchema(BaseModel):
+    bio: str | None = None
+    avatar_url: str | None = None
+    cover_url: str | None = None
+
+
 class UserResponseSchema(BaseModel):
     id: int
     username: str
     email: str
     role: str
+    bio: str | None = None
+    avatar_url: str | None = None
+    cover_url: str | None = None
 
 
 class TokenResponseSchema(BaseModel):
