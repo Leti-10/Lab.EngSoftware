@@ -1,3 +1,5 @@
+from logging import getLogger
+
 from src.domain.entities import BookList
 from src.domain.exceptions import (
     BookAlreadyInListError,
@@ -6,6 +8,8 @@ from src.domain.exceptions import (
     BookNotFoundError,
 )
 from src.domain.repositories import BookListRepository, BookRepository
+
+logger = getLogger(__name__)
 
 
 class AddBookToListUseCase:
@@ -27,4 +31,10 @@ class AddBookToListUseCase:
             raise BookAlreadyInListError()
 
         book_list.books.append(book_id)
+
+        logger.debug(
+            "Book added to list successfully",
+            extra={"list_id": list_id, "book_id": book_id},
+        )
+
         return book_list
