@@ -27,6 +27,8 @@ Projeto da disciplina **Laboratório de Engenharia de Software** · Fatec São J
 | **Login** | `/login` | Entra com e-mail e senha (JWT) e volta para onde você estava |
 | **Cadastro** | `/cadastro` | Cria a conta e já entra logada |
 | **Estante** | `/livros` | Grade de capas, busca por título/autor e filtros de Mangás e Quadrinhos. Logado, a busca traz também obras do **Open Library** e cadastra a obra ao abrir |
+| **Perfil** | `/perfil` | Capa, avatar, bio, listas e favoritos da pessoa logada *(requer login)* |
+| **Editar perfil** | `/perfil/editar` | Personaliza bio, avatar e capa por link de imagem, com prévia *(requer login)* |
 | **Detalhe da obra** | `/livros/:id` | Autores, editora, ISBN, gêneros e temas; **nota de 1 a 5 estrelas**, **resenhas** (com aviso de spoiler e curtidas) e **status de leitura** (Quero ler, Lendo, Lido) |
 | **Cadastrar obra** | `/livros/novo` | Formulário de livro, mangá ou quadrinho *(requer login)* |
 | **Minhas listas** | `/listas` | Cria listas (públicas ou privadas) e vê todas as suas *(requer login)* |

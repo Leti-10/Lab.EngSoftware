@@ -38,6 +38,7 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 | RF17 | O usuário deve curtir e descurtir resenhas (Vote) | Detalhe da obra | ✓ |
 | RF18 | A busca da estante deve trazer obras do Open Library e cadastrá-las ao serem abertas | Estante | ✓ |
 | RF19 | O usuário deve marcar uma obra como Quero ler, Lendo ou Lido (Reading) | Detalhe da obra | ✓ |
+| RF20 | O usuário deve personalizar o perfil com bio, avatar e capa | Editar perfil | ✓ |
 
 ## Requisitos não funcionais
 
@@ -65,6 +66,7 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 - **Resenha:** nota de 1 a 5 obrigatória, texto opcional (até 1000 caracteres) e marca de spoiler. O autor vem do token, nunca do corpo. Cada usuário tem **uma** resenha por obra e só o autor a altera.
 - **Curtida:** é um voto com `status: "like"` e alvo `reviews`; um voto por usuário e alvo.
 - **Status de leitura:** `want_to_read`, `reading` ou `read`; um por usuário e obra, privado a quem marcou. Marcar de novo o mesmo status desmarca no frontend.
+- **Perfil:** bio com até 300 caracteres; avatar e capa são links que precisam começar com `http://` ou `https://` (até 500 caracteres). Campos vazios limpam o valor, e cada pessoa só altera o próprio perfil.
 - **Busca externa:** exige login, mínimo de 2 caracteres e usa o Open Library (Google Books só com `GOOGLE_BOOKS_API_KEY`).
 
 ## Rotas da API
@@ -77,7 +79,8 @@ Documentação interativa (Swagger) em `http://localhost:8000/docs`. [login] = e
 | --- | --- | --- | --- |
 | `POST` | `/auth/register` | Cria a conta e devolve token + usuário | `201` |
 | `POST` | `/auth/login` | Autentica e devolve token + usuário | `200` |
-| `GET` | `/auth/me` [login] | Usuário da sessão atual | `200` |
+| `GET` | `/auth/me` [login] | Usuário da sessão atual, com `bio`, `avatar_url` e `cover_url` | `200` |
+| `PUT` | `/auth/me` [login] | Atualiza `bio`, `avatar_url` e `cover_url` do usuário logado | `200` |
 
 ### Obras
 

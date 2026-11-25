@@ -47,6 +47,9 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
   - Password (Senha) - Obrigatório
   - Role (Comum, Desenvolvedor, Admin) - Apenas um admin pode modificar
   - Created_at (Data de criação) - Gerado automaticamente
+  - Bio (Texto de apresentação, até 300 caracteres) - Opcional
+  - Avatar_url (Link da foto do perfil) - Opcional
+  - Cover_url (Link da capa do perfil) - Opcional
 - Book (Livros)
   - ID (Identificador único) - Gerado automaticamente
   - ISBN (ISBN do livro) - Opcional (um livro pode não ter o ISBN)
@@ -98,6 +101,7 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
 | `GET` | `/reports/{report_id}` [login] | Busca denúncia por ID |
 | `GET` | `/reports` [login] | Lista denúncias com filtros opcionais |
 | `GET` | `/auth/me` [login] | Usuário da sessão |
+| `PUT` | `/auth/me` [login] | Atualiza bio, avatar e capa do perfil |
 | `GET` | `/books?q=&genre=` | Lista/busca obras |
 | `GET` | `/books/{id}` | Detalhes da obra |
 | `POST` | `/books` [login] | Cadastra obra |

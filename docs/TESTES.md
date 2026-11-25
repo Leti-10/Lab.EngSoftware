@@ -58,6 +58,7 @@ npm run test:coverage    # relatório de cobertura
 | `src/integration/catalog.test.tsx` | Integração | Estante: listagem, estado vazio, busca com debounce, filtro, erro de API e navegação ao detalhe |
 | `src/integration/book-detail.test.tsx` | Integração | Detalhe da obra: dados, gêneros, temas e 404 |
 | `src/integration/reviews.test.tsx` | Integração | Média e lista de resenhas, spoiler borrado, publicar, editar, exigir nota, curtir e descurtir |
+| `src/integration/profile-edit.test.tsx` | Integração | Perfil com bio, editar e salvar bio, avatar e capa, link sem http recusado, erro da API e rota protegida |
 | `src/integration/reading-status.test.tsx` | Integração | Marcar, desmarcar e restaurar o status de leitura; botões desabilitados para visitantes |
 | `src/integration/catalog-search.test.tsx` | Integração | Busca no catálogo externo dentro do cadastro de obra |
 | `src/lib/reviews.test.ts`, `src/lib/catalog.test.ts` | Unitário | Média das notas e remoção de autores repetidos |

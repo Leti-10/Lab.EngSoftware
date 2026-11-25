@@ -28,6 +28,9 @@ erDiagram
         string password
         string role
         datetime created_at
+        string bio
+        string avatar_url
+        string cover_url
     }
     BOOK {
         int id PK
@@ -90,7 +93,7 @@ erDiagram
 
 | Entidade | Descrição | Campos principais |
 | --- | --- | --- |
-| **User** | Pessoa usuária do sistema | `id`, `name`, `email`, `password` (hash), `role` (comum, desenvolvedor, admin), `created_at` |
+| **User** | Pessoa usuária do sistema | `id`, `name`, `email`, `password` (hash), `role` (comum, desenvolvedor, admin), `created_at`, `bio`, `avatar_url`, `cover_url` (os três opcionais) |
 | **Book** | Livro, mangá ou quadrinho | `id`, `isbn`, `title`, `publisher`, `author` (multivalorado), `genre` (multivalorado), `theme` (multivalorado) |
 | **List** | Lista de obras criada por um usuário | `id`, `name`, `description`, `is_private` |
 | **Review** | Avaliação de uma obra | `id`, `user_id`, `book_id`, `comment` (opcional), `rating` (1 a 5), `isSpoiler` |
