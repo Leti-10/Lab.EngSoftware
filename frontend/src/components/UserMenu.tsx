@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, Heart, ListChecks, LogOut, UserRound } from 'lucide-react'
+import {
+  ChevronDown,
+  Heart,
+  ListChecks,
+  LogOut,
+  Newspaper,
+  Sparkles,
+  UserRound,
+} from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { UserAvatar } from './UserAvatar'
@@ -86,6 +94,19 @@ export function UserMenu() {
           >
             <Heart aria-hidden="true" className="size-4 text-ink-soft" />
             Favoritos
+          </Link>
+          <Link to="/feed" role="menuitem" onClick={() => setOpen(false)} className={itemClass}>
+            <Newspaper aria-hidden="true" className="size-4 text-ink-soft" />
+            Feed
+          </Link>
+          <Link
+            to="/recomendacoes"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className={itemClass}
+          >
+            <Sparkles aria-hidden="true" className="size-4 text-ink-soft" />
+            Recomendações
           </Link>
           <div className="my-1 border-t border-cream-300" />
           <button type="button" role="menuitem" onClick={handleLogout} className={itemClass}>

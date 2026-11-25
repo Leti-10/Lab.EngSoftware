@@ -12,6 +12,10 @@ import { ListsPage } from './pages/ListsPage'
 import { LoginPage } from './pages/LoginPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { EditProfilePage } from './pages/EditProfilePage'
+import { FeedPage } from './pages/FeedPage'
+import { NotificationsPage } from './pages/NotificationsPage'
+import { RecommendationsPage } from './pages/RecommendationsPage'
+import { UserPage } from './pages/UserPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { RegisterPage } from './pages/RegisterPage'
 
@@ -31,8 +35,12 @@ export function AppRoutes() {
           <Route path="listas" element={<ListsPage />} />
           <Route path="listas/:id" element={<ListDetailPage />} />
           <Route path="favoritos" element={<FavoritesPage />} />
+          <Route path="feed" element={<FeedPage />} />
+          <Route path="notificacoes" element={<NotificationsPage />} />
+          <Route path="recomendacoes" element={<RecommendationsPage />} />
         </Route>
         <Route path="livros/:id" element={<BookDetailPage />} />
+        <Route path="usuarios/:id" element={<UserPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

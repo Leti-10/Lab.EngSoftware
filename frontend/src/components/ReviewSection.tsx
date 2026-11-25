@@ -1,10 +1,11 @@
-import { Heart } from 'lucide-react'
+import { Heart, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { ApiError, api } from '../lib/api'
 import type { Review, ReviewPayload, Vote } from '../lib/types'
+import { CommentSection } from './CommentSection'
 import { RatingInput, Stars } from './StarRating'
 import { Alert, Button, Card } from './ui'
 
@@ -105,20 +106,23 @@ function ReviewForm({
   )
 }
 
-function ReviewItem({
+export function ReviewItem({
   review,
-  isMine,
+  isMine = false,
+  bookTitle,
   onEdit,
   onChange,
 }: {
   review: Review
-  isMine: boolean
-  onEdit: () => void
+  isMine?: boolean
+  bookTitle?: string | null
+  onEdit?: () => void
   onChange: (review: Review) => void
 }) {
   const { user } = useAuth()
   const [revealed, setRevealed] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [showComments, setShowComments] = useState(false)
   const hidden = review.isSpoiler && !revealed
 
   async function toggleLike() {
@@ -153,7 +157,9 @@ function ReviewItem({
   return (
     <li className="rounded-2xl border border-cream-300 bg-cream-50 p-5">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="font-medium text-ink">{review.username ?? 'Leitor'}</span>
+        <Link to={`/usuarios/${review.user_id}`} className="font-medium text-ink hover:underline">
+          {review.username ?? 'Leitor'}
+        </Link>
         <Stars value={review.rating} size="size-4" />
         <span className="sr-only">{review.rating} de 5 estrelas</span>
         {review.isSpoiler && (
@@ -161,7 +167,7 @@ function ReviewItem({
             Spoiler
           </span>
         )}
-        {isMine && (
+        {isMine && onEdit && (
           <button
             type="button"
             onClick={onEdit}
@@ -171,6 +177,18 @@ function ReviewItem({
           </button>
         )}
       </div>
+
+      {bookTitle && (
+        <p className="mt-2 text-sm text-ink-soft">
+          sobre{' '}
+          <Link
+            to={`/livros/${review.book_id}`}
+            className="font-medium text-blue-warm-600 hover:underline"
+          >
+            {bookTitle}
+          </Link>
+        </p>
+      )}
 
       {review.comment && (
         <div className="mt-3">
@@ -194,7 +212,7 @@ function ReviewItem({
         </div>
       )}
 
-      <div className="mt-4">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={toggleLike}
@@ -215,7 +233,17 @@ function ReviewItem({
           />
           <span aria-label={`${review.likes} curtidas`}>{review.likes}</span>
         </button>
+        <button
+          type="button"
+          onClick={() => setShowComments((current) => !current)}
+          aria-expanded={showComments}
+          className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-ink-soft transition-colors hover:bg-cream-200"
+        >
+          <MessageCircle aria-hidden="true" className="size-4" />
+          Comentários
+        </button>
       </div>
+      {showComments && <CommentSection reviewId={review.id} />}
     </li>
   )
 }

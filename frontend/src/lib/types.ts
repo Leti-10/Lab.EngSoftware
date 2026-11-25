@@ -85,3 +85,63 @@ export interface Reading {
   book_id: number
   status: ReadingKind
 }
+
+export interface ReviewComment {
+  id: number
+  review_id: number
+  user_id: number
+  username: string | null
+  text: string
+  created_at: string
+}
+
+export type FollowTarget = 'users' | 'lists'
+
+export interface FollowStatus {
+  following: boolean
+  followers: number
+}
+
+export interface PublicProfile {
+  id: number
+  username: string
+  bio: string | null
+  avatar_url: string | null
+  cover_url: string | null
+  followers: number
+  following: number
+  is_following: boolean
+}
+
+export type NotificationKind = 'like' | 'comment' | 'follow'
+
+export interface AppNotification {
+  id: number
+  type: NotificationKind
+  actor_id: number
+  actor_username: string | null
+  review_id: number | null
+  book_id: number | null
+  read: boolean
+  created_at: string
+}
+
+export interface NotificationList {
+  items: AppNotification[]
+  unread: number
+}
+
+export interface NotificationPreferences {
+  likes: boolean
+  comments: boolean
+  follows: boolean
+}
+
+export interface FeedItem extends Review {
+  book_title: string | null
+}
+
+export interface Recommendation {
+  book: Book
+  reason: string
+}
