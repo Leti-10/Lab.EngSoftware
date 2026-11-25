@@ -134,6 +134,7 @@ Pontos identificados ao documentar que o time deve resolver antes da entrega fin
 | --- | --- | --- |
 | **Persistência da API** | Usuários, resenhas, votos, denúncias e status de leitura gravam no PostgreSQL; **obras e listas ainda ficam em memória** | Criar migrations de `lists`, completar o `books` (gênero e tema) e trocar os `Depends` |
 | **Obras em memória x resenhas no banco** | Ao reiniciar a API, as obras importadas somem, mas resenhas e status continuam apontando para o `book_id` antigo; por isso a FK `reviews.book_id` foi removida | Persistir as obras no PostgreSQL e restaurar a FK |
+| **Migrations novas** | As tabelas de comentários, seguidores, notificações e preferências, e as colunas do perfil, vêm nas migrations `b7d2e9a4c611` e `c3e5a7b9d014` | Rodar `alembic upgrade head` antes de iniciar a API |
 | **Alembic no Windows** | `alembic upgrade head` pode falhar com `ProactorEventLoop` | Rodar o Alembic com `asyncio.WindowsSelectorEventLoopPolicy` ou usar Docker |
 | **Dockerfile** | `CMD` aponta para `src.main:app` | Trocar por `src.presentation.api.main:app` |
 | **Usuários de denúncias** | O ID do autor vem da sessão autenticada; a persistência de usuários ainda é em memória | Migrar usuários para persistência SQL para voltar a impor FK em `reports.user_id` |

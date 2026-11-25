@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 import { BookCard } from '../components/BookCard'
+import { FollowButton } from '../components/FollowButton'
 import { Alert, Button } from '../components/ui'
 import { ApiError, api } from '../lib/api'
+import { useDocumentTitle } from '../lib/pageTitle'
 import type { Book, BookList } from '../lib/types'
 
 export function ListDetailPage() {
   const { id } = useParams()
+  const { user } = useAuth()
   const [list, setList] = useState<BookList | null>(null)
+  useDocumentTitle(list?.name)
   const [catalog, setCatalog] = useState<Book[]>([])
   const [error, setError] = useState<ApiError | null>(null)
 
@@ -63,11 +68,15 @@ export function ListDetailPage() {
 
   const inList = new Set(list.books.map((book) => book.id))
   const available = catalog.filter((book) => !inList.has(book.id))
+  const isOwner = user?.id === list.owner
 
   return (
     <div>
-      <Link to="/listas" className="text-sm text-ink-soft hover:text-ink">
-        ← Minhas listas
+      <Link
+        to={isOwner ? '/listas' : `/usuarios/${list.owner}`}
+        className="text-sm text-ink-soft hover:text-ink"
+      >
+        {isOwner ? '← Minhas listas' : '← Voltar para o perfil'}
       </Link>
       <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
         <div>
@@ -78,24 +87,28 @@ export function ListDetailPage() {
           </p>
         </div>
 
-        <form onSubmit={handleAdd} className="flex gap-2">
-          <select
-            aria-label="Escolher obra para adicionar"
-            value={selected}
-            onChange={(e) => setSelected(e.target.value)}
-            className="max-w-56 rounded-full border border-cream-300 bg-cream-50 px-4 py-2.5 text-sm text-ink focus:border-blue-warm-500 focus:outline-none"
-          >
-            <option value="">Adicionar obra…</option>
-            {available.map((book) => (
-              <option key={book.id} value={book.id}>
-                {book.title}
-              </option>
-            ))}
-          </select>
-          <Button type="submit" disabled={!selected || adding}>
-            Adicionar
-          </Button>
-        </form>
+        {!isOwner && <FollowButton target="lists" id={list.id} />}
+
+        {isOwner && (
+          <form onSubmit={handleAdd} className="flex gap-2">
+            <select
+              aria-label="Escolher obra para adicionar"
+              value={selected}
+              onChange={(e) => setSelected(e.target.value)}
+              className="max-w-56 rounded-full border border-line bg-cream-50 px-4 py-2.5 text-sm text-ink focus:border-blue-warm-500 focus:outline-none"
+            >
+              <option value="">Adicionar obra…</option>
+              {available.map((book) => (
+                <option key={book.id} value={book.id}>
+                  {book.title}
+                </option>
+              ))}
+            </select>
+            <Button type="submit" disabled={!selected || adding}>
+              Adicionar
+            </Button>
+          </form>
+        )}
       </div>
       {addError && (
         <div className="mt-4">

@@ -1,3 +1,13 @@
-from .enums import EnumReadingStatus, EnumVoteTarget
+from .enums import (
+    EnumFollowTarget,
+    EnumNotificationType,
+    EnumReadingStatus,
+    EnumVoteTarget,
+)
 
-__all__ = ["EnumReadingStatus", "EnumVoteTarget"]
+__all__ = [
+    "EnumFollowTarget",
+    "EnumNotificationType",
+    "EnumReadingStatus",
+    "EnumVoteTarget",
+]

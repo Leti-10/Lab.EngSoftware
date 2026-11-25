@@ -116,7 +116,7 @@ export function EditProfilePage() {
               value={bio}
               onChange={(event) => setBio(event.target.value)}
               placeholder="Conte um pouco sobre você e o que gosta de ler"
-              className="w-full rounded-xl border border-cream-300 bg-cream-50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:border-blue-warm-500 focus:outline-none"
+              className="w-full rounded-xl border border-line bg-cream-50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:border-blue-warm-500 focus:outline-none"
             />
             <p className="mt-1 text-right text-xs text-ink-soft">
               {bio.length}/{MAX_BIO}

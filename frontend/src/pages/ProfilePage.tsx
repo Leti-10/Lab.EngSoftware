@@ -94,7 +94,7 @@ export function ProfilePage() {
     <>
       <ProfileCover url={user.cover_url} />
       <div className="grid gap-8 md:grid-cols-[240px_1fr]">
-        <aside className="space-y-5">
+        <aside aria-label="Dados da conta" className="space-y-5">
           <UserAvatar
             username={user.username}
             url={user.avatar_url}
@@ -244,7 +244,10 @@ export function ProfilePage() {
               </section>
             </section>
 
-            <aside className="h-fit rounded-2xl bg-cream-200/70 p-5">
+            <aside
+              aria-label="Resumo das obras salvas"
+              className="h-fit rounded-2xl bg-cream-200/70 p-5"
+            >
               <p className="font-serif text-lg font-semibold">{savedBooks.length} obras salvas</p>
               <ul className="mt-3 space-y-2 text-sm text-ink-soft">
                 <li>Livros: {count('Livro')}</li>

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.application.use_cases.social import NotifyUseCase
 from src.application.use_cases.vote import (
     CreateVoteUseCase,
     DeleteVoteUseCase,
@@ -10,12 +11,22 @@ from src.application.use_cases.vote import (
 )
 from src.domain.entities import User
 from src.domain.entities.vote import Vote
-from src.domain.enums.enums import EnumVoteTarget
+from src.domain.enums.enums import EnumNotificationType, EnumVoteTarget
 from src.domain.exceptions import VoteAlreadyExistsError
 from src.domain.repositories import BookListRepository, BookRepository, VoteRepository
+from src.domain.repositories.review_repository import ReviewRepository
+from src.domain.repositories.social_repository import (
+    NotificationPreferenceRepository,
+    NotificationRepository,
+)
 from src.infrastructure.persistence.database import get_db_context
 from src.infrastructure.persistence.repositories import SQLAlchemyVoteRepository
-from src.presentation.api.dependencies import get_current_user
+from src.presentation.api.dependencies import (
+    get_current_user,
+    get_notification_preference_repository,
+    get_notification_repository,
+    get_review_repository,
+)
 from src.presentation.api.routes.book_list_router import get_book_list_repository
 from src.presentation.api.routes.book_router import get_book_m_repository, to_response
 from src.presentation.api.schemas.book_schema import BookResponseSchema
@@ -42,6 +53,11 @@ async def get_vote_repository(
 async def create_vote(
     payload: CreateVoteSchema,
     repository: VoteRepository = Depends(get_vote_repository),
+    reviews: ReviewRepository = Depends(get_review_repository),
+    notifications: NotificationRepository = Depends(get_notification_repository),
+    preferences: NotificationPreferenceRepository = Depends(
+        get_notification_preference_repository
+    ),
     current_user: User = Depends(get_current_user),
 ) -> VoteResponseSchema:
     if payload.user_id is not None and payload.user_id != current_user.id:
@@ -59,6 +75,19 @@ async def create_vote(
                 user_id=current_user.id,
             )
         )
+        if (
+            payload.status == "like"
+            and payload.target_entity == EnumVoteTarget.REVIEW
+        ):
+            review = await reviews.get_by_id(payload.target_id)
+            if review is not None:
+                await NotifyUseCase(notifications, preferences).execute(
+                    review.user_id,
+                    current_user.id,
+                    EnumNotificationType.LIKE,
+                    review_id=review.id,
+                    book_id=review.book_id,
+                )
         return VoteResponseSchema.model_validate(new_vote)
 
     except VoteAlreadyExistsError as exc:

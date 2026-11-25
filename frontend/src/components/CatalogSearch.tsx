@@ -85,7 +85,7 @@ export function CatalogSearch({ onPick }: { onPick: (book: CatalogBook) => void 
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Ex.: Dom Casmurro"
             aria-label="Buscar livro por título, autor ou ISBN"
-            className="w-full rounded-full border border-cream-300 bg-cream-50 py-2.5 pr-4 pl-11 text-sm placeholder:text-ink-soft/60 focus:border-blue-warm-500 focus:outline-none"
+            className="w-full rounded-full border border-line bg-cream-50 py-2.5 pr-4 pl-11 text-sm placeholder:text-ink-soft focus:border-blue-warm-500 focus:outline-none"
           />
         </div>
         <Button type="submit" disabled={loading}>
