@@ -1,4 +1,4 @@
-from sqlalchemy import and_, or_, select
+from sqlalchemy import and_, delete, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,6 +32,17 @@ class SQLAlchemyVoteRepository(VoteRepository):
             duplicate_query = duplicate_query.where(VoteModelSQLAlchemy.id != vote.id)
         if await self.session.scalar(duplicate_query) is not None:
             raise VoteAlreadyExistsError()
+
+        if vote.id is not None:
+            existing_model = await self.session.get(VoteModelSQLAlchemy, vote.id)
+            if existing_model is not None:
+                existing_model.status = vote.status
+                existing_model.target_entity = vote.target_entity.value
+                existing_model.target_id = vote.target_id
+                existing_model.user_id = vote.user_id
+                await self.session.commit()
+                await self.session.refresh(existing_model)
+                return VoteMapper.to_domain(existing_model)
 
         model = VoteMapper.to_sqlalchemy(vote)
         self.session.add(model)
@@ -68,14 +79,35 @@ class SQLAlchemyVoteRepository(VoteRepository):
         await self.session.commit()
         return True
 
+    async def delete_by_target(
+        self,
+        user_id: int,
+        target_type: EnumVoteTarget,
+        target_id: int,
+        status: str,
+    ) -> bool:
+        result = await self.session.execute(
+            delete(VoteModelSQLAlchemy).where(
+                VoteModelSQLAlchemy.user_id == user_id,
+                VoteModelSQLAlchemy.target_entity == target_type.value,
+                VoteModelSQLAlchemy.target_id == target_id,
+                VoteModelSQLAlchemy.status == status,
+            )
+        )
+        await self.session.commit()
+        return bool(result.rowcount)
+
     async def find_by_filter(
         self,
         status: str | None = None,
         user_name: str | None = None,
         target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
+        user_id: int | None = None,
     ) -> list[Vote]:
         query = select(VoteModelSQLAlchemy)
+        if user_id is not None:
+            query = query.where(VoteModelSQLAlchemy.user_id == user_id)
         if status is not None:
             query = query.where(VoteModelSQLAlchemy.status == status)
         if user_name:

@@ -37,12 +37,32 @@ class InMemoryVoteRepository(VoteRepository):
     async def delete(self, vote_id: int) -> bool:
         return self.votes.pop(vote_id, None) is not None
 
+    async def delete_by_target(
+        self,
+        user_id: int,
+        target_type: EnumVoteTarget,
+        target_id: int,
+        status: str,
+    ) -> bool:
+        matching_ids = [
+            vote_id
+            for vote_id, vote in self.votes.items()
+            if vote.user_id == user_id
+            and vote.target_entity == target_type
+            and vote.target_id == target_id
+            and vote.status == status
+        ]
+        for vote_id in matching_ids:
+            del self.votes[vote_id]
+        return bool(matching_ids)
+
     async def find_by_filter(
         self,
         status: str | None = None,
         user_name: str | None = None,
         target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
+        user_id: int | None = None,
     ) -> list[Vote]:
         normalized_user_name = user_name.casefold() if user_name else None
         normalized_target_name = target_name.casefold() if target_name else None
@@ -50,6 +70,7 @@ class InMemoryVoteRepository(VoteRepository):
             vote
             for vote in self.votes.values()
             if (status is None or vote.status == status)
+            and (user_id is None or vote.user_id == user_id)
             and (
                 normalized_user_name is None
                 or normalized_user_name

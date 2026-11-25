@@ -12,11 +12,13 @@ from src.domain.entities import User
 from src.domain.entities.vote import Vote
 from src.domain.enums.enums import EnumVoteTarget
 from src.domain.exceptions import VoteAlreadyExistsError
-from src.domain.repositories import BookListRepository, VoteRepository
+from src.domain.repositories import BookListRepository, BookRepository, VoteRepository
 from src.infrastructure.persistence.database import get_db_context
 from src.infrastructure.persistence.repositories import SQLAlchemyVoteRepository
 from src.presentation.api.dependencies import get_current_user
 from src.presentation.api.routes.book_list_router import get_book_list_repository
+from src.presentation.api.routes.book_router import get_book_m_repository, to_response
+from src.presentation.api.schemas.book_schema import BookResponseSchema
 from src.presentation.api.schemas.vote_schema import (
     CreateVoteSchema,
     VoteResponseSchema,
@@ -71,13 +73,81 @@ async def create_vote(
         ) from exc
 
 
+@router.get("/favorites", response_model=list[BookResponseSchema])
+async def list_favorites(
+    current_user: User = Depends(get_current_user),
+    repository: VoteRepository = Depends(get_vote_repository),
+    book_repository: BookRepository = Depends(get_book_m_repository),
+) -> list[BookResponseSchema]:
+    votes = await FilterVotesUseCase(repository).execute(
+        status="favorite",
+        target_type=EnumVoteTarget.BOOK,
+        user_id=current_user.id,
+    )
+    books = []
+    for vote in votes:
+        book = await book_repository.get_by_id(vote.target_id)
+        if book is not None:
+            books.append(to_response(book))
+    return books
+
+
+@router.put("/favorites/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def add_favorite(
+    book_id: int,
+    current_user: User = Depends(get_current_user),
+    repository: VoteRepository = Depends(get_vote_repository),
+    book_repository: BookRepository = Depends(get_book_m_repository),
+) -> None:
+    book = await book_repository.get_by_id(book_id)
+    if book is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Livro não encontrado."
+        )
+
+    existing = await FilterVotesUseCase(repository).execute(
+        target_type=EnumVoteTarget.BOOK,
+        user_id=current_user.id,
+    )
+    existing_vote = next(
+        (vote for vote in existing if vote.target_id == book_id), None
+    )
+    if existing_vote is not None and existing_vote.status == "favorite":
+        return
+
+    try:
+        await CreateVoteUseCase(repository).execute(
+            Vote(
+                id=existing_vote.id if existing_vote is not None else None,
+                status="favorite",
+                target_entity=EnumVoteTarget.BOOK,
+                target_id=book_id,
+                user_id=current_user.id,
+            )
+        )
+    except VoteAlreadyExistsError:
+        return
+
+
+@router.delete("/favorites/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_favorite(
+    book_id: int,
+    current_user: User = Depends(get_current_user),
+    repository: VoteRepository = Depends(get_vote_repository),
+) -> None:
+    await repository.delete_by_target(
+        current_user.id, EnumVoteTarget.BOOK, book_id, "favorite"
+    )
+
+
 @router.get("/{vote_id}")
 async def get_vote(
     vote_id: int,
     repository: VoteRepository = Depends(get_vote_repository),
+    current_user: User = Depends(get_current_user),
 ) -> VoteResponseSchema:
     vote = await GetVoteByIdUseCase(repository).execute(vote_id)
-    if vote is None:
+    if vote is None or vote.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Voto não encontrado."
         )
@@ -88,7 +158,13 @@ async def get_vote(
 async def delete_vote(
     vote_id: int,
     repository: VoteRepository = Depends(get_vote_repository),
+    current_user: User = Depends(get_current_user),
 ) -> None:
+    vote = await GetVoteByIdUseCase(repository).execute(vote_id)
+    if vote is None or vote.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Voto não encontrado."
+        )
     deleted = await DeleteVoteUseCase(repository).execute(vote_id)
     if not deleted:
         raise HTTPException(
@@ -103,11 +179,13 @@ async def filter_votes(
     target_type: EnumVoteTarget | None = None,
     target_name: str | None = Query(default=None, min_length=1),
     repository: VoteRepository = Depends(get_vote_repository),
+    current_user: User = Depends(get_current_user),
 ) -> list[VoteResponseSchema]:
     votes = await FilterVotesUseCase(repository).execute(
         status=status_filter,
         user_name=user_name,
         target_type=target_type,
         target_name=target_name,
+        user_id=current_user.id,
     )
     return [VoteResponseSchema.model_validate(vote) for vote in votes]

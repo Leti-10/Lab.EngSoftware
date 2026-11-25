@@ -126,6 +126,27 @@ async def test_vote_repository_saves_loads_and_filters_votes(postgres_engine):
             target_type=EnumVoteTarget.LIST,
             target_name="Favorite List",
         ) == [list_vote]
-        assert list_vote.id is not None
+        favorite_vote = await repository.save(
+            Vote(
+                id=book_vote.id,
+                status="favorite",
+                target_entity=EnumVoteTarget.BOOK,
+                target_id=book.id,
+                user_id=user.id,
+            )
+        )
+        assert favorite_vote.status == "favorite"
+        assert await repository.find_by_filter(
+            status="favorite", user_id=user.id, target_type=EnumVoteTarget.BOOK
+        ) == [favorite_vote]
+        assert not await repository.delete_by_target(
+            user.id, EnumVoteTarget.BOOK, book.id, "like"
+        )
+        assert await repository.delete_by_target(
+            other_user.id, EnumVoteTarget.BOOK, book.id, "like"
+        )
+        assert await repository.find_by_filter(
+            user_id=user.id, target_type=EnumVoteTarget.BOOK
+        ) == [favorite_vote]
         assert await repository.delete(list_vote.id)
         assert not await repository.delete(list_vote.id)
