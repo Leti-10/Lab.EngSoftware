@@ -34,3 +34,7 @@ class BookRepository(ABC):
         publisher: str | None = None,
     ) -> list[Book | None]:
         pass
+
+    @abstractmethod
+    async def get_all(self) -> list[Book]:
+        pass

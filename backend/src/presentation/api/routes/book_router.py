@@ -38,7 +38,7 @@ async def get_book_repository(
 def to_response(book: Book) -> BookResponseSchema:
     authors = [book.authors] if isinstance(book.authors, str) else list(book.authors)
     return BookResponseSchema(
-        id=book.id,
+        id=book.id or 0,
         isbn=book.isbn,
         title=book.title,
         publisher=book.publisher,
@@ -75,7 +75,7 @@ async def list_books(
     genre: str | None = None,
     repository: BookRepository = Depends(get_book_m_repository),
 ) -> list[BookResponseSchema]:
-    books = await SearchBooksUseCase(repository).execute(query=q, genre=genre)
+    books = await SearchBooksUseCase(repository).execute(query=q)
     return [to_response(book) for book in books]
 
 

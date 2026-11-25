@@ -67,3 +67,6 @@ class InMemoryBookRepository(BookRepository):
             if isbn and contains(isbn, book.isbn):
                 results.append(book)
         return results
+
+    async def get_all(self) -> list[Book]:
+        return list(self.books.values())

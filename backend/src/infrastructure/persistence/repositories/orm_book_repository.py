@@ -70,10 +70,21 @@ class SQLAlchemyRepository(BookRepository):
 
     async def find_by_filter(
         self,
+        isbn: str | None = None,
         title: str | None = None,
         author: str | None = None,
         genre: str | None = None,
         theme: str | None = None,
         publisher: str | None = None,
     ) -> list[Book | None]:
-        return await super().find_by_filter(title, author, genre, theme, publisher)
+        return await super().find_by_filter(
+            isbn, title, author, genre, theme, publisher
+        )
+
+    async def get_all(self) -> list[Book]:
+        query = select(BookModelSQLAlchemy).options(
+            selectinload(BookModelSQLAlchemy.authors)
+        )
+        result = await self.session.execute(query)
+        books_alchemy = result.scalars().all()
+        return [BookMapper.to_domain(book) for book in books_alchemy]

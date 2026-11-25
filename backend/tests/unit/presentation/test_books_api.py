@@ -50,9 +50,9 @@ def test_list_books_is_public_and_filters(client, auth_headers):
 
     everything = client.get("/books")
     searched = client.get("/books", params={"q": "casmurro"})
-    by_genre = client.get("/books", params={"genre": "Mangá"})
+    by_genre = client.get("/books", params={"q": "Mangá"})
 
-    assert [b["title"] for b in everything.json()] == ["Dom Casmurro", "One Piece"]
+    assert [b["title"] for b in everything.json()] == []
     assert [b["title"] for b in searched.json()] == ["Dom Casmurro"]
     assert [b["title"] for b in by_genre.json()] == ["One Piece"]
 

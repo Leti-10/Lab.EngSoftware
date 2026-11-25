@@ -44,7 +44,10 @@ def test_comments_are_listed_publicly_and_need_login_to_write(client, auth_heade
     review_id = make_review(client, auth_headers, book_id)
     bia, _ = register(client, "bia")
 
-    assert client.post(f"/reviews/{review_id}/comments", json={"text": "Oi"}).status_code == 401
+    assert (
+        client.post(f"/reviews/{review_id}/comments", json={"text": "Oi"}).status_code
+        == 401
+    )
     created = client.post(
         f"/reviews/{review_id}/comments", json={"text": "  Concordo  "}, headers=bia
     )
@@ -65,7 +68,9 @@ def test_comment_validation_and_missing_review(client, auth_headers):
     long = client.post(
         f"/reviews/{review_id}/comments", json={"text": "a" * 501}, headers=auth_headers
     )
-    missing = client.post("/reviews/99/comments", json={"text": "Oi"}, headers=auth_headers)
+    missing = client.post(
+        "/reviews/99/comments", json={"text": "Oi"}, headers=auth_headers
+    )
 
     assert empty.status_code == 422
     assert long.status_code == 422
@@ -80,7 +85,10 @@ def test_only_author_deletes_comment(client, auth_headers):
         f"/reviews/{review_id}/comments", json={"text": "Oi"}, headers=bia
     ).json()
 
-    assert client.delete(f"/comments/{comment['id']}", headers=auth_headers).status_code == 403
+    assert (
+        client.delete(f"/comments/{comment['id']}", headers=auth_headers).status_code
+        == 403
+    )
     assert client.delete(f"/comments/{comment['id']}", headers=bia).status_code == 204
     assert client.delete(f"/comments/{comment['id']}", headers=bia).status_code == 404
 
@@ -135,8 +143,16 @@ def test_follow_public_list_but_not_private_one(client, auth_headers):
         headers=bia,
     ).json()
 
-    assert client.put(f"/follows/lists/{public['id']}", headers=auth_headers).json()["followers"] == 1
-    assert client.put(f"/follows/lists/{private['id']}", headers=auth_headers).status_code == 404
+    assert (
+        client.put(f"/follows/lists/{public['id']}", headers=auth_headers).json()[
+            "followers"
+        ]
+        == 1
+    )
+    assert (
+        client.put(f"/follows/lists/{private['id']}", headers=auth_headers).status_code
+        == 404
+    )
     mine = client.get("/follows", params={"type": "lists"}, headers=auth_headers).json()
     assert mine == [{"target_type": "lists", "target_id": public["id"]}]
 
@@ -162,7 +178,9 @@ def test_public_profile_shows_counts_and_public_lists(client, auth_headers):
     assert client.get("/users/999").status_code == 404
 
 
-def test_like_and_comment_notify_the_review_author_once_per_action(client, auth_headers):
+def test_like_and_comment_notify_the_review_author_once_per_action(
+    client, auth_headers
+):
     book_id = make_book(client, auth_headers)
     review_id = make_review(client, auth_headers, book_id)
     bia, _ = register(client, "bia")
@@ -173,7 +191,9 @@ def test_like_and_comment_notify_the_review_author_once_per_action(client, auth_
         headers=bia,
     )
     client.post(f"/reviews/{review_id}/comments", json={"text": "Oi"}, headers=bia)
-    client.post(f"/reviews/{review_id}/comments", json={"text": "Eu"}, headers=auth_headers)
+    client.post(
+        f"/reviews/{review_id}/comments", json={"text": "Eu"}, headers=auth_headers
+    )
 
     result = client.get("/notifications", headers=auth_headers).json()
 
@@ -187,7 +207,10 @@ def test_notifications_can_be_marked_as_read(client, auth_headers):
     client.put(f"/follows/users/{bia_id}", headers=auth_headers)
     first = client.get("/notifications", headers=bia).json()["items"][0]
 
-    assert client.patch(f"/notifications/{first['id']}/read", headers=bia).status_code == 204
+    assert (
+        client.patch(f"/notifications/{first['id']}/read", headers=bia).status_code
+        == 204
+    )
     assert client.get("/notifications", headers=bia).json()["unread"] == 0
     assert client.patch("/notifications/99/read", headers=bia).status_code == 404
     client.delete(f"/follows/users/{bia_id}", headers=auth_headers)
@@ -209,7 +232,9 @@ def test_notification_preferences_silence_notifications(client, auth_headers):
     client.put(f"/follows/users/{bia_id}", headers=auth_headers)
 
     assert defaults == {"likes": True, "comments": True, "follows": True}
-    assert client.get("/notifications/preferences", headers=bia).json()["follows"] is False
+    assert (
+        client.get("/notifications/preferences", headers=bia).json()["follows"] is False
+    )
     assert client.get("/notifications", headers=bia).json()["items"] == []
 
 
@@ -232,9 +257,27 @@ def test_feed_shows_reviews_of_followed_users_newest_first(client, auth_headers)
 
 
 def test_recommendations_follow_taste_and_skip_seen_books(client, auth_headers):
-    mangas = {**BOOK, "isbn": "9781111111111", "title": "Naruto 1", "authors": ["Kishimoto"], "genre": ["Mangá", "Ação"]}
-    more_mangas = {**BOOK, "isbn": "9782222222222", "title": "Naruto 2", "authors": ["Kishimoto"], "genre": ["Mangá", "Ação"]}
-    romance = {**BOOK, "isbn": "9783333333333", "title": "Outro Romance", "authors": ["Alguém"], "genre": ["Romance"]}
+    mangas = {
+        **BOOK,
+        "isbn": "9781111111111",
+        "title": "Naruto 1",
+        "authors": ["Kishimoto"],
+        "genre": ["Mangá", "Ação"],
+    }
+    more_mangas = {
+        **BOOK,
+        "isbn": "9782222222222",
+        "title": "Naruto 2",
+        "authors": ["Kishimoto"],
+        "genre": ["Mangá", "Ação"],
+    }
+    romance = {
+        **BOOK,
+        "isbn": "9783333333333",
+        "title": "Outro Romance",
+        "authors": ["Alguém"],
+        "genre": ["Romance"],
+    }
     loved = make_book(client, auth_headers, mangas)
     next_one = make_book(client, auth_headers, more_mangas)
     make_book(client, auth_headers, romance)
