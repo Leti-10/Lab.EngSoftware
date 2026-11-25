@@ -5,6 +5,7 @@ Revises: f2b8c1d47a90
 Create Date: 2026-11-26 10:00:00.000000
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -19,7 +20,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     op.add_column("users", sa.Column("bio", sa.String(length=300), nullable=True))
-    op.add_column("users", sa.Column("avatar_url", sa.String(length=500), nullable=True))
+    op.add_column(
+        "users", sa.Column("avatar_url", sa.String(length=500), nullable=True)
+    )
     op.add_column("users", sa.Column("cover_url", sa.String(length=500), nullable=True))
 
 
