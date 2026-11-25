@@ -18,6 +18,9 @@ class SQLAlchemyUserRepository(UserRepository):
             password=user.password,
             role=user.role,
             created_at=user.created_at,
+            bio=user.bio,
+            avatar_url=user.avatar_url,
+            cover_url=user.cover_url,
         )
         self.session.add(model)
         try:
@@ -29,6 +32,15 @@ class SQLAlchemyUserRepository(UserRepository):
 
         user.id = model.id
         return user
+
+    async def update(self, user: User) -> User:
+        model = await self.session.get(UserModelSQLAlchemy, user.id)
+        model.bio = user.bio
+        model.avatar_url = user.avatar_url
+        model.cover_url = user.cover_url
+        await self.session.commit()
+        await self.session.refresh(model)
+        return self._to_domain(model)
 
     async def get_by_id(self, user_id: int) -> User | None:
         result = await self.session.execute(
@@ -52,6 +64,9 @@ class SQLAlchemyUserRepository(UserRepository):
             password=model.password,
             role=model.role,
             created_at=model.created_at,
+            bio=model.bio,
+            avatar_url=model.avatar_url,
+            cover_url=model.cover_url,
         )
         user.id = model.id
         return user

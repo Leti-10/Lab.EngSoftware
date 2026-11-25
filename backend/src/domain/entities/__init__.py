@@ -4,5 +4,6 @@ from .book_list import BookList
 from .review import Review
 from .report import Report
 from .vote import Vote
+from .reading import Reading
 
-__all__ = ["Book", "User", "BookList", "Review", "Report", "Vote"]
+__all__ = ["Book", "User", "BookList", "Review", "Report", "Vote", "Reading"]

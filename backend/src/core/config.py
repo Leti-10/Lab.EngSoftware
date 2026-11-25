@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "your-secret-key"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     SEED_CATALOG: bool = True
+    GOOGLE_BOOKS_API_KEY: str = ""
+    CATALOG_TIMEOUT_SECONDS: float = 8
 
     # Database settings
     DB_HOST: str = "localhost"

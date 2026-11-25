@@ -17,6 +17,16 @@ async def get_user_repository(
     return SQLAlchemyUserRepository(session)
 
 
+async def get_optional_user(
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    repository: UserRepository = Depends(get_user_repository),
+) -> User | None:
+    if credentials is None:
+        return None
+    user_id = TokenService.decode_user_id(credentials.credentials)
+    return await repository.get_by_id(user_id) if user_id is not None else None
+
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     repository: UserRepository = Depends(get_user_repository),

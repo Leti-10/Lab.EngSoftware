@@ -13,6 +13,7 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<void>
   register: (username: string, email: string, password: string) => Promise<void>
   logout: () => void
+  updateUser: (user: User) => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -83,6 +84,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setFavoritesError(null)
   }, [])
 
+  const updateUser = useCallback((updated: User) => setUser(updated), [])
+
   const toggleFavorite = useCallback(
     async (book: Book) => {
       const isFavorite = favorites.some((favorite) => favorite.id === book.id)
@@ -108,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      updateUser,
     }),
     [
       user,
@@ -119,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      updateUser,
     ],
   )
 

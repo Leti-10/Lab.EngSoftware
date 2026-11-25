@@ -13,6 +13,9 @@ class InMemoryUserRepository(UserRepository):
         self.users.append(user)
         return user
 
+    async def update(self, user: User) -> User:
+        return user
+
     async def get_by_id(self, user_id: int) -> User | None:
         for user in self.users:
             if user.id == user_id:

@@ -23,5 +23,7 @@ class ReviewRepository(ABC):
         username: str | None = None,
         book_title: str | None = None,
         comment: str | None = None,
+        book_id: int | None = None,
+        user_id: int | None = None,
     ) -> list[Review | None]:
         pass

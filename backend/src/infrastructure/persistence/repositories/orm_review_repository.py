@@ -69,8 +69,10 @@ class SQLAlchemyReviewRepository(ReviewRepository):
         username: str | None = None,
         book_title: str | None = None,
         comment: str | None = None,
+        book_id: int | None = None,
+        user_id: int | None = None,
     ) -> list[Review | None]:
-        query = select(ReviewModelSQLAlchemy)
+        query = select(ReviewModelSQLAlchemy).order_by(ReviewModelSQLAlchemy.id.desc())
         if rating is not None:
             query = query.where(ReviewModelSQLAlchemy.rating == rating)
         if username:
@@ -81,10 +83,16 @@ class SQLAlchemyReviewRepository(ReviewRepository):
             )
         if book_title:
             query = query.where(
-                ReviewModelSQLAlchemy.book.has(
-                    BookModelSQLAlchemy.title.ilike(f"%{book_title}%")
+                ReviewModelSQLAlchemy.book_id.in_(
+                    select(BookModelSQLAlchemy.id).where(
+                        BookModelSQLAlchemy.title.ilike(f"%{book_title}%")
+                    )
                 )
             )
+        if book_id is not None:
+            query = query.where(ReviewModelSQLAlchemy.book_id == book_id)
+        if user_id is not None:
+            query = query.where(ReviewModelSQLAlchemy.user_id == user_id)
         if comment:
             query = query.where(ReviewModelSQLAlchemy.comment.ilike(f"%{comment}%"))
 
