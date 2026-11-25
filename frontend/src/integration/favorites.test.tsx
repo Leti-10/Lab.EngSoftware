@@ -1,13 +1,13 @@
 import { screen, waitFor } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
-import { API, onePiece } from '../test/fixtures'
+import { API, domCasmurro, onePiece } from '../test/fixtures'
 import { renderApp, signIn } from '../test/render'
 import { server } from '../test/server'
 
 describe('favoritos', () => {
   it('abre favoritos pelo menu do perfil', async () => {
     signIn()
-    server.use(http.get(`${API}/votes/favorites`, () => HttpResponse.json([onePiece])))
+    server.use(http.get(`${API}/votes/favorites`, () => HttpResponse.json([onePiece, domCasmurro])))
     const { user } = renderApp('/')
 
     await user.click(await screen.findByRole('button', { name: /ana/ }))
@@ -15,6 +15,24 @@ describe('favoritos', () => {
 
     expect(await screen.findByRole('heading', { name: 'Favoritos' })).toBeInTheDocument()
     expect(screen.getByText('One Piece, Vol. 1', { selector: 'p' })).toBeInTheDocument()
+  })
+
+  it('filtra os favoritos pelo título e mostra quando não há correspondências', async () => {
+    signIn()
+    server.use(http.get(`${API}/votes/favorites`, () => HttpResponse.json([onePiece, domCasmurro])))
+    const { user } = renderApp('/favoritos')
+
+    await screen.findByText('Dom Casmurro', { selector: 'p' })
+    const filter = screen.getByRole('searchbox', { name: 'Filtrar favoritos por título' })
+    await user.type(filter, 'one piece')
+
+    expect(screen.getByText('One Piece, Vol. 1', { selector: 'p' })).toBeInTheDocument()
+    expect(screen.queryByText('Dom Casmurro', { selector: 'p' })).not.toBeInTheDocument()
+
+    await user.clear(filter)
+    await user.type(filter, 'inexistente')
+
+    expect(screen.getByText('Nenhum favorito corresponde a esse título.')).toBeInTheDocument()
   })
 
   it('exige dois cliques para desfavoritar e atualiza o botão', async () => {
