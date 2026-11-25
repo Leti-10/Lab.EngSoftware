@@ -33,6 +33,14 @@ export interface BookPayload {
   theme: string[]
 }
 
+export interface Report {
+  id: number | null
+  user_id: number
+  target_id: number
+  target_entity: string
+  description: string
+}
+
 export interface BookList {
   id: number
   owner: number

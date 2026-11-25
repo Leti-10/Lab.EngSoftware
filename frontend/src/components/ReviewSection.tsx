@@ -3,6 +3,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { ReportButton } from './ReportButton'
 import { ApiError, api } from '../lib/api'
 import type { Review, ReviewPayload, Vote } from '../lib/types'
 import { CommentSection } from './CommentSection'
@@ -123,6 +124,7 @@ export function ReviewItem({
   const [revealed, setRevealed] = useState(false)
   const [busy, setBusy] = useState(false)
   const [showComments, setShowComments] = useState(false)
+  const [reportSuccess, setReportSuccess] = useState(false)
   const hidden = review.isSpoiler && !revealed
 
   async function toggleLike() {
@@ -242,7 +244,21 @@ export function ReviewItem({
           <MessageCircle aria-hidden="true" className="size-4" />
           Comentários
         </button>
+        {user && !isMine && (
+          <ReportButton
+            targetId={review.id}
+            targetEntity="review"
+            targetLabel={`a resenha de ${review.username ?? 'Leitor'}`}
+            className="!gap-1.5 !px-3 !py-1.5 !text-xs"
+            onSuccess={() => setReportSuccess(true)}
+          />
+        )}
       </div>
+      {reportSuccess && (
+        <p role="status" className="mt-2 text-xs text-blue-warm-700">
+          Denúncia enviada.
+        </p>
+      )}
       {showComments && <CommentSection reviewId={review.id} />}
     </li>
   )
