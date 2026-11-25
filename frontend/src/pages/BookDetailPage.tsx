@@ -7,6 +7,7 @@ import { BookCover } from '../components/BookCard'
 import { BookShelf } from '../components/BookShelf'
 import { FavoriteButton } from '../components/FavoriteButton'
 import { ReadingStatus } from '../components/ReadingStatus'
+import { ReportButton } from '../components/ReportButton'
 import { ReviewSection } from '../components/ReviewSection'
 import { Stars } from '../components/StarRating'
 import { Alert, Button } from '../components/ui'
@@ -57,6 +58,7 @@ function BookDetail({ id }: { id?: string }) {
   const [confirming, setConfirming] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [reportSuccess, setReportSuccess] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -172,19 +174,47 @@ function BookDetail({ id }: { id?: string }) {
           </div>
 
           {user && (
-            <div className="mt-5 flex flex-wrap items-center gap-2">
-              <FavoriteButton book={book} />
-              <Link to={`/livros/${book.id}/editar`}>
-                <Button variant="ghost" className="gap-2">
-                  <Pencil aria-hidden="true" className="size-4" />
-                  Editar
-                </Button>
-              </Link>
-              {!confirming && (
-                <Button variant="ghost" className="gap-2" onClick={() => setConfirming(true)}>
-                  <Trash2 aria-hidden="true" className="size-4" />
-                  Excluir
-                </Button>
+            <div className="mt-5">
+              <div className="flex flex-nowrap items-center gap-2">
+                <FavoriteButton
+                  book={book}
+                  compact
+                  className="min-w-0 flex-1 [&>button]:w-full [&>button]:justify-center [&>button]:!gap-1 [&>button]:!px-1.5 [&>button]:!py-2 [&>button]:!text-xs"
+                />
+                <Link to={`/livros/${book.id}/editar`} className="min-w-0 flex-1">
+                  <Button
+                    variant="ghost"
+                    className="w-full min-w-0 whitespace-nowrap !gap-1 !px-1.5 !py-2 !text-xs"
+                  >
+                    <Pencil aria-hidden="true" className="size-4 shrink-0" />
+                    Editar
+                  </Button>
+                </Link>
+                {!confirming && (
+                  <Button
+                    variant="ghost"
+                    className="min-w-0 flex-1 whitespace-nowrap !gap-1 !px-1.5 !py-2 !text-xs"
+                    onClick={() => setConfirming(true)}
+                  >
+                    <Trash2 aria-hidden="true" className="size-4 shrink-0" />
+                    Excluir
+                  </Button>
+                )}
+                <ReportButton
+                  targetId={book.id}
+                  targetEntity="book"
+                  targetLabel={book.title}
+                  className="min-w-0 flex-1 !gap-1 !px-1.5 !py-2 !text-xs"
+                  onSuccess={() => setReportSuccess(true)}
+                />
+              </div>
+              {reportSuccess && (
+                <p
+                  role="status"
+                  className="mt-3 rounded-xl bg-blue-warm-50 px-4 py-2.5 text-sm text-blue-warm-700"
+                >
+                  Denúncia enviada. Obrigada por ajudar a manter a estante segura.
+                </p>
               )}
             </div>
           )}
