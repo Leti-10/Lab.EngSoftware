@@ -34,6 +34,12 @@ from .reading import (
     InvalidReadingStatusError,
     InvalidReadingUserError,
 )
+from .social import (
+    CommentForbiddenError,
+    CommentNotFoundError,
+    InvalidCommentError,
+    InvalidFollowError,
+)
 from .vote import (
     InvalidVoteStatusError,
     InvalidVoteTargetError,
@@ -69,6 +75,10 @@ __all__ = [
     "InvalidReadingBookError",
     "InvalidReadingStatusError",
     "InvalidReadingUserError",
+    "CommentForbiddenError",
+    "CommentNotFoundError",
+    "InvalidCommentError",
+    "InvalidFollowError",
     "InvalidVoteStatusError",
     "InvalidVoteTargetError",
     "InvalidVoteUserError",

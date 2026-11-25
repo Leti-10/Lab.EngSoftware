@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.use_cases.review import (
     CreateReviewUseCase,
@@ -14,11 +13,10 @@ from src.domain.enums.enums import EnumVoteTarget
 from src.domain.exceptions import ReviewAlreadyExistsError, ReviewNotFoundError
 from src.domain.repositories import UserRepository, VoteRepository
 from src.domain.repositories.review_repository import ReviewRepository
-from src.infrastructure.persistence.database import get_db_context
-from src.infrastructure.persistence.repositories import SQLAlchemyReviewRepository
 from src.presentation.api.dependencies import (
     get_current_user,
     get_optional_user,
+    get_review_repository,
     get_user_repository,
 )
 from src.presentation.api.routes.vote_router import get_vote_repository
@@ -32,12 +30,6 @@ from src.presentation.api.schemas.review_schema import (
 LIKE_STATUS = "like"
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
-
-
-async def get_review_repository(
-    session: AsyncSession = Depends(get_db_context),
-) -> ReviewRepository:
-    return SQLAlchemyReviewRepository(session)
 
 
 async def build_responses(
