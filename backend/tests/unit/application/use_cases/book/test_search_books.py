@@ -30,10 +30,10 @@ async def repository():
     return repo
 
 
-async def test_should_list_everything_without_filters(repository):
+async def test_should_return_an_empty_array_when_there_are_no_filters(repository):
     books = await SearchBooksUseCase(repository).execute()
 
-    assert [b.title for b in books] == ["One Piece", "Dom Casmurro"]
+    assert books == []
 
 
 async def test_should_search_by_title_ignoring_case(repository):
@@ -49,7 +49,7 @@ async def test_should_search_by_partial_author(repository):
 
 
 async def test_should_filter_by_genre(repository):
-    books = await SearchBooksUseCase(repository).execute(genre="mangá")
+    books = await SearchBooksUseCase(repository).execute(query="mangá")
 
     assert [b.title for b in books] == ["One Piece"]
 

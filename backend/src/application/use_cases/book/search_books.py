@@ -7,20 +7,23 @@ class SearchBooksUseCase:
         self.book_repository = book_repository
 
     async def execute(
-        self, query: str | None = None, genre: str | None = None
+        self,
+        query: str | None = None,
     ) -> list[Book]:
         query = (query or "").strip() or None
 
         if query is None:
-            return [
-                b for b in await self.book_repository.find_by_filter(genre=genre) if b
-            ]
+            return []
 
-        by_title = await self.book_repository.find_by_filter(title=query, genre=genre)
-        by_author = await self.book_repository.find_by_filter(author=query, genre=genre)
+        find_books = await self.book_repository.find_by_filter(
+            title=query, author=query, genre=query
+        )
 
         unique: dict[int, Book] = {}
-        for book in [*by_title, *by_author]:
+
+        for book in find_books:
             if book is not None:
-                unique[book.id] = book
-        return sorted(unique.values(), key=lambda book: book.id)
+                if book.id is not None:
+                    unique[book.id] = book
+
+        return sorted(unique.values(), key=lambda b: b.title.lower())

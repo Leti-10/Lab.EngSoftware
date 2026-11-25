@@ -26,6 +26,7 @@ class BookRepository(ABC):
     @abstractmethod
     async def find_by_filter(
         self,
+        isbn: str | None = None,
         title: str | None = None,
         author: str | None = None,
         genre: str | None = None,
