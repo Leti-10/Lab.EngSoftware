@@ -76,6 +76,9 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
   - Target_ID (ID do Alvo) - O front passa automaticamente
   - Target_Entity (Entidade do alvo) - O front passa automaticamente
   - Status (Indica o conteúdo do voto) - Obrigatório
+- Comment (Comentário em uma resenha: texto de até 500 caracteres, autor e resenha)
+- Follow (Seguidor, alvo `users` ou `lists` e id do alvo; único por seguidor e alvo)
+- Notification (Aviso de curtida, comentário ou novo seguidor, com `read`) e NotificationPreference (o que o usuário quer receber)
 - Reading (Status de leitura de uma obra por usuário)
   - ID (Identificador único) - Gerado automaticamente
   - User_ID (ID do Usuário) - Obtido da sessão autenticada
@@ -112,6 +115,16 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
 | `POST` | `/reviews` [login] | Cria a resenha do usuário logado; uma por obra (`409` se repetir) |
 | `PUT` | `/reviews/{id}` [login] | Edita nota, texto e spoiler; só o autor (`403` para outros) |
 | `PATCH` | `/reviews/{id}/spoiler` [login] | Liga ou desliga o spoiler; só o autor |
+| `GET` | `/reviews/{id}/comments` | Lista os comentários da resenha |
+| `POST` | `/reviews/{id}/comments` [login] | Comenta e notifica o autor |
+| `DELETE` | `/comments/{id}` [login] | Apaga o próprio comentário |
+| `GET` | `/users/{id}` | Perfil público com seguidores |
+| `GET` | `/users/{id}/lists` | Listas públicas do usuário |
+| `PUT` / `DELETE` | `/follows/{users\|lists}/{id}` [login] | Segue ou deixa de seguir |
+| `GET` | `/notifications` [login] | Notificações e total de não lidas |
+| `GET` / `PUT` | `/notifications/preferences` [login] | Preferências de notificação |
+| `GET` | `/feed` [login] | Resenhas de quem o usuário segue |
+| `GET` | `/recommendations` [login] | Obras recomendadas |
 | `GET` | `/readings?book_id=&status=` [login] | Status de leitura do usuário logado |
 | `PUT` | `/readings/{book_id}` [login] | Define Quero ler, Lendo ou Lido |
 | `DELETE` | `/readings/{book_id}` [login] | Remove a marcação |

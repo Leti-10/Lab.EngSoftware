@@ -29,6 +29,10 @@ Projeto da disciplina **Laboratório de Engenharia de Software** · Fatec São J
 | **Estante** | `/livros` | Grade de capas, busca por título/autor e filtros de Mangás e Quadrinhos. Logado, a busca traz também obras do **Open Library** e cadastra a obra ao abrir |
 | **Perfil** | `/perfil` | Capa, avatar, bio, listas e favoritos da pessoa logada *(requer login)* |
 | **Editar perfil** | `/perfil/editar` | Personaliza bio, avatar e capa por link de imagem, com prévia *(requer login)* |
+| **Perfil público** | `/usuarios/:id` | Capa, bio, listas públicas e botão de seguir de outra pessoa |
+| **Feed** | `/feed` | Resenhas das pessoas que você segue *(requer login)* |
+| **Recomendações** | `/recomendacoes` | Obras sugeridas pelas suas avaliações e leituras *(requer login)* |
+| **Notificações** | `/notificacoes` | Curtidas, comentários e novos seguidores, com preferências *(requer login)* |
 | **Detalhe da obra** | `/livros/:id` | Autores, editora, ISBN, gêneros e temas; **nota de 1 a 5 estrelas**, **resenhas** (com aviso de spoiler e curtidas) e **status de leitura** (Quero ler, Lendo, Lido) |
 | **Cadastrar obra** | `/livros/novo` | Formulário de livro, mangá ou quadrinho *(requer login)* |
 | **Minhas listas** | `/listas` | Cria listas (públicas ou privadas) e vê todas as suas *(requer login)* |
@@ -73,7 +77,7 @@ flowchart LR
 
 - **Arquitetura:** o backend segue **Clean Architecture / DDD**, em camadas (`presentation → application → domain`, com a `infrastructure` implementando as interfaces do domínio). O frontend é uma SPA em React que consome a API REST.
 - **Design patterns aplicados:**
-  - **Repository:** os casos de uso dependem de interfaces (`BookRepository`, `UserRepository`, `BookListRepository`, `ReviewRepository`, `VoteRepository`, `ReadingRepository`), com implementações em memória e SQLAlchemy.
+  - **Repository:** os casos de uso dependem de interfaces (`BookRepository`, `UserRepository`, `BookListRepository`, `ReviewRepository`, `VoteRepository`, `ReadingRepository`, `FollowRepository`, `NotificationRepository`), com implementações em memória e SQLAlchemy.
   - **Data Mapper:** o `BookMapper` converte entre a entidade de domínio e o modelo do banco, mantendo o domínio livre de ORM.
   - **Dependency Injection:** o `Depends` do FastAPI injeta repositórios e o usuário logado.
 
@@ -116,6 +120,7 @@ Cada funcionalidade nasce em uma branch própria a partir de `develop` e entra p
 - [Especificação (RFs, RNFs, regras e rotas)](docs/ESPECIFICACAO.md)
 - [Arquitetura e design patterns](docs/ARQUITETURA.md)
 - [Modelagem de dados (DER)](docs/MODELAGEM_DADOS.md)
+- [Acessibilidade (WCAG 2.1)](docs/ACESSIBILIDADE.md)
 - [Estratégia de testes](docs/TESTES.md)
 - [Manual de execução](docs/MANUAL_EXECUCAO.md)
 - [README do backend](backend/README.md) · [README do frontend](frontend/README.md)

@@ -33,6 +33,7 @@ uv run pytest
 
 - Testes unitários em `tests/unit/{domain,application,infrastructure}`.
 - Resenhas e status de leitura têm testes de API próprios (`test_reviews_api.py`, `test_readings_api.py`): login obrigatório, dono da resenha, uma resenha por obra, filtros, curtidas e privacidade do status.
+- `test_social_api.py` cobre comentários, seguidores, perfil público, notificações (curtida, comentário e seguidor), preferências, feed e recomendações.
 - Testes de API em `tests/unit/presentation`, usando `app.dependency_overrides` para trocar os repositórios por versões em memória isoladas por teste (`conftest.py`).
 
 ## Frontend
@@ -58,6 +59,8 @@ npm run test:coverage    # relatório de cobertura
 | `src/integration/catalog.test.tsx` | Integração | Estante: listagem, estado vazio, busca com debounce, filtro, erro de API e navegação ao detalhe |
 | `src/integration/book-detail.test.tsx` | Integração | Detalhe da obra: dados, gêneros, temas e 404 |
 | `src/integration/reviews.test.tsx` | Integração | Média e lista de resenhas, spoiler borrado, publicar, editar, exigir nota, curtir e descurtir |
+| `src/integration/social.test.tsx` | Integração | Comentários, perfil público e seguir, seguir lista, sino e página de notificações com preferências, feed e recomendações |
+| `src/integration/accessibility.test.tsx` | Integração | axe-core em 13 páginas, link de pular conteúdo, título da aba, foco ao navegar e Esc no menu |
 | `src/integration/profile-edit.test.tsx` | Integração | Perfil com bio, editar e salvar bio, avatar e capa, link sem http recusado, erro da API e rota protegida |
 | `src/integration/reading-status.test.tsx` | Integração | Marcar, desmarcar e restaurar o status de leitura; botões desabilitados para visitantes |
 | `src/integration/catalog-search.test.tsx` | Integração | Busca no catálogo externo dentro do cadastro de obra |

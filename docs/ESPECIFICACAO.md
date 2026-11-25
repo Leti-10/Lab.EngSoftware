@@ -39,6 +39,14 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 | RF18 | A busca da estante deve trazer obras do Open Library e cadastrá-las ao serem abertas | Estante | ✓ |
 | RF19 | O usuário deve marcar uma obra como Quero ler, Lendo ou Lido (Reading) | Detalhe da obra | ✓ |
 | RF20 | O usuário deve personalizar o perfil com bio, avatar e capa | Editar perfil | ✓ |
+| RF21 | O usuário deve comentar nas resenhas de outras pessoas e apagar os próprios comentários | Detalhe da obra | ✓ |
+| RF22 | O usuário deve seguir e deixar de seguir outros usuários | Perfil público | ✓ |
+| RF23 | O usuário deve seguir e deixar de seguir listas públicas de outras pessoas | Detalhe da lista | ✓ |
+| RF24 | O sistema deve exibir o perfil público de um usuário (bio, avatar, capa, seguidores e listas públicas) | Perfil público | ✓ |
+| RF25 | O usuário deve ver um feed com as resenhas de quem segue | Feed | ✓ |
+| RF26 | O usuário deve receber notificações de curtidas, comentários e novos seguidores | Notificações | ✓ |
+| RF27 | O usuário deve escolher quais tipos de notificação receber | Notificações | ✓ |
+| RF28 | O sistema deve recomendar obras com base nas avaliações e leituras do usuário | Recomendações | ✓ |
 
 ## Requisitos não funcionais
 
@@ -55,6 +63,7 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 | RNF09 | Portabilidade | Execução do backend e do banco via Docker Compose |
 | RNF10 | Desempenho | Busca da estante com *debounce* de 250 ms e cancelamento de requisições obsoletas |
 | RNF11 | Qualidade | Lint com `ruff` (backend) e `oxlint` (frontend); formatação do frontend padronizada com Prettier; TypeScript em modo estrito |
+| RNF12 | Acessibilidade | Interface em conformidade com a **WCAG 2.1 nível AA**, verificada por testes automáticos (veja [Acessibilidade](ACESSIBILIDADE.md)) |
 
 ## Regras de negócio
 
@@ -66,6 +75,11 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 - **Resenha:** nota de 1 a 5 obrigatória, texto opcional (até 1000 caracteres) e marca de spoiler. O autor vem do token, nunca do corpo. Cada usuário tem **uma** resenha por obra e só o autor a altera.
 - **Curtida:** é um voto com `status: "like"` e alvo `reviews`; um voto por usuário e alvo.
 - **Status de leitura:** `want_to_read`, `reading` ou `read`; um por usuário e obra, privado a quem marcou. Marcar de novo o mesmo status desmarca no frontend.
+- **Comentário:** de 1 a 500 caracteres, em resenhas existentes; só o autor apaga.
+- **Seguir:** não é possível seguir a si mesmo; seguir duas vezes não duplica; só listas públicas (ou do próprio usuário) podem ser seguidas.
+- **Notificação:** gerada quando outra pessoa curte ou comenta uma resenha sua ou passa a seguir você; nunca para ações do próprio usuário; respeita as preferências de quem recebe.
+- **Feed:** resenhas das pessoas seguidas, da mais nova para a mais antiga, até 30 itens.
+- **Recomendação:** pontua as obras ainda não vistas pelos gêneros e autores das obras que o usuário avaliou com 4 ou 5 estrelas ou marcou como lendo, lido ou quero ler; autores contam o dobro dos gêneros.
 - **Perfil:** bio com até 300 caracteres; avatar e capa são links que precisam começar com `http://` ou `https://` (até 500 caracteres). Campos vazios limpam o valor, e cada pessoa só altera o próprio perfil.
 - **Busca externa:** exige login, mínimo de 2 caracteres e usa o Open Library (Google Books só com `GOOGLE_BOOKS_API_KEY`).
 
@@ -133,6 +147,42 @@ Documentação interativa (Swagger) em `http://localhost:8000/docs`. [login] = e
 | `GET` | `/readings?book_id=&status=` [login] | Status de leitura do usuário logado | `200` |
 | `PUT` | `/readings/{book_id}` [login] | Define o status (`{"status": "reading"}`); cria ou atualiza | `200` |
 | `DELETE` | `/readings/{book_id}` [login] | Remove a marcação | `204` |
+
+### Comentários
+
+| Método | Rota | Descrição | Sucesso |
+| --- | --- | --- | --- |
+| `GET` | `/reviews/{id}/comments` | Lista os comentários de uma resenha | `200` |
+| `POST` | `/reviews/{id}/comments` [login] | Comenta (`{"text": "..."}`) e notifica o autor da resenha | `201` |
+| `DELETE` | `/comments/{id}` [login] | Apaga o próprio comentário | `204` |
+
+### Seguidores e perfil público
+
+| Método | Rota | Descrição | Sucesso |
+| --- | --- | --- | --- |
+| `GET` | `/users/{id}` | Perfil público com `followers`, `following` e `is_following` (login opcional) | `200` |
+| `GET` | `/users/{id}/lists` | Listas públicas do usuário | `200` |
+| `GET` | `/follows?type=` [login] | O que o usuário logado segue (`users` ou `lists`) | `200` |
+| `GET` | `/follows/{users\|lists}/{id}` | Se o usuário segue e o total de seguidores | `200` |
+| `PUT` | `/follows/{users\|lists}/{id}` [login] | Segue o alvo; seguir um usuário gera notificação | `200` |
+| `DELETE` | `/follows/{users\|lists}/{id}` [login] | Deixa de seguir | `200` |
+
+### Notificações
+
+| Método | Rota | Descrição | Sucesso |
+| --- | --- | --- | --- |
+| `GET` | `/notifications` [login] | Lista as últimas 50 e o total de não lidas | `200` |
+| `POST` | `/notifications/read` [login] | Marca todas como lidas | `204` |
+| `PATCH` | `/notifications/{id}/read` [login] | Marca uma como lida | `204` |
+| `GET` | `/notifications/preferences` [login] | Preferências (`likes`, `comments`, `follows`) | `200` |
+| `PUT` | `/notifications/preferences` [login] | Atualiza as preferências | `200` |
+
+### Feed e recomendações
+
+| Método | Rota | Descrição | Sucesso |
+| --- | --- | --- | --- |
+| `GET` | `/feed` [login] | Resenhas de quem o usuário segue, com `book_title` | `200` |
+| `GET` | `/recommendations` [login] | Até 10 obras com o motivo da sugestão | `200` |
 
 ### Denúncias
 
