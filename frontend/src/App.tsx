@@ -11,6 +11,7 @@ import { ListDetailPage } from './pages/ListDetailPage'
 import { ListsPage } from './pages/ListsPage'
 import { LoginPage } from './pages/LoginPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { EditProfilePage } from './pages/EditProfilePage'
 import { ProfilePage } from './pages/ProfilePage'
 import { RegisterPage } from './pages/RegisterPage'
 
@@ -26,6 +27,7 @@ export function AppRoutes() {
           <Route path="livros/novo" element={<BookFormPage />} />
           <Route path="livros/:id/editar" element={<BookFormPage />} />
           <Route path="perfil" element={<ProfilePage />} />
+          <Route path="perfil/editar" element={<EditProfilePage />} />
           <Route path="listas" element={<ListsPage />} />
           <Route path="listas/:id" element={<ListDetailPage />} />
           <Route path="favoritos" element={<FavoritesPage />} />

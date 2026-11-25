@@ -3,6 +3,9 @@ export interface User {
   username: string
   email: string
   role: string
+  bio?: string | null
+  avatar_url?: string | null
+  cover_url?: string | null
 }
 
 export interface TokenResponse {

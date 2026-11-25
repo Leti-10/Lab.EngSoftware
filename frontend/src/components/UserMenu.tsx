@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, Heart, ListChecks, LogOut, UserRound } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { UserAvatar } from './UserAvatar'
 
 const itemClass =
   'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-ink transition-colors hover:bg-cream-200'
@@ -47,12 +48,11 @@ export function UserMenu() {
         onClick={() => setOpen((current) => !current)}
         className="flex items-center gap-2 rounded-full border border-cream-300 bg-cream-50 py-1 pr-3 pl-1 text-sm text-ink transition-colors hover:bg-cream-200"
       >
-        <span
-          aria-hidden="true"
-          className="grid size-7 place-items-center rounded-full bg-blue-warm-100 text-xs font-semibold text-blue-warm-700 uppercase"
-        >
-          {user.username.charAt(0)}
-        </span>
+        <UserAvatar
+          username={user.username}
+          url={user.avatar_url}
+          className="size-7 rounded-full text-xs"
+        />
         <span className="hidden max-w-28 truncate sm:inline">{user.username}</span>
         <ChevronDown
           aria-hidden="true"
