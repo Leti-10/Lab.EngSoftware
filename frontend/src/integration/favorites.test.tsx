@@ -11,7 +11,7 @@ describe('favoritos', () => {
     const { user } = renderApp('/')
 
     await user.click(await screen.findByRole('button', { name: /ana/ }))
-    await user.click(screen.getByRole('menuitem', { name: 'Favoritos' }))
+    await user.click(screen.getByRole('link', { name: 'Favoritos' }))
 
     expect(await screen.findByRole('heading', { name: 'Favoritos' })).toBeInTheDocument()
     expect(screen.getByText('One Piece, Vol. 1', { selector: 'p' })).toBeInTheDocument()

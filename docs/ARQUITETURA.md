@@ -57,8 +57,11 @@ backend/src/
 │   │   └── use_cases
 │   │       ├── book
 │   │       ├── book_list
+│   │       ├── catalog
+│   │       ├── reading
 │   │       ├── review
-│   │       └── user
+│   │       ├── user
+│   │       └── vote
 │   ├── core                    # Configurações centralizadas para toda aplicação
 │   ├── domain                  # Núcleo da aplicação
 │   │   ├── entities            # Entidades puras mapeadas com dataclass
@@ -69,6 +72,7 @@ backend/src/
 │   │   │   ├── mappers         # Mapeamento de entidades puras para implementações concretas
 │   │   │   ├── models          # Modelos do SQLAlchemy pra implementação concreta das entidades
 │   │   │   └── repositories    # Implementação concreta dos repositories com SQLAlchemy
+│   │   ├── catalog             # Provedores do catálogo externo (Open Library, Google Books)
 │   │   ├── security            # Configurações de segurança como criptografia e jwt
 │   │   └── seed                # Alimentação inicial dos dados para testes
 │   └── presentation            # Camada de apresentação
@@ -93,7 +97,7 @@ backend/src/
 
 Isola o acesso a dados atrás de uma interface do domínio. Os casos de uso dependem da abstração, nunca do banco.
 
-- Interfaces: [`BookRepository`](../backend/src/domain/repositories/book_repository.py), `UserRepository`, `BookListRepository`
+- Interfaces: [`BookRepository`](../backend/src/domain/repositories/book_repository.py), `UserRepository`, `BookListRepository`, `ReviewRepository`, `VoteRepository`, `ReadingRepository`
 - Implementações: `InMemoryBookRepository` (testes e desenvolvimento) e `SQLAlchemyRepository` (PostgreSQL)
 
 ```python

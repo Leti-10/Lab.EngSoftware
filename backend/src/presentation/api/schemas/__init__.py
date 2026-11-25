@@ -8,6 +8,7 @@ from .user_schema import (
     LoginSchema,
     RegisterSchema,
     TokenResponseSchema,
+    UpdateProfileSchema,
     UserResponseSchema,
 )
 from .review_schema import CreateReviewSchema, ReviewResponseSchema
@@ -23,6 +24,7 @@ __all__ = [
     "LoginSchema",
     "RegisterSchema",
     "TokenResponseSchema",
+    "UpdateProfileSchema",
     "UserResponseSchema",
     "ReviewResponseSchema",
     "CreateReviewSchema",

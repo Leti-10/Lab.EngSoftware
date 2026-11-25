@@ -2,6 +2,7 @@ import { BookOpen, House, Library, Plus } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { NotificationBell } from './NotificationBell'
 import { UserMenu } from './UserMenu'
 
 function NavItem({ to, icon, children }: { to: string; icon: ReactNode; children: ReactNode }) {
@@ -58,6 +59,7 @@ export function Navbar() {
                 <Plus aria-hidden="true" className="size-4" />
                 <span className="hidden sm:inline">Cadastrar obra</span>
               </Link>
+              <NotificationBell />
               <UserMenu />
             </>
           ) : (

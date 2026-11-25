@@ -24,6 +24,10 @@ class UserModelSQLAlchemy(Base):
         nullable=False,
     )
 
+    bio: Mapped[str | None] = mapped_column(String(300), nullable=True)
+    avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    cover_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
     reviews: Mapped[list["ReviewModelSQLAlchemy"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )

@@ -1,11 +1,12 @@
-import { ChevronRight, Library, ListChecks, Mail, Plus, ShieldCheck } from 'lucide-react'
+import { ChevronRight, Library, ListChecks, Mail, Pencil, Plus, ShieldCheck } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { BookCover } from '../components/BookCard'
 import { FavoriteButton } from '../components/FavoriteButton'
-import { Card } from '../components/ui'
+import { UserAvatar } from '../components/UserAvatar'
+import { Button, Card } from '../components/ui'
 import { api } from '../lib/api'
 import { kindOf } from '../lib/books'
 import type { Book, BookList } from '../lib/types'
@@ -46,6 +47,27 @@ function ShortcutLink({
   )
 }
 
+function ProfileCover({ url }: { url?: string | null }) {
+  const [failedUrl, setFailedUrl] = useState<string | null>(null)
+  const showImage = Boolean(url) && failedUrl !== url
+
+  return (
+    <div
+      aria-hidden="true"
+      className="relative mb-8 h-36 overflow-hidden rounded-2xl bg-blue-warm-100 sm:h-48"
+    >
+      {showImage && (
+        <img
+          src={url ?? undefined}
+          alt=""
+          onError={() => setFailedUrl(url ?? null)}
+          className="absolute inset-0 size-full object-cover"
+        />
+      )}
+    </div>
+  )
+}
+
 export function ProfilePage() {
   const { user, favorites, favoritesError, favoritesLoading } = useAuth()
   const [lists, setLists] = useState<BookList[] | null>(null)
@@ -69,145 +91,173 @@ export function ProfilePage() {
   const role = ROLES[user.role] ?? user.role
 
   return (
-    <div className="grid gap-8 md:grid-cols-[240px_1fr]">
-      <aside className="space-y-5">
-        <span
-          aria-hidden="true"
-          className="grid aspect-square w-full place-items-center rounded-2xl border-2 border-blue-warm-500 bg-blue-warm-100 font-serif text-7xl font-semibold text-blue-warm-700 uppercase"
-        >
-          {user.username.charAt(0)}
-        </span>
+    <>
+      <ProfileCover url={user.cover_url} />
+      <div className="grid gap-8 md:grid-cols-[240px_1fr]">
+        <aside aria-label="Dados da conta" className="space-y-5">
+          <UserAvatar
+            username={user.username}
+            url={user.avatar_url}
+            className="aspect-square w-full rounded-2xl border-2 border-blue-warm-500 text-7xl"
+          />
 
-        <Card className="space-y-4 p-5">
-          <div className="flex items-center gap-3 text-sm">
-            <Mail aria-hidden="true" className="size-4 shrink-0 text-ink-soft" />
-            <span className="truncate">{user.email}</span>
-          </div>
-          <div className="flex items-center gap-3 text-sm">
-            <ShieldCheck aria-hidden="true" className="size-4 shrink-0 text-ink-soft" />
-            <span>{role}</span>
-          </div>
-        </Card>
-      </aside>
-
-      <div className="min-w-0">
-        <h1 className="truncate text-3xl font-semibold">{user.username}</h1>
-
-        <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-          <StatCard label="Listas" value={total(lists?.length)} unit="listas" />
-          <StatCard label="Obras salvas" value={total(savedBooks.length)} unit="obras" />
-          <StatCard label="Públicas" value={total(publicLists)} unit="listas" />
-          <StatCard label="Privadas" value={total(privateLists)} unit="listas" />
-        </div>
-
-        <nav
-          aria-label="Atalhos do perfil"
-          className="mt-5 grid gap-1 rounded-2xl bg-blue-warm-600 p-2 sm:grid-cols-3"
-        >
-          <ShortcutLink to="/livros" icon={<Library aria-hidden="true" className="size-4" />}>
-            Estante
-          </ShortcutLink>
-          <ShortcutLink to="/listas" icon={<ListChecks aria-hidden="true" className="size-4" />}>
-            Minhas listas {lists?.length ?? 0}
-          </ShortcutLink>
-          <ShortcutLink to="/livros/novo" icon={<Plus aria-hidden="true" className="size-4" />}>
-            Cadastrar obra
-          </ShortcutLink>
-        </nav>
-
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_240px]">
-          <section>
-            <h2 className="text-xl font-semibold">Suas listas</h2>
-
-            {lists?.length === 0 && (
-              <p className="mt-4 text-sm text-ink-soft">
-                Você ainda não criou nenhuma lista.{' '}
-                <Link to="/listas" className="font-medium text-blue-warm-600 hover:underline">
-                  Criar uma lista
-                </Link>
-              </p>
-            )}
-
-            <div className="mt-4 space-y-8">
-              {lists?.slice(0, 3).map((list, index) => (
-                <div
-                  key={list.id}
-                  className={
-                    lists.length > 3 && index === 2
-                      ? 'relative pb-4 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-8 after:bg-linear-to-t after:from-cream-100 after:to-transparent'
-                      : ''
-                  }
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <h3 className="truncate font-sans text-sm font-semibold">{list.name}</h3>
-                    <Link
-                      to={`/listas/${list.id}`}
-                      className="flex shrink-0 items-center gap-1 text-sm font-medium text-blue-warm-600 hover:underline"
-                    >
-                      Ver mais
-                      <ChevronRight aria-hidden="true" className="size-4" />
-                    </Link>
-                  </div>
-                  {list.books.length === 0 ? (
-                    <p className="mt-3 text-sm text-ink-soft">Esta lista ainda está vazia.</p>
-                  ) : (
-                    <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
-                      {list.books.slice(0, 6).map((book) => (
-                        <div key={book.id} className="relative w-24 shrink-0">
-                          <Link to={`/livros/${book.id}`} aria-label={book.title} className="block">
-                            <BookCover book={book} />
-                          </Link>
-                          <FavoriteButton book={book} compact className="absolute top-1 right-1" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
+          <Card className="space-y-4 p-5">
+            <div className="flex items-center gap-3 text-sm">
+              <Mail aria-hidden="true" className="size-4 shrink-0 text-ink-soft" />
+              <span className="truncate">{user.email}</span>
             </div>
+            <div className="flex items-center gap-3 text-sm">
+              <ShieldCheck aria-hidden="true" className="size-4 shrink-0 text-ink-soft" />
+              <span>{role}</span>
+            </div>
+          </Card>
+        </aside>
 
-            <section className="mt-10">
-              <div className="flex items-center justify-between gap-4">
-                <h2 className="text-xl font-semibold">Favoritos</h2>
-                <Link
-                  to="/favoritos"
-                  className="flex shrink-0 items-center gap-1 text-sm font-medium text-blue-warm-600 hover:underline"
-                >
-                  Ver todos
-                  <ChevronRight aria-hidden="true" className="size-4" />
-                </Link>
-              </div>
-              {!favoritesError && favoritesLoading && (
-                <p className="mt-4 text-sm text-ink-soft">Carregando favoritos…</p>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h1 className="truncate text-3xl font-semibold">{user.username}</h1>
+            <Link to="/perfil/editar">
+              <Button variant="ghost" className="gap-2">
+                <Pencil aria-hidden="true" className="size-4" />
+                Editar perfil
+              </Button>
+            </Link>
+          </div>
+          {user.bio && (
+            <p className="mt-3 max-w-prose text-sm leading-relaxed whitespace-pre-line text-ink">
+              {user.bio}
+            </p>
+          )}
+
+          <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <StatCard label="Listas" value={total(lists?.length)} unit="listas" />
+            <StatCard label="Obras salvas" value={total(savedBooks.length)} unit="obras" />
+            <StatCard label="Públicas" value={total(publicLists)} unit="listas" />
+            <StatCard label="Privadas" value={total(privateLists)} unit="listas" />
+          </div>
+
+          <nav
+            aria-label="Atalhos do perfil"
+            className="mt-5 grid gap-1 rounded-2xl bg-blue-warm-600 p-2 sm:grid-cols-3"
+          >
+            <ShortcutLink to="/livros" icon={<Library aria-hidden="true" className="size-4" />}>
+              Estante
+            </ShortcutLink>
+            <ShortcutLink to="/listas" icon={<ListChecks aria-hidden="true" className="size-4" />}>
+              Minhas listas {lists?.length ?? 0}
+            </ShortcutLink>
+            <ShortcutLink to="/livros/novo" icon={<Plus aria-hidden="true" className="size-4" />}>
+              Cadastrar obra
+            </ShortcutLink>
+          </nav>
+
+          <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_240px]">
+            <section>
+              <h2 className="text-xl font-semibold">Suas listas</h2>
+
+              {lists?.length === 0 && (
+                <p className="mt-4 text-sm text-ink-soft">
+                  Você ainda não criou nenhuma lista.{' '}
+                  <Link to="/listas" className="font-medium text-blue-warm-600 hover:underline">
+                    Criar uma lista
+                  </Link>
+                </p>
               )}
-              {!favoritesError && !favoritesLoading && favorites.length === 0 && (
-                <p className="mt-4 text-sm text-ink-soft">Você ainda não favoritou nenhuma obra.</p>
-              )}
-              {favorites.length > 0 && (
-                <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                  {favorites.slice(0, 12).map((book) => (
-                    <div key={book.id} className="relative min-w-0">
-                      <Link to={`/livros/${book.id}`} aria-label={book.title} className="block">
-                        <BookCover book={book} />
+
+              <div className="mt-4 space-y-8">
+                {lists?.slice(0, 3).map((list, index) => (
+                  <div
+                    key={list.id}
+                    className={
+                      lists.length > 3 && index === 2
+                        ? 'relative pb-4 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-8 after:bg-linear-to-t after:from-cream-100 after:to-transparent'
+                        : ''
+                    }
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <h3 className="truncate font-sans text-sm font-semibold">{list.name}</h3>
+                      <Link
+                        to={`/listas/${list.id}`}
+                        className="flex shrink-0 items-center gap-1 text-sm font-medium text-blue-warm-600 hover:underline"
+                      >
+                        Ver mais
+                        <ChevronRight aria-hidden="true" className="size-4" />
                       </Link>
-                      <FavoriteButton book={book} compact className="absolute top-1 right-1" />
                     </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          </section>
+                    {list.books.length === 0 ? (
+                      <p className="mt-3 text-sm text-ink-soft">Esta lista ainda está vazia.</p>
+                    ) : (
+                      <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+                        {list.books.slice(0, 6).map((book) => (
+                          <div key={book.id} className="relative w-24 shrink-0">
+                            <Link
+                              to={`/livros/${book.id}`}
+                              aria-label={book.title}
+                              className="block"
+                            >
+                              <BookCover book={book} />
+                            </Link>
+                            <FavoriteButton
+                              book={book}
+                              compact
+                              className="absolute top-1 right-1"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
 
-          <aside className="h-fit rounded-2xl bg-cream-200/70 p-5">
-            <p className="font-serif text-lg font-semibold">{savedBooks.length} obras salvas</p>
-            <ul className="mt-3 space-y-2 text-sm text-ink-soft">
-              <li>Livros: {count('Livro')}</li>
-              <li>Mangás: {count('Mangá')}</li>
-              <li>Quadrinhos: {count('Quadrinhos')}</li>
-            </ul>
-          </aside>
+              <section className="mt-10">
+                <div className="flex items-center justify-between gap-4">
+                  <h2 className="text-xl font-semibold">Favoritos</h2>
+                  <Link
+                    to="/favoritos"
+                    className="flex shrink-0 items-center gap-1 text-sm font-medium text-blue-warm-600 hover:underline"
+                  >
+                    Ver todos
+                    <ChevronRight aria-hidden="true" className="size-4" />
+                  </Link>
+                </div>
+                {!favoritesError && favoritesLoading && (
+                  <p className="mt-4 text-sm text-ink-soft">Carregando favoritos…</p>
+                )}
+                {!favoritesError && !favoritesLoading && favorites.length === 0 && (
+                  <p className="mt-4 text-sm text-ink-soft">
+                    Você ainda não favoritou nenhuma obra.
+                  </p>
+                )}
+                {favorites.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                    {favorites.slice(0, 12).map((book) => (
+                      <div key={book.id} className="relative min-w-0">
+                        <Link to={`/livros/${book.id}`} aria-label={book.title} className="block">
+                          <BookCover book={book} />
+                        </Link>
+                        <FavoriteButton book={book} compact className="absolute top-1 right-1" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </section>
+
+            <aside
+              aria-label="Resumo das obras salvas"
+              className="h-fit rounded-2xl bg-cream-200/70 p-5"
+            >
+              <p className="font-serif text-lg font-semibold">{savedBooks.length} obras salvas</p>
+              <ul className="mt-3 space-y-2 text-sm text-ink-soft">
+                <li>Livros: {count('Livro')}</li>
+                <li>Mangás: {count('Mangá')}</li>
+                <li>Quadrinhos: {count('Quadrinhos')}</li>
+              </ul>
+            </aside>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }

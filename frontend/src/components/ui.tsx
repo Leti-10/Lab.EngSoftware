@@ -40,10 +40,8 @@ export function Field({
         id={inputId}
         aria-invalid={error ? true : undefined}
         aria-describedby={describedBy}
-        className={`w-full rounded-xl border bg-cream-50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none ${
-          error
-            ? 'border-danger focus:border-danger'
-            : 'border-cream-300 focus:border-blue-warm-500'
+        className={`w-full rounded-xl border bg-cream-50 px-4 py-2.5 text-sm text-ink placeholder:text-ink-soft focus:outline-none ${
+          error ? 'border-danger focus:border-danger' : 'border-line focus:border-blue-warm-500'
         }`}
         {...props}
       />

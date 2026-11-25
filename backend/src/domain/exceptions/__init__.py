@@ -17,8 +17,10 @@ from .review import (
     InvalidReviewBookError,
     InvalidReviewRatingError,
     InvalidReviewUserError,
+    ReviewAlreadyExistsError,
     ReviewNotFoundError,
 )
+from .catalog import CatalogQueryTooShortError, CatalogUnavailableError
 from .user import InvalidCredentialsError
 from .report import (
     InvalidReportDescriptionError,
@@ -26,6 +28,17 @@ from .report import (
     InvalidReportTargetEntityError,
     InvalidReportUserError,
     ReportAlreadyExistsError,
+)
+from .reading import (
+    InvalidReadingBookError,
+    InvalidReadingStatusError,
+    InvalidReadingUserError,
+)
+from .social import (
+    CommentForbiddenError,
+    CommentNotFoundError,
+    InvalidCommentError,
+    InvalidFollowError,
 )
 from .vote import (
     InvalidVoteStatusError,
@@ -49,13 +62,23 @@ __all__ = [
     "InvalidReviewBookError",
     "InvalidReviewRatingError",
     "InvalidReviewUserError",
+    "ReviewAlreadyExistsError",
     "ReviewNotFoundError",
+    "CatalogQueryTooShortError",
+    "CatalogUnavailableError",
     "InvalidCredentialsError",
     "InvalidReportDescriptionError",
     "InvalidReportTargetError",
     "InvalidReportTargetEntityError",
     "InvalidReportUserError",
     "ReportAlreadyExistsError",
+    "InvalidReadingBookError",
+    "InvalidReadingStatusError",
+    "InvalidReadingUserError",
+    "CommentForbiddenError",
+    "CommentNotFoundError",
+    "InvalidCommentError",
+    "InvalidFollowError",
     "InvalidVoteStatusError",
     "InvalidVoteTargetError",
     "InvalidVoteUserError",

@@ -4,7 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import { KINDS, kindOf, splitList } from '../lib/books'
 import type { Kind } from '../lib/books'
-import type { Book, BookPayload } from '../lib/types'
+import type { Book, BookPayload, CatalogBook } from '../lib/types'
+import { CatalogSearch } from '../components/CatalogSearch'
 import { Alert, Button, Card, Field } from '../components/ui'
 import { compact, hasErrors } from '../lib/validation'
 import type { FieldErrors } from '../lib/validation'
@@ -70,6 +71,20 @@ export function BookFormPage() {
     })
   }
 
+  function fillFromCatalog(book: CatalogBook) {
+    setForm({
+      title: book.title,
+      authors: book.authors.join(', '),
+      isbn: book.isbn,
+      publisher: book.publisher,
+      genres: book.genres.join(', '),
+      themes: '',
+    })
+    setKind(kindOf(book.genres))
+    setErrors({})
+    setError(null)
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setError(null)
@@ -111,6 +126,8 @@ export function BookFormPage() {
           ? 'Atualize os dados da obra.'
           : 'Não achou na estante? Adicione um livro, mangá ou quadrinho.'}
       </p>
+
+      {!editing && <CatalogSearch onPick={fillFromCatalog} />}
 
       <Card className="mt-8">
         <form onSubmit={handleSubmit} noValidate className="space-y-5">

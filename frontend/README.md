@@ -32,16 +32,22 @@ O backend precisa estar rodando — veja o [Manual de Execução](../docs/MANUAL
 | `/cadastro` | `RegisterPage` | Público |
 | `/livros` | `CatalogPage` | Público |
 | `/livros/:id` | `BookDetailPage` | Público |
-| `/livros/novo` | `BookFormPage` | 🔒 Logado |
-| `/listas` | `ListsPage` | 🔒 Logado |
-| `/listas/:id` | `ListDetailPage` | 🔒 Logado |
+| `/livros/novo` | `BookFormPage` | Logado |
+| `/perfil` | `ProfilePage` | Logado |
+| `/perfil/editar` | `EditProfilePage` | Logado |
+| `/usuarios/:id` | `UserPage` | Público |
+| `/feed` | `FeedPage` | Logado |
+| `/notificacoes` | `NotificationsPage` | Logado |
+| `/recomendacoes` | `RecommendationsPage` | Logado |
+| `/listas` | `ListsPage` | Logado |
+| `/listas/:id` | `ListDetailPage` | Logado |
 
 ## Estrutura
 
 ```text
 src/
 ├── pages/        # Uma tela por arquivo
-├── components/   # Layout, Navbar, BookCard e primitivos de UI
+├── components/   # Layout, Navbar, BookCard, ReviewSection, StarRating, ReadingStatus, UserAvatar, CommentSection, FollowButton, NotificationBell e primitivos de UI
 ├── auth/         # AuthContext (sessão JWT) e ProtectedRoute
 └── lib/          # Cliente HTTP (api.ts), tipos e helpers
 ```

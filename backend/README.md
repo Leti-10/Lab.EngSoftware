@@ -1,4 +1,4 @@
-poderia # Servidor do projeto books
+# Servidor do projeto books
 
 API provedora de serviços para a aplicação, desenvolvida em FastAPI seguindo os critérios fornecidos pelo professor Juan Hassan da disciplina Laboratório de Engenharia de Software pela Fatec de São José dos Campos.
 
@@ -9,7 +9,7 @@ API provedora de serviços para a aplicação, desenvolvida em FastAPI seguindo 
 - [Rotas da Aplicação](#app_route)
 - [Tecnologias Utilizadas](#technology)
 
-## <span id="how_to_run"> ❓ Como Executar </span>
+## <span id="how_to_run"> Como Executar </span>
 
 ```bash
 cp .env.example .env
@@ -47,6 +47,9 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
   - Password (Senha) - Obrigatório
   - Role (Comum, Desenvolvedor, Admin) - Apenas um admin pode modificar
   - Created_at (Data de criação) - Gerado automaticamente
+  - Bio (Texto de apresentação, até 300 caracteres) - Opcional
+  - Avatar_url (Link da foto do perfil) - Opcional
+  - Cover_url (Link da capa do perfil) - Opcional
 - Book (Livros)
   - ID (Identificador único) - Gerado automaticamente
   - ISBN (ISBN do livro) - Opcional (um livro pode não ter o ISBN)
@@ -62,16 +65,25 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
   - isPrivate (Indica se a lista é privada) - Opcional
 - Review (Review de algum livro)
   - ID (Identificador único) - Gerado automaticamente
-  - User_ID (ID do Usuário) - O front passa automaticamente
+  - User_ID (ID do Usuário) - Obtido da sessão autenticada
   - Book_ID (ID do Livro) - O front passa automaticamente
   - Comment (Comentário) - Opcional
   - Rating (Avaliação em estrelas) - Obrigatório (vai de 1 a 5)
+  - isSpoiler (Indica que o texto revela partes da obra) - Opcional (padrão falso)
 - Vote (O usuário pode registrar um único like/dislike ou marcação por alvo, alvos diferentes aceitam votos independentes)
   - ID (Identificador único) - Gerado automaticamente
   - User_ID (ID do Usuário) - O front passa automaticamente
   - Target_ID (ID do Alvo) - O front passa automaticamente
   - Target_Entity (Entidade do alvo) - O front passa automaticamente
   - Status (Indica o conteúdo do voto) - Obrigatório
+- Comment (Comentário em uma resenha: texto de até 500 caracteres, autor e resenha)
+- Follow (Seguidor, alvo `users` ou `lists` e id do alvo; único por seguidor e alvo)
+- Notification (Aviso de curtida, comentário ou novo seguidor, com `read`) e NotificationPreference (o que o usuário quer receber)
+- Reading (Status de leitura de uma obra por usuário)
+  - ID (Identificador único) - Gerado automaticamente
+  - User_ID (ID do Usuário) - Obtido da sessão autenticada
+  - Book_ID (ID do Livro) - Obrigatório
+  - Status (`want_to_read`, `reading` ou `read`) - Obrigatório
 - Report (Usuários autenticados podem denunciar conteúdos por meio de `/reports`)
   - ID (Identificador único) - Gerado automaticamente
   - User_ID (ID do Usuário) - Obtido da sessão autenticada
@@ -79,32 +91,53 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
   - Target_Entity (Entidade do alvo) - O front passa automaticamente
   - Description (Descrição do motivo da denúncia) - Obrigatório
 
-## <span id="app_route"> ↪️ Rotas da Aplicação </span>
+## <span id="app_route"> Rotas da Aplicação </span>
 
-🔒 = exige `Authorization: Bearer <token>`. Detalhes e códigos de erro na [Especificação](../docs/ESPECIFICACAO.md#rotas-da-api).
+[login] = exige `Authorization: Bearer <token>`. Detalhes e códigos de erro na [Especificação](../docs/ESPECIFICACAO.md#rotas-da-api).
 
 | Método | Rota | Descrição |
 | --- | --- | --- |
 | `GET` | `/` | Health check |
 | `POST` | `/auth/register` | Cria conta e devolve token |
 | `POST` | `/auth/login` | Autentica e devolve token |
-| `POST` | `/reports` 🔒 | Cria denúncia (repositório em memória); o autor vem da sessão e `target_entity` pode ser `user` |
-| `GET` | `/reports/{report_id}` 🔒 | Busca denúncia por ID |
-| `GET` | `/reports` 🔒 | Lista denúncias com filtros opcionais |
-| `GET` | `/auth/me` 🔒 | Usuário da sessão |
+| `POST` | `/reports` [login] | Cria denúncia (repositório em memória); o autor vem da sessão e `target_entity` pode ser `user` |
+| `GET` | `/reports/{report_id}` [login] | Busca denúncia por ID |
+| `GET` | `/reports` [login] | Lista denúncias com filtros opcionais |
+| `GET` | `/auth/me` [login] | Usuário da sessão |
+| `PUT` | `/auth/me` [login] | Atualiza bio, avatar e capa do perfil |
 | `GET` | `/books?q=&genre=` | Lista/busca obras |
 | `GET` | `/books/{id}` | Detalhes da obra |
-| `POST` | `/books` 🔒 | Cadastra obra |
-| `GET` | `/lists` 🔒 | Minhas listas |
-| `POST` | `/lists` 🔒 | Cria lista |
-| `GET` | `/lists/{id}` 🔒 | Detalhes da lista |
-| `POST` | `/lists/{id}/books` 🔒 | Adiciona obra à lista |
-| `POST` | `/votes` 🔒 | Registra um voto por usuário e alvo; uma tentativa duplicada retorna `409` |
-| `GET` | `/votes?status=&user_name=&target_type=&target_name=` 🔒 | Lista votos por status, username e alvo (título do livro, nome da lista ou comentário da review) |
-| `GET` | `/votes/{id}` 🔒 | Detalhes do voto |
-| `DELETE` | `/votes/{id}` 🔒 | Exclui voto |
+| `POST` | `/books` [login] | Cadastra obra |
+| `PUT` | `/books/{id}` [login] | Edita obra |
+| `DELETE` | `/books/{id}` [login] | Exclui obra |
+| `GET` | `/catalog/search?q=` [login] | Busca obras no Open Library |
+| `GET` | `/reviews?book_id=&user_id=` | Lista resenhas (com `username`, `likes`, `liked_by_me`) |
+| `POST` | `/reviews` [login] | Cria a resenha do usuário logado; uma por obra (`409` se repetir) |
+| `PUT` | `/reviews/{id}` [login] | Edita nota, texto e spoiler; só o autor (`403` para outros) |
+| `PATCH` | `/reviews/{id}/spoiler` [login] | Liga ou desliga o spoiler; só o autor |
+| `GET` | `/reviews/{id}/comments` | Lista os comentários da resenha |
+| `POST` | `/reviews/{id}/comments` [login] | Comenta e notifica o autor |
+| `DELETE` | `/comments/{id}` [login] | Apaga o próprio comentário |
+| `GET` | `/users/{id}` | Perfil público com seguidores |
+| `GET` | `/users/{id}/lists` | Listas públicas do usuário |
+| `PUT` / `DELETE` | `/follows/{users\|lists}/{id}` [login] | Segue ou deixa de seguir |
+| `GET` | `/notifications` [login] | Notificações e total de não lidas |
+| `GET` / `PUT` | `/notifications/preferences` [login] | Preferências de notificação |
+| `GET` | `/feed` [login] | Resenhas de quem o usuário segue |
+| `GET` | `/recommendations` [login] | Obras recomendadas |
+| `GET` | `/readings?book_id=&status=` [login] | Status de leitura do usuário logado |
+| `PUT` | `/readings/{book_id}` [login] | Define Quero ler, Lendo ou Lido |
+| `DELETE` | `/readings/{book_id}` [login] | Remove a marcação |
+| `GET` | `/lists` [login] | Minhas listas |
+| `POST` | `/lists` [login] | Cria lista |
+| `GET` | `/lists/{id}` [login] | Detalhes da lista |
+| `POST` | `/lists/{id}/books` [login] | Adiciona obra à lista |
+| `POST` | `/votes` [login] | Registra um voto por usuário e alvo; uma tentativa duplicada retorna `409` |
+| `GET` | `/votes?status=&user_name=&target_type=&target_name=` [login] | Lista votos por status, username e alvo (título do livro, nome da lista ou comentário da review) |
+| `GET` | `/votes/{id}` [login] | Detalhes do voto |
+| `DELETE` | `/votes/{id}` [login] | Exclui voto |
 
-## <span id="technology"> 💻 Tecnologias Utilizadas </span>
+## <span id="technology"> Tecnologias Utilizadas </span>
 - Backend
 ![Python](https://img.shields.io/badge/python-%233670A0.svg?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![FastAPI](https://img.shields.io/badge/fastapi-%23009688.svg?style=for-the-badge&logo=fastapi&logoColor=white)
