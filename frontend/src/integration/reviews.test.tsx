@@ -150,4 +150,52 @@ describe('avaliações e resenhas', () => {
 
     expect(await screen.findByRole('button', { name: 'Curtir resenha' })).toBeDisabled()
   })
+
+  it('permite denunciar a resenha de outra pessoa', async () => {
+    signIn()
+    mockPage([review])
+    let sent: unknown
+    server.use(
+      http.post(`${API}/reports`, async ({ request }) => {
+        sent = await request.json()
+        return HttpResponse.json(
+          {
+            id: 1,
+            user_id: 1,
+            target_id: review.id,
+            target_entity: 'review',
+            description: 'Comentário inadequado',
+          },
+          { status: 201 },
+        )
+      }),
+    )
+    const { user } = renderApp('/livros/1')
+    const reviewItem = (await screen.findByText('Uma aventura incrível')).closest('li')
+
+    expect(reviewItem).not.toBeNull()
+    await user.click(within(reviewItem as HTMLElement).getByRole('button', { name: 'Reportar' }))
+    await user.type(screen.getByLabelText('Motivo'), 'Comentário inadequado')
+    await user.click(screen.getByRole('button', { name: 'Enviar denúncia' }))
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Denúncia enviada')
+    expect(sent).toEqual({
+      target_id: review.id,
+      target_entity: 'review',
+      description: 'Comentário inadequado',
+    })
+  })
+
+  it('não oferece denunciar a própria resenha', async () => {
+    signIn()
+    mockPage([{ ...review, user_id: 1, username: 'ana' }])
+    renderApp('/livros/1')
+
+    const reviewItem = (await screen.findByText('Uma aventura incrível')).closest('li')
+
+    expect(reviewItem).not.toBeNull()
+    expect(
+      within(reviewItem as HTMLElement).queryByRole('button', { name: 'Reportar' }),
+    ).toBeNull()
+  })
 })
