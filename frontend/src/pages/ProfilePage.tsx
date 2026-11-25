@@ -134,7 +134,7 @@ export function ProfilePage() {
                   key={list.id}
                   className={
                     lists.length > 3 && index === 2
-                      ? 'relative pb-4 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-8 after:bg-gradient-to-t after:from-cream-100 after:to-transparent'
+                      ? 'relative pb-4 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-8 after:bg-linear-to-t after:from-cream-100 after:to-transparent'
                       : ''
                   }
                 >

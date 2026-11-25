@@ -78,7 +78,7 @@ export function BookDetailPage() {
       </Link>
 
       <div className="mt-6 grid gap-8 sm:grid-cols-[220px_1fr]">
-        <BookCover book={book} className="w-full max-w-[220px]" />
+        <BookCover book={book} className="w-full max-w-55" />
 
         <div>
           <p className="text-sm font-medium text-blue-warm-600">{kindOf(book.genre)}</p>

@@ -20,7 +20,7 @@ export function BookCover({ book, className = '' }: { book: Book; className?: st
 
   return (
     <div
-      className={`relative flex aspect-[2/3] items-end overflow-hidden rounded-md p-3 shadow-sm ${TINTS[book.id % TINTS.length]} ${className}`}
+      className={`relative flex aspect-2/3 items-end overflow-hidden rounded-md p-3 shadow-sm ${TINTS[book.id % TINTS.length]} ${className}`}
       aria-hidden="true"
     >
       <span className="line-clamp-4 font-serif text-sm leading-snug font-semibold">
