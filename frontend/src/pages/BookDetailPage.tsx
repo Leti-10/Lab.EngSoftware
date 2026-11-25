@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { BookCover } from '../components/BookCard'
+import { FavoriteButton } from '../components/FavoriteButton'
 import { Alert, Button } from '../components/ui'
 import { ApiError, api } from '../lib/api'
 import { kindOf } from '../lib/books'
@@ -86,6 +87,7 @@ export function BookDetailPage() {
 
           {user && (
             <div className="mt-6 flex flex-wrap items-center gap-2">
+              <FavoriteButton book={book} />
               <Link to={`/livros/${book.id}/editar`}>
                 <Button variant="ghost" className="gap-2">
                   <Pencil aria-hidden="true" className="size-4" />

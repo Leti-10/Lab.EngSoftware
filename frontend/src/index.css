@@ -21,6 +21,22 @@
   --font-serif: 'Lora', Georgia, serif;
 }
 
+@keyframes favorite-pulse {
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+.favorite-pulse {
+  animation: favorite-pulse 450ms ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .favorite-pulse {
+    animation: none;
+  }
+}
+
 @layer base {
   html {
     background: var(--color-cream-100);
