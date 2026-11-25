@@ -3,7 +3,7 @@
 # 📚 Estante
 
 **Organize livros, mangás e quadrinhos em um só lugar.**
-Cadastre obras, busque na estante e monte suas listas de leitura.
+Cadastre obras, busque na estante, avalie, escreva resenhas e monte suas listas de leitura.
 
 ![Python](https://img.shields.io/badge/python-3.14-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
@@ -26,8 +26,8 @@ Projeto da disciplina **Laboratório de Engenharia de Software** · Fatec São J
 | 🏠 **Início** | `/` | Apresentação do app e atalhos para a estante |
 | 🔑 **Login** | `/login` | Entra com e-mail e senha (JWT) e volta para onde você estava |
 | 📝 **Cadastro** | `/cadastro` | Cria a conta e já entra logada |
-| 🗂️ **Estante** | `/livros` | Grade de capas, busca por título/autor e filtros de Mangás e Quadrinhos |
-| 📖 **Detalhe da obra** | `/livros/:id` | Autores, editora, ISBN, gêneros e temas |
+| 🗂️ **Estante** | `/livros` | Grade de capas, busca por título/autor e filtros de Mangás e Quadrinhos. Logado, a busca traz também obras do **Open Library** e cadastra a obra ao abrir |
+| 📖 **Detalhe da obra** | `/livros/:id` | Autores, editora, ISBN, gêneros e temas; **nota de 1 a 5 estrelas**, **resenhas** (com aviso de spoiler e curtidas) e **status de leitura** (Quero ler, Lendo, Lido) |
 | ➕ **Cadastrar obra** | `/livros/novo` | Formulário de livro, mangá ou quadrinho *(requer login)* |
 | 🧺 **Minhas listas** | `/listas` | Cria listas (públicas ou privadas) e vê todas as suas *(requer login)* |
 | 📑 **Detalhe da lista** | `/listas/:id` | Obras da lista e adição de novas obras *(requer login)* |
@@ -71,7 +71,7 @@ flowchart LR
 
 - **Arquitetura:** o backend segue **Clean Architecture / DDD**, em camadas (`presentation → application → domain`, com a `infrastructure` implementando as interfaces do domínio). O frontend é uma SPA em React que consome a API REST.
 - **Design patterns aplicados:**
-  - **Repository:** os casos de uso dependem de interfaces (`BookRepository`, `UserRepository`, `BookListRepository`), com implementações em memória e SQLAlchemy.
+  - **Repository:** os casos de uso dependem de interfaces (`BookRepository`, `UserRepository`, `BookListRepository`, `ReviewRepository`, `VoteRepository`, `ReadingRepository`), com implementações em memória e SQLAlchemy.
   - **Data Mapper:** o `BookMapper` converte entre a entidade de domínio e o modelo do banco, mantendo o domínio livre de ORM.
   - **Dependency Injection:** o `Depends` do FastAPI injeta repositórios e o usuário logado.
 

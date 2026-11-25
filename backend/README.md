@@ -1,4 +1,4 @@
-poderia # Servidor do projeto books
+# Servidor do projeto books
 
 API provedora de serviços para a aplicação, desenvolvida em FastAPI seguindo os critérios fornecidos pelo professor Juan Hassan da disciplina Laboratório de Engenharia de Software pela Fatec de São José dos Campos.
 
@@ -62,16 +62,22 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
   - isPrivate (Indica se a lista é privada) - Opcional
 - Review (Review de algum livro)
   - ID (Identificador único) - Gerado automaticamente
-  - User_ID (ID do Usuário) - O front passa automaticamente
+  - User_ID (ID do Usuário) - Obtido da sessão autenticada
   - Book_ID (ID do Livro) - O front passa automaticamente
   - Comment (Comentário) - Opcional
   - Rating (Avaliação em estrelas) - Obrigatório (vai de 1 a 5)
+  - isSpoiler (Indica que o texto revela partes da obra) - Opcional (padrão falso)
 - Vote (O usuário pode registrar um único like/dislike ou marcação por alvo, alvos diferentes aceitam votos independentes)
   - ID (Identificador único) - Gerado automaticamente
   - User_ID (ID do Usuário) - O front passa automaticamente
   - Target_ID (ID do Alvo) - O front passa automaticamente
   - Target_Entity (Entidade do alvo) - O front passa automaticamente
   - Status (Indica o conteúdo do voto) - Obrigatório
+- Reading (Status de leitura de uma obra por usuário)
+  - ID (Identificador único) - Gerado automaticamente
+  - User_ID (ID do Usuário) - Obtido da sessão autenticada
+  - Book_ID (ID do Livro) - Obrigatório
+  - Status (`want_to_read`, `reading` ou `read`) - Obrigatório
 - Report (Usuários autenticados podem denunciar conteúdos por meio de `/reports`)
   - ID (Identificador único) - Gerado automaticamente
   - User_ID (ID do Usuário) - Obtido da sessão autenticada
@@ -95,6 +101,16 @@ Design patterns aplicados: **Repository**, **Data Mapper** e **Dependency Inject
 | `GET` | `/books?q=&genre=` | Lista/busca obras |
 | `GET` | `/books/{id}` | Detalhes da obra |
 | `POST` | `/books` 🔒 | Cadastra obra |
+| `PUT` | `/books/{id}` 🔒 | Edita obra |
+| `DELETE` | `/books/{id}` 🔒 | Exclui obra |
+| `GET` | `/catalog/search?q=` 🔒 | Busca obras no Open Library |
+| `GET` | `/reviews?book_id=&user_id=` | Lista resenhas (com `username`, `likes`, `liked_by_me`) |
+| `POST` | `/reviews` 🔒 | Cria a resenha do usuário logado; uma por obra (`409` se repetir) |
+| `PUT` | `/reviews/{id}` 🔒 | Edita nota, texto e spoiler; só o autor (`403` para outros) |
+| `PATCH` | `/reviews/{id}/spoiler` 🔒 | Liga ou desliga o spoiler; só o autor |
+| `GET` | `/readings?book_id=&status=` 🔒 | Status de leitura do usuário logado |
+| `PUT` | `/readings/{book_id}` 🔒 | Define Quero ler, Lendo ou Lido |
+| `DELETE` | `/readings/{book_id}` 🔒 | Remove a marcação |
 | `GET` | `/lists` 🔒 | Minhas listas |
 | `POST` | `/lists` 🔒 | Cria lista |
 | `GET` | `/lists/{id}` 🔒 | Detalhes da lista |

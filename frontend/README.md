@@ -41,7 +41,7 @@ O backend precisa estar rodando — veja o [Manual de Execução](../docs/MANUAL
 ```text
 src/
 ├── pages/        # Uma tela por arquivo
-├── components/   # Layout, Navbar, BookCard e primitivos de UI
+├── components/   # Layout, Navbar, BookCard, ReviewSection, StarRating, ReadingStatus e primitivos de UI
 ├── auth/         # AuthContext (sessão JWT) e ProtectedRoute
 └── lib/          # Cliente HTTP (api.ts), tipos e helpers
 ```

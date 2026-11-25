@@ -31,9 +31,13 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 | RF10 | O usuário deve criar listas de leitura, públicas ou privadas | Minhas listas | ✅ |
 | RF11 | O usuário deve visualizar todas as suas listas | Minhas listas | ✅ |
 | RF12 | O dono da lista deve adicionar obras a ela | Detalhe da lista | ✅ |
-| RF13 | O usuário deve avaliar obras com nota de 1 a 5 e comentário (Review) | — | 🔜 previsto no DER |
-| RF14 | O usuário deve votar (like/dislike/marcações) em conteúdos (Vote) | — | 🔜 previsto no DER |
-| RF15 | O usuário deve denunciar conteúdos (Report) | — | ✅ |
+| RF13 | O usuário deve avaliar obras com nota de 1 a 5 e ver a média da obra | Detalhe da obra | ✅ |
+| RF14 | O usuário deve escrever e editar uma resenha, podendo marcá-la como spoiler | Detalhe da obra | ✅ |
+| RF15 | O usuário deve denunciar conteúdos (Report) | — | ✅ (API) |
+| RF16 | O sistema deve listar as resenhas de uma obra, com o texto de spoiler borrado até o leitor pedir para mostrar | Detalhe da obra | ✅ |
+| RF17 | O usuário deve curtir e descurtir resenhas (Vote) | Detalhe da obra | ✅ |
+| RF18 | A busca da estante deve trazer obras do Open Library e cadastrá-las ao serem abertas | Estante | ✅ |
+| RF19 | O usuário deve marcar uma obra como Quero ler, Lendo ou Lido (Reading) | Detalhe da obra | ✅ |
 
 ## Requisitos não funcionais
 
@@ -58,6 +62,10 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 - **Lista:** nome com no mínimo 3 caracteres e **único**; descrição obrigatória; pertence a quem a criou.
 - **Itens da lista:** só o dono adiciona obras; a obra precisa existir e não pode repetir na mesma lista.
 - **Lista privada:** só o dono consegue abrir; para os demais, responde como se não existisse.
+- **Resenha:** nota de 1 a 5 obrigatória, texto opcional (até 1000 caracteres) e marca de spoiler. O autor vem do token, nunca do corpo. Cada usuário tem **uma** resenha por obra e só o autor a altera.
+- **Curtida:** é um voto com `status: "like"` e alvo `reviews`; um voto por usuário e alvo.
+- **Status de leitura:** `want_to_read`, `reading` ou `read`; um por usuário e obra, privado a quem marcou. Marcar de novo o mesmo status desmarca no frontend.
+- **Busca externa:** exige login, mínimo de 2 caracteres e usa o Open Library (Google Books só com `GOOGLE_BOOKS_API_KEY`).
 
 ## Rotas da API
 
@@ -78,6 +86,8 @@ Documentação interativa (Swagger) em `http://localhost:8000/docs`. 🔒 = exig
 | `GET` | `/books?q=&genre=` | Lista obras; `q` busca em título **ou** autor, `genre` filtra por gênero | `200` |
 | `GET` | `/books/{id}` | Detalhes de uma obra | `200` |
 | `POST` | `/books` 🔒 | Cadastra uma obra | `201` |
+| `PUT` | `/books/{id}` 🔒 | Edita uma obra | `200` |
+| `DELETE` | `/books/{id}` 🔒 | Exclui uma obra | `204` |
 
 ### Listas
 
@@ -87,6 +97,39 @@ Documentação interativa (Swagger) em `http://localhost:8000/docs`. 🔒 = exig
 | `POST` | `/lists` 🔒 | Cria uma lista | `201` |
 | `GET` | `/lists/{id}` 🔒 | Detalhes de uma lista (com as obras) | `200` |
 | `POST` | `/lists/{id}/books` 🔒 | Adiciona uma obra à lista (`{"book_id": 1}`) | `200` |
+
+### Catálogo externo
+
+| Método | Rota | Descrição | Sucesso |
+| --- | --- | --- | --- |
+| `GET` | `/catalog/search?q=` 🔒 | Busca obras no Open Library (título, autor ou ISBN); devolve `isbn`, `title`, `authors`, `publisher`, `genres` e `cover_url` | `200` |
+
+### Resenhas
+
+| Método | Rota | Descrição | Sucesso |
+| --- | --- | --- | --- |
+| `GET` | `/reviews` | Lista resenhas; filtros `book_id`, `user_id`, `rating`, `username`, `book_title`, `comment`. Cada item traz `username`, `likes`, `liked_by_me` e `like_vote_id` (este com login opcional) | `200` |
+| `GET` | `/reviews/{id}` | Detalhes de uma resenha | `200` |
+| `POST` | `/reviews` 🔒 | Cria a resenha (`rating`, `comment`, `isSpoiler`, `book_id`); o autor é o usuário logado | `201` |
+| `PUT` | `/reviews/{id}` 🔒 | Edita nota, texto e spoiler; só o autor | `200` |
+| `PATCH` | `/reviews/{id}/spoiler` 🔒 | Liga ou desliga a marca de spoiler; só o autor | `200` |
+
+### Votos
+
+| Método | Rota | Descrição | Sucesso |
+| --- | --- | --- | --- |
+| `POST` | `/votes` 🔒 | Registra um voto (`status`, `target_entity`: `lists`, `books` ou `reviews`, `target_id`) | `201` |
+| `GET` | `/votes` 🔒 | Lista votos com filtros `status`, `user_name`, `target_type` e `target_name` | `200` |
+| `GET` | `/votes/{id}` 🔒 | Detalhes do voto | `200` |
+| `DELETE` | `/votes/{id}` 🔒 | Remove o voto | `204` |
+
+### Status de leitura
+
+| Método | Rota | Descrição | Sucesso |
+| --- | --- | --- | --- |
+| `GET` | `/readings?book_id=&status=` 🔒 | Status de leitura do usuário logado | `200` |
+| `PUT` | `/readings/{book_id}` 🔒 | Define o status (`{"status": "reading"}`); cria ou atualiza | `200` |
+| `DELETE` | `/readings/{book_id}` 🔒 | Remove a marcação | `204` |
 
 ### Denúncias
 
@@ -103,7 +146,8 @@ Todos os erros seguem o formato `{"detail": "mensagem"}`; o frontend exibe a men
 | Código | Quando |
 | --- | --- |
 | `401` | Sem token, token inválido/expirado ou credenciais erradas |
-| `403` | Alterar lista de outra pessoa |
+| `403` | Alterar lista ou resenha de outra pessoa |
 | `404` | Obra ou lista inexistente (ou lista privada de terceiros) |
-| `409` | E-mail, ISBN ou nome de lista já cadastrados; obra repetida na lista |
+| `409` | E-mail, ISBN ou nome de lista já cadastrados; obra repetida na lista; segunda resenha da mesma obra; voto repetido |
 | `422` | Dados inválidos (validação do Pydantic ou regras do domínio) |
+| `502` | Catálogo externo indisponível |

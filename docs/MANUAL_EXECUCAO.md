@@ -84,7 +84,11 @@ Os testes que exercitam repositórios SQLAlchemy precisam de PostgreSQL acessív
 
 | Variável | Padrão | Descrição |
 | --- | --- | --- |
-| `DATABASE_URL` | — | URL do PostgreSQL (`postgresql+asyncpg://usuario:senha@host:5432/banco`) |
+| `DB_HOST` / `DB_PORT` | `localhost` / `5432` | Endereço do PostgreSQL |
+| `DB_USER` / `DB_PASSWORD` / `DB_NAME` | `postgres` / `postgres` / `mydb` | Credenciais e nome do banco |
+| `SEED_CATALOG` | `true` | Carrega as 39 obras nativas ao iniciar a API |
+| `GOOGLE_BOOKS_API_KEY` | vazio | Opcional. Com a chave, a busca externa usa o Google Books antes do Open Library |
+| `CATALOG_TIMEOUT_SECONDS` | `8` | Tempo limite de cada consulta ao catálogo externo |
 | `SECRET_KEY` | chave de desenvolvimento | Segredo de assinatura do JWT. **Troque em produção** (32+ caracteres) |
 | `ALGORITHM` | `HS256` | Algoritmo do JWT |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `60` | Validade do token |
@@ -128,8 +132,9 @@ Pontos identificados ao documentar que o time deve resolver antes da entrega fin
 
 | Item | Situação | O que fazer |
 | --- | --- | --- |
-| **Persistência da API** | Usuários, obras e listas usam repositórios em memória; só `books` tem repositório SQLAlchemy | Criar modelos/migrations de `users` e `lists` e trocar os `Depends` |
+| **Persistência da API** | Usuários, resenhas, votos, denúncias e status de leitura gravam no PostgreSQL; **obras e listas ainda ficam em memória** | Criar migrations de `lists`, completar o `books` (gênero e tema) e trocar os `Depends` |
+| **Obras em memória x resenhas no banco** | Ao reiniciar a API, as obras importadas somem, mas resenhas e status continuam apontando para o `book_id` antigo; por isso a FK `reviews.book_id` foi removida | Persistir as obras no PostgreSQL e restaurar a FK |
+| **Alembic no Windows** | `alembic upgrade head` pode falhar com `ProactorEventLoop` | Rodar o Alembic com `asyncio.WindowsSelectorEventLoopPolicy` ou usar Docker |
 | **Dockerfile** | `CMD` aponta para `src.main:app` | Trocar por `src.presentation.api.main:app` |
 | **Usuários de denúncias** | O ID do autor vem da sessão autenticada; a persistência de usuários ainda é em memória | Migrar usuários para persistência SQL para voltar a impor FK em `reports.user_id` |
-| **Review, Vote e Report** | Previstas no DER | Ver RF13 a RF15 na [especificação](ESPECIFICACAO.md#requisitos-funcionais) |
 | **Nome de lista único global** | Duas pessoas não podem ter listas com o mesmo nome | Tornar a unicidade por dono |
