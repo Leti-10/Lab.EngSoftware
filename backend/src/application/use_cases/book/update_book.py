@@ -1,6 +1,10 @@
+from logging import getLogger
+
 from src.domain.entities import Book
 from src.domain.exceptions import BookNotFoundError
 from src.domain.repositories import BookRepository
+
+logger = getLogger(__name__)
 
 
 class UpdateBookUseCase:
@@ -16,4 +20,9 @@ class UpdateBookUseCase:
             raise ValueError("ISBN já cadastrado")
 
         updated.id = book_id
-        return await self.book_repository.update(updated)
+        updated_book = await self.book_repository.update(updated)
+        logger.info(
+            "Book updated successfully",
+            extra={"book_id": updated_book.id, "isbn": updated_book.isbn},
+        )
+        return updated_book
