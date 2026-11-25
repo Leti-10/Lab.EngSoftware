@@ -1,10 +1,11 @@
-import { ArrowLeft, Barcode, Building2, Heart, Layers, PenLine, Pencil, Trash2 } from 'lucide-react'
+import { ArrowLeft, Barcode, Building2, Layers, PenLine, Pencil, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { BookCover } from '../components/BookCard'
 import { BookShelf } from '../components/BookShelf'
+import { FavoriteButton } from '../components/FavoriteButton'
 import { ReadingStatus } from '../components/ReadingStatus'
 import { ReviewSection } from '../components/ReviewSection'
 import { Stars } from '../components/StarRating'
@@ -23,21 +24,6 @@ function MetaPill({ icon, children }: { icon: ReactNode; children: ReactNode }) 
       {icon}
       {children}
     </span>
-  )
-}
-
-function SoonAction({ icon, label }: { icon: ReactNode; label: string }) {
-  return (
-    <button
-      type="button"
-      disabled
-      title="Em breve"
-      aria-label={`${label} (em breve)`}
-      className="flex flex-col items-center gap-2 px-2 py-4 text-xs text-ink-soft opacity-70"
-    >
-      {icon}
-      {label}
-    </button>
   )
 }
 
@@ -185,6 +171,7 @@ function BookDetail({ id }: { id?: string }) {
 
           {user && (
             <div className="mt-5 flex flex-wrap items-center gap-2">
+              <FavoriteButton book={book} />
               <Link to={`/livros/${book.id}/editar`}>
                 <Button variant="ghost" className="gap-2">
                   <Pencil aria-hidden="true" className="size-4" />
@@ -297,8 +284,7 @@ function BookDetail({ id }: { id?: string }) {
           className="h-fit overflow-hidden rounded-2xl border border-cream-300 bg-cream-50 md:col-span-2 lg:col-span-1"
         >
           <ReadingStatus bookId={book.id} />
-          <div className="grid grid-cols-2 divide-x divide-cream-300 border-t border-cream-300">
-            <SoonAction icon={<Heart aria-hidden="true" className="size-6" />} label="Favoritar" />
+          <div className="border-t border-cream-300">
             <a
               href="#resenhas"
               className="flex flex-col items-center gap-2 px-2 py-4 text-xs text-ink transition-colors hover:bg-cream-200"

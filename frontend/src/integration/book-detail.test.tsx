@@ -106,12 +106,11 @@ describe('detalhe da obra', () => {
     expect(screen.queryByRole('heading', { name: /Obras parecidas/ })).toBeNull()
   })
 
-  it('mostra ações futuras desabilitadas e a avaliação vazia', async () => {
+  it('mostra o atalho para resenhar e a avaliação vazia', async () => {
     mockBook()
     renderApp('/livros/1')
 
     await screen.findByRole('heading', { name: 'One Piece, Vol. 1' })
-    expect(screen.getByRole('button', { name: 'Favoritar (em breve)' })).toBeDisabled()
     expect(screen.getByRole('link', { name: 'Resenhar' })).toHaveAttribute('href', '#resenhas')
     expect(screen.getByText('Ainda sem avaliações')).toBeInTheDocument()
   })

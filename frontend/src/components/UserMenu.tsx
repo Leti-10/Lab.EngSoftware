@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ChevronDown, ListChecks, LogOut, UserRound } from 'lucide-react'
+import { ChevronDown, Heart, ListChecks, LogOut, UserRound } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 
@@ -77,6 +77,15 @@ export function UserMenu() {
           <Link to="/listas" role="menuitem" onClick={() => setOpen(false)} className={itemClass}>
             <ListChecks aria-hidden="true" className="size-4 text-ink-soft" />
             Minhas listas
+          </Link>
+          <Link
+            to="/favoritos"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className={itemClass}
+          >
+            <Heart aria-hidden="true" className="size-4 text-ink-soft" />
+            Favoritos
           </Link>
           <div className="my-1 border-t border-cream-300" />
           <button type="button" role="menuitem" onClick={handleLogout} className={itemClass}>
