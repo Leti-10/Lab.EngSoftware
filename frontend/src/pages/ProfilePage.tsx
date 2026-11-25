@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { BookCover } from '../components/BookCard'
+import { FavoriteButton } from '../components/FavoriteButton'
 import { Card } from '../components/ui'
 import { api } from '../lib/api'
 import { kindOf } from '../lib/books'
@@ -46,7 +47,7 @@ function ShortcutLink({
 }
 
 export function ProfilePage() {
-  const { user } = useAuth()
+  const { user, favorites, favoritesError, favoritesLoading } = useAuth()
   const [lists, setLists] = useState<BookList[] | null>(null)
 
   useEffect(() => {
@@ -128,8 +129,15 @@ export function ProfilePage() {
             )}
 
             <div className="mt-4 space-y-8">
-              {lists?.slice(0, 3).map((list) => (
-                <div key={list.id}>
+              {lists?.slice(0, 3).map((list, index) => (
+                <div
+                  key={list.id}
+                  className={
+                    lists.length > 3 && index === 2
+                      ? 'relative pb-4 after:pointer-events-none after:absolute after:inset-x-0 after:bottom-0 after:h-8 after:bg-gradient-to-t after:from-cream-100 after:to-transparent'
+                      : ''
+                  }
+                >
                   <div className="flex items-center justify-between gap-4">
                     <h3 className="truncate font-sans text-sm font-semibold">{list.name}</h3>
                     <Link
@@ -145,20 +153,49 @@ export function ProfilePage() {
                   ) : (
                     <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
                       {list.books.slice(0, 6).map((book) => (
-                        <Link
-                          key={book.id}
-                          to={`/livros/${book.id}`}
-                          aria-label={book.title}
-                          className="w-24 shrink-0"
-                        >
-                          <BookCover book={book} />
-                        </Link>
+                        <div key={book.id} className="relative w-24 shrink-0">
+                          <Link to={`/livros/${book.id}`} aria-label={book.title} className="block">
+                            <BookCover book={book} />
+                          </Link>
+                          <FavoriteButton book={book} compact className="absolute top-1 right-1" />
+                        </div>
                       ))}
                     </div>
                   )}
                 </div>
               ))}
             </div>
+
+            <section className="mt-10">
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-xl font-semibold">Favoritos</h2>
+                <Link
+                  to="/favoritos"
+                  className="flex shrink-0 items-center gap-1 text-sm font-medium text-blue-warm-600 hover:underline"
+                >
+                  Ver todos
+                  <ChevronRight aria-hidden="true" className="size-4" />
+                </Link>
+              </div>
+              {!favoritesError && favoritesLoading && (
+                <p className="mt-4 text-sm text-ink-soft">Carregando favoritos…</p>
+              )}
+              {!favoritesError && !favoritesLoading && favorites.length === 0 && (
+                <p className="mt-4 text-sm text-ink-soft">Você ainda não favoritou nenhuma obra.</p>
+              )}
+              {favorites.length > 0 && (
+                <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                  {favorites.slice(0, 12).map((book) => (
+                    <div key={book.id} className="relative min-w-0">
+                      <Link to={`/livros/${book.id}`} aria-label={book.title} className="block">
+                        <BookCover book={book} />
+                      </Link>
+                      <FavoriteButton book={book} compact className="absolute top-1 right-1" />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
           </section>
 
           <aside className="h-fit rounded-2xl bg-cream-200/70 p-5">

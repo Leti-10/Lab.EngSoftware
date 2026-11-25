@@ -51,8 +51,9 @@ describe('perfil', () => {
     signIn()
     renderApp('/perfil')
 
-    expect(await screen.findByRole('heading', { name: 'Favoritos' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'One Piece, Vol. 1' })).toHaveAttribute(
+    await screen.findByRole('link', { name: 'Ver mais' })
+    expect(await screen.findAllByRole('heading', { name: 'Favoritos' })).toHaveLength(2)
+    expect(await screen.findByRole('link', { name: 'One Piece, Vol. 1' })).toHaveAttribute(
       'href',
       '/livros/1',
     )
@@ -94,6 +95,46 @@ describe('perfil', () => {
     renderApp('/perfil')
 
     expect(await screen.findByText('0 obras salvas')).toBeInTheDocument()
+  })
+
+  it('mostra favoritos abaixo das listas e oferece o link para ver todos', async () => {
+    signIn()
+    server.use(
+      http.get(`${API}/lists`, () => HttpResponse.json([])),
+      http.get(`${API}/votes/favorites`, () => HttpResponse.json([onePiece])),
+    )
+    renderApp('/perfil')
+
+    const link = await screen.findByRole('link', { name: /Ver todos/ })
+    expect(link).toHaveAttribute('href', '/favoritos')
+    expect(await screen.findByRole('link', { name: 'One Piece, Vol. 1' })).toHaveAttribute(
+      'href',
+      '/livros/1',
+    )
+  })
+
+  it('limita a prévia de favoritos a 12 capas em até 4 colunas', async () => {
+    const books = Array.from({ length: 15 }, (_, index) => ({
+      ...onePiece,
+      id: index + 1,
+      title: `Livro ${index + 1}`,
+    }))
+    signIn()
+    server.use(
+      http.get(`${API}/lists`, () => HttpResponse.json([])),
+      http.get(`${API}/votes/favorites`, () => HttpResponse.json(books)),
+    )
+    renderApp('/perfil')
+
+    await screen.findByRole('link', { name: 'Livro 12' })
+    const heading = await screen.findByRole('heading', { name: 'Favoritos' })
+    const section = heading.closest('section') as HTMLElement
+    const grid = section.querySelector('.grid') as HTMLElement
+
+    expect(grid.children).toHaveLength(12)
+    expect(grid).toHaveClass('lg:grid-cols-4')
+    expect(grid.querySelectorAll('img')).toHaveLength(12)
+    expect(within(section).queryByRole('link', { name: 'Livro 13' })).not.toBeInTheDocument()
   })
 })
 
