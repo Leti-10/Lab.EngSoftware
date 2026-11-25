@@ -4,6 +4,7 @@ import { ProtectedRoute } from './auth/ProtectedRoute'
 import { Layout } from './components/Layout'
 import { BookFormPage } from './pages/BookFormPage'
 import { BookDetailPage } from './pages/BookDetailPage'
+import { FavoritesPage } from './pages/FavoritesPage'
 import { CatalogPage } from './pages/CatalogPage'
 import { HomePage } from './pages/HomePage'
 import { ListDetailPage } from './pages/ListDetailPage'
@@ -27,6 +28,7 @@ export function AppRoutes() {
           <Route path="perfil" element={<ProfilePage />} />
           <Route path="listas" element={<ListsPage />} />
           <Route path="listas/:id" element={<ListDetailPage />} />
+          <Route path="favoritos" element={<FavoritesPage />} />
         </Route>
         <Route path="livros/:id" element={<BookDetailPage />} />
         <Route path="*" element={<NotFoundPage />} />
