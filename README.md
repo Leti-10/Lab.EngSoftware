@@ -67,12 +67,16 @@ Pronto: crie uma conta em `/cadastro` e cadastre sua primeira obra. Mais detalhe
 
 ```mermaid
 flowchart LR
-    U([Pessoa usuária]) --> F["Frontend<br/>React + TypeScript + Tailwind"]
-    F -- "REST / JSON<br/>Cookie HttpOnly" --> A["Backend<br/>FastAPI"]
+    U([Pessoa usuária]) --> N["Nginx<br/>serve SPA + proxy reverso /api"]
+    N -- "arquivos da SPA" --> F["Frontend no navegador<br/>React + TypeScript + Tailwind"]
+    F -- "REST /api + Cookie HttpOnly" --> N
+    N -- "proxy_pass" --> A["Backend<br/>FastAPI"]
     A --> UC["Casos de uso"]
     UC --> R["Repositórios"]
     R --> DB[("PostgreSQL")]
 ```
+
+No Docker Compose, o Nginx serve os arquivos do frontend e encaminha `/api` ao backend. No desenvolvimento local, o Vite serve o frontend e ele acessa a API diretamente.
 
 ### Arquitetura e design patterns
 
