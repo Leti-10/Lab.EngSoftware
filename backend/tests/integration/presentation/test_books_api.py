@@ -12,13 +12,8 @@ def test_create_book_requires_login(client):
 
 
 def test_create_book_returns_201(client, auth_headers):
-    response = client.get("/books", params={"isbn": BOOK["isbn"]})
-    id = response.json()[0]["id"] if response.json() else None
-    deleted = client.delete(f"/books/{id}", headers=auth_headers)
-
     response = client.post("/books", json=BOOK, headers=auth_headers)
 
-    assert deleted.status_code in (204, 404)
     assert response.status_code == 201
     body = response.json()
     assert body["id"] == 1
