@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.domain.entities import Review
+from src.domain.enums.enums import EnumReviewSort
 
 
 class ReviewRepository(ABC):
@@ -30,4 +31,10 @@ class ReviewRepository(ABC):
 
     @abstractmethod
     async def get_all(self, order_by: str = "id") -> list[Review]:
+        pass
+
+    @abstractmethod
+    async def get_page(
+        self, page: int, page_size: int, sort_by: EnumReviewSort
+    ) -> tuple[list[Review], int]:
         pass

@@ -1,5 +1,5 @@
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import APIKeyCookie, HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.domain.entities import User
@@ -20,9 +20,13 @@ from src.infrastructure.persistence.repositories import (
     SQLAlchemyReviewRepository,
     SQLAlchemyUserRepository,
 )
-from src.infrastructure.security.token_service import TokenService
+from src.infrastructure.security.token_service import (
+    ACCESS_TOKEN_COOKIE_NAME,
+    TokenService,
+)
 
 bearer_scheme = HTTPBearer(auto_error=False)
+cookie_scheme = APIKeyCookie(name=ACCESS_TOKEN_COOKIE_NAME, auto_error=False)
 
 
 async def get_user_repository(
@@ -62,28 +66,30 @@ async def get_notification_preference_repository(
 
 
 async def get_optional_user(
+    access_token: str | None = Depends(cookie_scheme),
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     repository: UserRepository = Depends(get_user_repository),
 ) -> User | None:
-    if credentials is None:
+    token = access_token or (credentials.credentials if credentials else None)
+    if token is None:
         return None
-    user_id = TokenService.decode_user_id(credentials.credentials)
+    user_id = TokenService.decode_user_id(token)
     return await repository.get_by_id(user_id) if user_id is not None else None
 
 
 async def get_current_user(
+    access_token: str | None = Depends(cookie_scheme),
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     repository: UserRepository = Depends(get_user_repository),
 ) -> User:
     unauthorized = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Sessão inválida ou expirada.",
-        headers={"WWW-Authenticate": "Bearer"},
     )
-    if credentials is None:
+    token = access_token or (credentials.credentials if credentials else None)
+    if token is None:
         raise unauthorized
-
-    user_id = TokenService.decode_user_id(credentials.credentials)
+    user_id = TokenService.decode_user_id(token)
     user = await repository.get_by_id(user_id) if user_id is not None else None
     if user is None:
         raise unauthorized

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.use_cases.report import (
     CreateReportUseCase,
@@ -9,7 +10,8 @@ from src.application.use_cases.report import (
 from src.domain.entities import Report, User
 from src.domain.exceptions import ReportAlreadyExistsError
 from src.domain.repositories import ReportRepository
-from src.infrastructure.persistence.repositories import InMemoryReportRepository
+from src.infrastructure.persistence.database import get_db_context
+from src.infrastructure.persistence.repositories import SQLAlchemyReportRepository
 from src.presentation.api.dependencies import get_current_user
 from src.presentation.api.schemas.report_schema import (
     CreateReportSchema,
@@ -18,11 +20,11 @@ from src.presentation.api.schemas.report_schema import (
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
-_report_repository = InMemoryReportRepository()
 
-
-def get_report_repository() -> ReportRepository:
-    return _report_repository
+async def get_report_repository(
+    session: AsyncSession = Depends(get_db_context),
+) -> ReportRepository:
+    return SQLAlchemyReportRepository(session)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)

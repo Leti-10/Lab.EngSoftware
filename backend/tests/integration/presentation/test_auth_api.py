@@ -5,14 +5,19 @@ def _register(client, email="ana@example.com"):
     )
 
 
-def test_register_returns_token_and_user(client):
+def test_register_sets_http_only_cookie_and_returns_user(client):
     response = _register(client)
 
     assert response.status_code == 201
     body = response.json()
-    assert body["token_type"] == "bearer"
+    assert "access_token" not in body
+    assert "token_type" not in body
     assert body["user"]["email"] == "ana@example.com"
     assert "password" not in body["user"]
+    assert response.cookies.get("estante_access_token")
+    set_cookie = response.headers["set-cookie"]
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=lax" in set_cookie
 
 
 def test_register_duplicate_email_returns_409(client):
@@ -29,10 +34,19 @@ def test_login_and_me_flow(client):
     )
     assert login.status_code == 200
 
-    token = login.json()["access_token"]
-    me = client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
+    me = client.get("/auth/me")
     assert me.status_code == 200
     assert me.json()["username"] == "ana"
+
+
+def test_logout_clears_cookie_and_ends_session(client):
+    _register(client)
+
+    logout = client.post("/auth/logout")
+
+    assert logout.status_code == 204
+    assert "Max-Age=0" in logout.headers["set-cookie"]
+    assert client.get("/auth/me").status_code == 401
 
 
 def test_login_with_wrong_password_returns_401(client):

@@ -36,3 +36,15 @@ class ReviewResponseSchema(BaseModel):
     likes: int = 0
     liked_by_me: bool = False
     like_vote_id: int | None = None
+
+
+class ReviewFeedItemSchema(ReviewResponseSchema):
+    book_title: str | None = None
+    book_isbn: str | None = None
+
+
+class ReviewFeedPageSchema(BaseModel):
+    items: list[ReviewFeedItemSchema]
+    total: int
+    page: int
+    page_size: int

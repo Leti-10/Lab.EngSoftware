@@ -19,6 +19,8 @@ export function UserMenu() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+  const [logoutLoading, setLogoutLoading] = useState(false)
+  const [logoutError, setLogoutError] = useState<string | null>(null)
   const container = useRef<HTMLDivElement>(null)
   const trigger = useRef<HTMLButtonElement>(null)
 
@@ -45,80 +47,90 @@ export function UserMenu() {
 
   if (!user) return null
 
-  function handleLogout() {
+  async function handleLogout() {
     setOpen(false)
-    logout()
-    navigate('/login')
+    setLogoutError(null)
+    setLogoutLoading(true)
+    try {
+      await logout()
+      navigate('/login')
+    } catch (error) {
+      setLogoutError(error instanceof Error ? error.message : 'Não foi possível sair.')
+    } finally {
+      setLogoutLoading(false)
+    }
   }
 
   return (
-    <div ref={container} className="relative">
-      <button
-        ref={trigger}
-        type="button"
-        aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
-        className="flex items-center gap-2 rounded-full border border-cream-300 bg-cream-50 py-1 pr-3 pl-1 text-sm text-ink transition-colors hover:bg-cream-200"
-      >
-        <UserAvatar
-          username={user.username}
-          url={user.avatar_url}
-          className="size-7 rounded-full text-xs"
-        />
-        <span className="hidden max-w-28 truncate sm:inline">{user.username}</span>
-        <ChevronDown
-          aria-hidden="true"
-          className={`size-4 text-ink-soft transition-transform ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
-
-      {open && (
-        <nav
-          aria-label="Menu da conta"
-          className="absolute right-0 z-20 mt-2 w-60 rounded-2xl border border-cream-300 bg-cream-50 p-2 shadow-lg"
+    <>
+      <div ref={container} className="relative">
+        <button
+          ref={trigger}
+          type="button"
+          aria-expanded={open}
+          onClick={() => setOpen((current) => !current)}
+          className="flex items-center gap-2 rounded-full border border-cream-300 bg-cream-50 py-1 pr-3 pl-1 text-sm text-ink transition-colors hover:bg-cream-200"
         >
-          <div className="px-3 py-2">
-            <p className="truncate text-sm font-semibold text-ink">{user.username}</p>
-            <p className="truncate text-xs text-ink-soft">{user.email}</p>
-          </div>
-          <div className="my-1 border-t border-cream-300" />
-          <Link to="/perfil" onClick={() => setOpen(false)} className={itemClass}>
-            <UserRound aria-hidden="true" className="size-4 text-ink-soft" />
-            Meu perfil
-          </Link>
-          <Link to="/listas" onClick={() => setOpen(false)} className={itemClass}>
-            <ListChecks aria-hidden="true" className="size-4 text-ink-soft" />
-            Minhas listas
-          </Link>
-          <Link
-            to="/favoritos"
+          <UserAvatar
+            username={user.username}
+            url={user.avatar_url}
+            className="size-7 rounded-full text-xs"
+          />
+          <span className="hidden max-w-28 truncate sm:inline">{user.username}</span>
+          <ChevronDown
+            aria-hidden="true"
+            className={`size-4 text-ink-soft transition-transform ${open ? 'rotate-180' : ''}`}
+          />
+        </button>
 
-            onClick={() => setOpen(false)}
-            className={itemClass}
+        {open && (
+          <nav
+            aria-label="Menu da conta"
+            className="absolute right-0 z-20 mt-2 w-60 rounded-2xl border border-cream-300 bg-cream-50 p-2 shadow-lg"
           >
-            <Heart aria-hidden="true" className="size-4 text-ink-soft" />
-            Favoritos
-          </Link>
-          <Link to="/feed" onClick={() => setOpen(false)} className={itemClass}>
-            <Newspaper aria-hidden="true" className="size-4 text-ink-soft" />
-            Feed
-          </Link>
-          <Link
-            to="/recomendacoes"
-
-            onClick={() => setOpen(false)}
-            className={itemClass}
-          >
-            <Sparkles aria-hidden="true" className="size-4 text-ink-soft" />
-            Recomendações
-          </Link>
-          <div className="my-1 border-t border-cream-300" />
-          <button type="button" onClick={handleLogout} className={itemClass}>
-            <LogOut aria-hidden="true" className="size-4 text-ink-soft" />
-            Sair
-          </button>
-        </nav>
+            <div className="px-3 py-2">
+              <p className="truncate text-sm font-semibold text-ink">{user.username}</p>
+              <p className="truncate text-xs text-ink-soft">{user.email}</p>
+            </div>
+            <div className="my-1 border-t border-cream-300" />
+            <Link to="/perfil" onClick={() => setOpen(false)} className={itemClass}>
+              <UserRound aria-hidden="true" className="size-4 text-ink-soft" />
+              Meu perfil
+            </Link>
+            <Link to="/listas" onClick={() => setOpen(false)} className={itemClass}>
+              <ListChecks aria-hidden="true" className="size-4 text-ink-soft" />
+              Minhas listas
+            </Link>
+            <Link to="/favoritos" onClick={() => setOpen(false)} className={itemClass}>
+              <Heart aria-hidden="true" className="size-4 text-ink-soft" />
+              Favoritos
+            </Link>
+            <Link to="/feed" onClick={() => setOpen(false)} className={itemClass}>
+              <Newspaper aria-hidden="true" className="size-4 text-ink-soft" />
+              Feed
+            </Link>
+            <Link to="/recomendacoes" onClick={() => setOpen(false)} className={itemClass}>
+              <Sparkles aria-hidden="true" className="size-4 text-ink-soft" />
+              Recomendações
+            </Link>
+            <div className="my-1 border-t border-cream-300" />
+            <button
+              type="button"
+              onClick={() => void handleLogout()}
+              disabled={logoutLoading}
+              className={itemClass}
+            >
+              <LogOut aria-hidden="true" className="size-4 text-ink-soft" />
+              {logoutLoading ? 'Saindo…' : 'Sair'}
+            </button>
+          </nav>
+        )}
+      </div>
+      {logoutError && (
+        <p role="alert" className="mt-2 text-sm text-red-700">
+          Não foi possível encerrar a sessão: {logoutError}
+        </p>
       )}
-    </div>
+    </>
   )
 }

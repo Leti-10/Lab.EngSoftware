@@ -42,7 +42,7 @@ async def _require_target(
     if target_type == EnumFollowTarget.USER:
         found = await users.get_by_id(target_id) is not None
     else:
-        book_list = lists.get_by_id(target_id)
+        book_list = await lists.get_by_id(target_id)
         found = book_list is not None and (
             not book_list.private
             or (viewer is not None and book_list.owner == viewer.id)

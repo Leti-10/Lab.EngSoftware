@@ -4,14 +4,15 @@ from sqlalchemy.exc import IntegrityError
 from src.application.use_cases.review import (
     CreateReviewUseCase,
     FilterReviewsUseCase,
+    GetReviewFeedUseCase,
     GetReviewByIdUseCase,
     UpdateReviewUseCase,
 )
 from src.domain.entities import User
 from src.domain.entities.review import Review
-from src.domain.enums.enums import EnumVoteTarget
+from src.domain.enums.enums import EnumReviewSort, EnumVoteTarget
 from src.domain.exceptions import ReviewAlreadyExistsError, ReviewNotFoundError
-from src.domain.repositories import UserRepository, VoteRepository
+from src.domain.repositories import BookRepository, UserRepository, VoteRepository
 from src.domain.repositories.review_repository import ReviewRepository
 from src.presentation.api.dependencies import (
     get_current_user,
@@ -19,15 +20,19 @@ from src.presentation.api.dependencies import (
     get_review_repository,
     get_user_repository,
 )
+from src.presentation.api.routes.book_router import get_book_repository
 from src.presentation.api.routes.vote_router import get_vote_repository
 from src.presentation.api.schemas.review_schema import (
     CreateReviewSchema,
+    ReviewFeedItemSchema,
+    ReviewFeedPageSchema,
     ReviewResponseSchema,
     UpdateReviewSchema,
     UpdateReviewSpoilerSchema,
 )
 
 LIKE_STATUS = "like"
+REVIEW_FEED_PAGE_SIZE = 30
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
@@ -39,7 +44,9 @@ async def build_responses(
     viewer: User | None,
 ) -> list[ReviewResponseSchema]:
     likes = await votes.find_by_filter(
-        status=LIKE_STATUS, target_type=EnumVoteTarget.REVIEW
+        status=LIKE_STATUS,
+        target_type=EnumVoteTarget.REVIEW,
+        target_ids=[review.id for review in reviews if review.id is not None],
     )
     like_count: dict[int, int] = {}
     my_likes: dict[int, int | None] = {}
@@ -78,6 +85,40 @@ def ensure_owner(review: Review, user: User) -> None:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Você só pode alterar a sua própria resenha.",
         )
+
+
+@router.get("/feed", response_model=ReviewFeedPageSchema)
+async def review_feed(
+    page: int = Query(default=1, ge=1),
+    sort: EnumReviewSort = Query(default=EnumReviewSort.RECENT),
+    repository: ReviewRepository = Depends(get_review_repository),
+    users: UserRepository = Depends(get_user_repository),
+    votes: VoteRepository = Depends(get_vote_repository),
+    books: BookRepository = Depends(get_book_repository),
+    viewer: User | None = Depends(get_optional_user),
+) -> ReviewFeedPageSchema:
+    reviews, total = await GetReviewFeedUseCase(repository).execute(
+        page=page,
+        page_size=REVIEW_FEED_PAGE_SIZE,
+        sort_by=sort,
+    )
+    responses = await build_responses(reviews, users, votes, viewer)
+    items = []
+    for response in responses:
+        book = await books.get_by_id(response.book_id)
+        items.append(
+            ReviewFeedItemSchema(
+                **response.model_dump(),
+                book_title=book.title if book is not None else None,
+                book_isbn=book.isbn if book is not None else None,
+            )
+        )
+    return ReviewFeedPageSchema(
+        items=items,
+        total=total,
+        page=page,
+        page_size=REVIEW_FEED_PAGE_SIZE,
+    )
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)

@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from sqlalchemy import and_, delete, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -110,6 +112,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
         target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
         user_id: int | None = None,
+        target_ids: Sequence[int] | None = None,
     ) -> list[Vote]:
         query = select(VoteModelSQLAlchemy)
         if user_id is not None:
@@ -126,6 +129,8 @@ class SQLAlchemyVoteRepository(VoteRepository):
             )
         if target_type is not None:
             query = query.where(VoteModelSQLAlchemy.target_entity == target_type.value)
+        if target_ids is not None:
+            query = query.where(VoteModelSQLAlchemy.target_id.in_(target_ids))
         if target_name:
             pattern = f"%{target_name}%"
             target_filters = []
@@ -148,7 +153,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
                             "A busca pelo nome de listas exige um "
                             "repositório de listas."
                         )
-                    book_list = self.book_list_repository.get_by_name(target_name)
+                    book_list = await self.book_list_repository.get_by_name(target_name)
                     target_ids = [book_list.id] if book_list is not None else []
                 else:
                     continue

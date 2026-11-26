@@ -109,6 +109,22 @@ describe('detalhe da lista', () => {
     expect(await screen.findByText('Esta lista ainda está vazia.')).toBeInTheDocument()
   })
 
+  it('não oferece edição ou exclusão na lista de outra pessoa', async () => {
+    server.use(
+      http.get(`${API}/lists/1`, () => HttpResponse.json({ ...favoritos, owner: 2 })),
+      http.get(`${API}/books`, () => HttpResponse.json([])),
+      http.get(`${API}/follows/lists/1`, () =>
+        HttpResponse.json({ following: false, followers: 0 }),
+      ),
+    )
+    signIn()
+    renderApp('/listas/1')
+
+    expect(await screen.findByRole('heading', { name: 'Favoritos' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Editar lista' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Excluir lista' })).toBeNull()
+  })
+
   it('adiciona uma obra à lista', async () => {
     let body: unknown
     server.use(
@@ -129,6 +145,73 @@ describe('detalhe da lista', () => {
     expect(await screen.findByText('Eiichiro Oda')).toBeInTheDocument()
     expect(body).toEqual({ book_id: 1 })
     expect(screen.queryByText('Esta lista ainda está vazia.')).toBeNull()
+  })
+
+  it('edita o nome, a descrição e a privacidade da lista', async () => {
+    let body: unknown
+    server.use(
+      http.get(`${API}/lists/1`, () => HttpResponse.json(favoritos)),
+      http.get(`${API}/books`, () => HttpResponse.json([])),
+      http.put(`${API}/lists/1`, async ({ request }) => {
+        body = await request.json()
+        return HttpResponse.json({
+          ...favoritos,
+          name: 'Leituras favoritas',
+          description: 'Uma seleção especial',
+          private: true,
+        })
+      }),
+    )
+    signIn()
+    const { user } = renderApp('/listas/1')
+    await screen.findByRole('heading', { name: 'Favoritos' })
+
+    await user.click(screen.getByRole('button', { name: 'Editar lista' }))
+    const dialog = screen.getByRole('dialog', { name: 'Editar lista' })
+    const name = within(dialog).getByLabelText('Nome')
+    const description = within(dialog).getByLabelText('Descrição')
+    await user.clear(name)
+    await user.type(name, 'Leituras favoritas')
+    await user.clear(description)
+    await user.type(description, 'Uma seleção especial')
+    await user.click(within(dialog).getByLabelText('Lista privada'))
+    await user.click(within(dialog).getByRole('button', { name: 'Salvar alterações' }))
+
+    expect(await screen.findByRole('heading', { name: 'Leituras favoritas' })).toBeInTheDocument()
+    expect(screen.getByText('Uma seleção especial')).toBeInTheDocument()
+    expect(body).toEqual({
+      name: 'Leituras favoritas',
+      description: 'Uma seleção especial',
+      private: true,
+    })
+    expect(screen.queryByRole('dialog')).toBeNull()
+  })
+
+  it('exige confirmação antes de excluir a lista e volta para minhas listas', async () => {
+    let deleteRequests = 0
+    server.use(
+      http.get(`${API}/lists/1`, () => HttpResponse.json(favoritos)),
+      http.get(`${API}/books`, () => HttpResponse.json([])),
+      http.get(`${API}/lists`, () => HttpResponse.json([])),
+      http.delete(`${API}/lists/1`, () => {
+        deleteRequests += 1
+        return new HttpResponse(null, { status: 204 })
+      }),
+    )
+    signIn()
+    const { user } = renderApp('/listas/1')
+    await screen.findByRole('heading', { name: 'Favoritos' })
+
+    await user.click(screen.getByRole('button', { name: 'Excluir lista' }))
+    const dialog = screen.getByRole('alertdialog', { name: 'Excluir lista?' })
+    await user.click(within(dialog).getByRole('button', { name: 'Cancelar' }))
+    expect(deleteRequests).toBe(0)
+
+    await user.click(screen.getByRole('button', { name: 'Excluir lista' }))
+    await user.click(screen.getByRole('button', { name: 'Confirmar exclusão' }))
+
+    expect(await screen.findByText(/ainda não criou nenhuma lista/)).toBeInTheDocument()
+    expect(deleteRequests).toBe(1)
   })
 
   it('só habilita "Adicionar" depois de escolher uma obra', async () => {

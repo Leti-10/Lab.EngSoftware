@@ -1,4 +1,4 @@
-import { BookOpen, House, Library, Plus } from 'lucide-react'
+import { BookOpen, House, Library, Newspaper, Plus } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
@@ -29,8 +29,8 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-10 border-b border-cream-300 bg-cream-50/85 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3">
-        <div className="flex items-center gap-6">
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 sm:flex-nowrap sm:gap-4 sm:px-5">
+        <div className="flex items-center gap-3 sm:gap-6">
           <Link
             to="/"
             className="flex items-center gap-2 font-serif text-xl font-semibold text-blue-warm-600"
@@ -45,10 +45,13 @@ export function Navbar() {
             <NavItem to="/livros" icon={<Library aria-hidden="true" className="size-4" />}>
               Estante
             </NavItem>
+            <NavItem to="/resenhas" icon={<Newspaper aria-hidden="true" className="size-4" />}>
+              Resenhas
+            </NavItem>
           </nav>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-0">
           {user ? (
             <>
               <Link

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 
 from src.domain.entities import Vote
 from src.domain.enums.enums import EnumVoteTarget
@@ -35,5 +36,6 @@ class VoteRepository(ABC):
         target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
         user_id: int | None = None,
+        target_ids: Sequence[int] | None = None,
     ) -> list[Vote]:
         pass

@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
-import { tokenStorage } from '../lib/api'
-import { API, tokenResponse } from '../test/fixtures'
+import { API, authResponse } from '../test/fixtures'
 import { renderApp } from '../test/render'
 import { server } from '../test/server'
 
@@ -24,14 +23,14 @@ describe('cadastro', () => {
 
   it('cria a conta e já entra logada', async () => {
     server.use(
-      http.post(`${API}/auth/register`, () => HttpResponse.json(tokenResponse, { status: 201 })),
+      http.post(`${API}/auth/register`, () => HttpResponse.json(authResponse, { status: 201 })),
     )
     const { user } = renderApp('/cadastro')
 
     await fillForm(user)
 
     expect(await screen.findByRole('button', { name: 'ana' })).toBeInTheDocument()
-    expect(tokenStorage.get()).toBe('token-123')
+    expect(localStorage.getItem('estante.token')).toBeNull()
   })
 
   it('bloqueia quando as senhas não conferem, sem chamar a API', async () => {

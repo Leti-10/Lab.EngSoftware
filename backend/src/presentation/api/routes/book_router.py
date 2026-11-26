@@ -13,20 +13,11 @@ from src.domain.entities.book import Book
 from src.domain.exceptions import BookNotFoundError
 from src.domain.repositories import BookRepository
 from src.infrastructure.persistence.database import get_db_context
-from src.infrastructure.persistence.repositories import (
-    InMemoryBookRepository,
-    SQLAlchemyRepository,
-)
+from src.infrastructure.persistence.repositories import SQLAlchemyRepository
 from src.presentation.api.dependencies import get_current_user
 from src.presentation.api.schemas import BookResponseSchema, CreateBookSchema
 
 router = APIRouter(prefix="/books", tags=["Books"])
-
-in_memory_repo_instance = InMemoryBookRepository()
-
-
-def get_book_m_repository() -> BookRepository:
-    return in_memory_repo_instance
 
 
 async def get_book_repository(

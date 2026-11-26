@@ -23,7 +23,7 @@ export function ExternalBookCard({
     >
       <div
         aria-hidden="true"
-        className="relative flex aspect-[2/3] items-end overflow-hidden rounded-md bg-cream-300 p-3 text-ink shadow-sm transition-transform group-hover:-translate-y-1"
+        className="relative flex aspect-2/3 items-end overflow-hidden rounded-md bg-cream-300 p-3 text-ink shadow-sm transition-transform group-hover:-translate-y-1"
       >
         <span className="line-clamp-4 font-serif text-sm leading-snug font-semibold">
           {book.title}

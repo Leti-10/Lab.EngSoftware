@@ -18,6 +18,7 @@ import { RecommendationsPage } from './pages/RecommendationsPage'
 import { UserPage } from './pages/UserPage'
 import { ProfilePage } from './pages/ProfilePage'
 import { RegisterPage } from './pages/RegisterPage'
+import ReviewPage from './pages/ReviewPage'
 
 export function AppRoutes() {
   return (
@@ -27,6 +28,7 @@ export function AppRoutes() {
         <Route path="login" element={<LoginPage />} />
         <Route path="cadastro" element={<RegisterPage />} />
         <Route path="livros" element={<CatalogPage />} />
+        <Route path="resenhas" element={<ReviewPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="livros/novo" element={<BookFormPage />} />
           <Route path="livros/:id/editar" element={<BookFormPage />} />

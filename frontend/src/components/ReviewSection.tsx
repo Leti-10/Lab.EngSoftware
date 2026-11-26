@@ -1,6 +1,5 @@
 import { Heart, MessageCircle } from 'lucide-react'
 import { useState } from 'react'
-import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { ReportButton } from './ReportButton'
@@ -9,6 +8,7 @@ import type { Review, ReviewPayload, Vote } from '../lib/types'
 import { CommentSection } from './CommentSection'
 import { RatingInput, Stars } from './StarRating'
 import { Alert, Button, Card } from './ui'
+import type { SubmitEvent } from 'react'
 
 const MAX_COMMENT = 1000
 
@@ -42,7 +42,7 @@ function ReviewForm({
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
-  async function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     if (rating === 0) {
       setError('Escolha de 1 a 5 estrelas.')
@@ -188,7 +188,7 @@ export function ReviewItem({
           <button
             type="button"
             onClick={onEdit}
-            className="ml-auto text-xs font-medium text-blue-warm-600 hover:underline"
+            className="ml-auto text-xs font-medium text-blue-warm-600 hover:underline cursor-pointer"
           >
             Editar minha resenha
           </button>
@@ -264,7 +264,7 @@ export function ReviewItem({
             targetId={review.id}
             targetEntity="review"
             targetLabel={`a resenha de ${review.username ?? 'Leitor'}`}
-            className="!gap-1.5 !px-3 !py-1.5 !text-xs"
+            className="gap-1.5! px-3! py-1.5! text-xs!"
             onSuccess={() => setReportSuccess(true)}
           />
         )}

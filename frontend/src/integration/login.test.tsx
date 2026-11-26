@@ -1,13 +1,12 @@
 import { screen, waitFor } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
-import { tokenStorage } from '../lib/api'
-import { API, tokenResponse } from '../test/fixtures'
+import { API, authResponse } from '../test/fixtures'
 import { renderApp, signIn } from '../test/render'
 import { server } from '../test/server'
 
 describe('login', () => {
-  it('entra, salva o token e mostra o nome na navbar', async () => {
-    server.use(http.post(`${API}/auth/login`, () => HttpResponse.json(tokenResponse)))
+  it('entra sem persistir o JWT no navegador e mostra o nome na navbar', async () => {
+    server.use(http.post(`${API}/auth/login`, () => HttpResponse.json(authResponse)))
     const { user } = renderApp('/login')
 
     await user.type(screen.getByLabelText('E-mail'), 'ana@example.com')
@@ -15,7 +14,7 @@ describe('login', () => {
     await user.click(screen.getByRole('button', { name: 'Entrar' }))
 
     expect(await screen.findByRole('button', { name: 'ana' })).toBeInTheDocument()
-    expect(tokenStorage.get()).toBe('token-123')
+    expect(localStorage.getItem('estante.token')).toBeNull()
     expect(await screen.findByRole('heading', { name: /Sua estante/ })).toBeInTheDocument()
   })
 
@@ -24,7 +23,7 @@ describe('login', () => {
     server.use(
       http.post(`${API}/auth/login`, async ({ request }) => {
         body = await request.json()
-        return HttpResponse.json(tokenResponse)
+        return HttpResponse.json(authResponse)
       }),
     )
     const { user } = renderApp('/login')
@@ -36,7 +35,7 @@ describe('login', () => {
     await waitFor(() => expect(body).toEqual({ email: 'ana@example.com', password: 'senha123' }))
   })
 
-  it('mostra o erro da API e não salva token com credenciais inválidas', async () => {
+  it('mostra o erro da API e não cria uma sessão com credenciais inválidas', async () => {
     server.use(
       http.post(`${API}/auth/login`, () =>
         HttpResponse.json({ detail: 'E-mail ou senha inválidos.' }, { status: 401 }),
@@ -49,20 +48,21 @@ describe('login', () => {
     await user.click(screen.getByRole('button', { name: 'Entrar' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('E-mail ou senha inválidos.')
-    expect(tokenStorage.get()).toBeNull()
+    expect(localStorage.getItem('estante.token')).toBeNull()
   })
 })
 
 describe('sessão', () => {
-  it('restaura a sessão a partir do token salvo', async () => {
+  it('restaura a sessão consultando o servidor e remove o token legado', async () => {
     signIn()
     renderApp('/')
 
     expect(await screen.findByRole('button', { name: 'ana' })).toBeInTheDocument()
+    expect(localStorage.getItem('estante.token')).toBeNull()
   })
 
-  it('descarta um token inválido', async () => {
-    tokenStorage.set('expirado')
+  it('mantém a sessão encerrada quando o servidor rejeita o cookie', async () => {
+    localStorage.setItem('estante.token', 'expirado')
     server.use(
       http.get(`${API}/auth/me`, () =>
         HttpResponse.json({ detail: 'Sessão inválida' }, { status: 401 }),
@@ -71,10 +71,10 @@ describe('sessão', () => {
     renderApp('/')
 
     expect(await screen.findByRole('link', { name: 'Entrar' })).toBeInTheDocument()
-    expect(tokenStorage.get()).toBeNull()
+    expect(localStorage.getItem('estante.token')).toBeNull()
   })
 
-  it('sair limpa o token e leva ao login', async () => {
+  it('encerra a sessão no servidor e leva ao login', async () => {
     signIn()
     const { user } = renderApp('/')
 
@@ -82,6 +82,24 @@ describe('sessão', () => {
     await user.click(screen.getByRole('button', { name: 'Sair' }))
 
     expect(await screen.findByRole('heading', { name: 'Bem-vinda de volta' })).toBeInTheDocument()
-    expect(tokenStorage.get()).toBeNull()
+    expect(localStorage.getItem('estante.token')).toBeNull()
+  })
+
+  it('mostra erro e preserva a sessão se o logout falhar', async () => {
+    signIn()
+    server.use(
+      http.post(`${API}/auth/logout`, () =>
+        HttpResponse.json({ detail: 'Falha ao encerrar a sessão.' }, { status: 500 }),
+      ),
+    )
+    const { user } = renderApp('/')
+
+    await user.click(await screen.findByRole('button', { name: 'ana' }))
+    await user.click(screen.getByRole('button', { name: 'Sair' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Não foi possível encerrar a sessão: Falha ao encerrar a sessão.',
+    )
+    expect(screen.getByRole('button', { name: 'ana' })).toBeInTheDocument()
   })
 })

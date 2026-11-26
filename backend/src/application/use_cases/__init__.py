@@ -7,6 +7,7 @@ from .book_list.add_book_to_list import AddBookToListUseCase
 from .book_list.create_list import CreateBookListUseCase
 from .book_list.delete_list import DeleteBookListUseCase
 from .book_list.get_book_list import GetBookListUseCase
+from .book_list.update_list import UpdateBookListUseCase
 from .catalog.search_catalog import SearchCatalogUseCase
 from .user.authenticate_user import AuthenticateUserUseCase
 from .user.create_user import CreateUserUseCase
@@ -28,6 +29,7 @@ __all__ = [
     "CreateBookListUseCase",
     "DeleteBookListUseCase",
     "GetBookListUseCase",
+    "UpdateBookListUseCase",
     "SearchCatalogUseCase",
     "AuthenticateUserUseCase",
     "CreateUserUseCase",

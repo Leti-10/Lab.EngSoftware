@@ -29,10 +29,10 @@ async def test_should_delete_book_list_successfully(book_list_repository):
         books=[1, 2, 3],
     )
 
-    book_list_repository.save(book_list)
+    await book_list_repository.save(book_list)
 
     delete_book_list_use_case = DeleteBookListUseCase(book_list_repository)
 
     await delete_book_list_use_case.execute(book_list.id, book_list.owner)
 
-    assert book_list_repository.get_by_id(book_list.id) is None
+    assert await book_list_repository.get_by_id(book_list.id) is None

@@ -20,7 +20,7 @@ class AddBookToListUseCase:
         self.book_repository = book_repository
 
     async def execute(self, list_id: int, book_id: int, user_id: int) -> BookList:
-        book_list = self.book_list_repository.get_by_id(list_id)
+        book_list = await self.book_list_repository.get_by_id(list_id)
         if book_list is None:
             raise BookListNotFoundError(list_id)
         if book_list.owner != user_id:
@@ -31,10 +31,13 @@ class AddBookToListUseCase:
             raise BookAlreadyInListError()
 
         book_list.books.append(book_id)
+        updated = await self.book_list_repository.update(book_list)
+        if updated is None:
+            raise BookListNotFoundError(list_id)
 
         logger.debug(
             "Book added to list successfully",
             extra={"list_id": list_id, "book_id": book_id},
         )
 
-        return book_list
+        return updated

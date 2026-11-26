@@ -12,6 +12,7 @@ from .inmemory_report_repository import InMemoryReportRepository
 from .inmemory_user_repository import InMemoryUserRepository
 from .inmemory_vote_repository import InMemoryVoteRepository
 from .orm_book_repository import SQLAlchemyRepository
+from .orm_book_list_repository import SQLAlchemyBookListRepository
 from .orm_reading_repository import SQLAlchemyReadingRepository
 from .orm_social_repository import (
     SQLAlchemyCommentRepository,
@@ -37,6 +38,7 @@ __all__ = [
     "InMemoryUserRepository",
     "InMemoryVoteRepository",
     "SQLAlchemyRepository",
+    "SQLAlchemyBookListRepository",
     "SQLAlchemyReadingRepository",
     "SQLAlchemyCommentRepository",
     "SQLAlchemyFollowRepository",

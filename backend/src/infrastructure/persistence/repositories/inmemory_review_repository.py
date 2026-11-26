@@ -1,4 +1,5 @@
 from src.domain.entities import Book, Review, User
+from src.domain.enums.enums import EnumReviewSort
 from src.domain.repositories import ReviewRepository
 
 
@@ -12,6 +13,7 @@ class InMemoryReviewRepository(ReviewRepository):
         self.users = users or {}
         self.books = books or {}
         self._next_id = 1
+        self.like_counts: dict[int, int] = {}
 
     async def save(self, review: Review) -> Review:
         if review.id is None:
@@ -74,3 +76,26 @@ class InMemoryReviewRepository(ReviewRepository):
         else:
             reviews.sort(key=lambda review: review.id or 0)
         return reviews
+
+    async def get_page(
+        self, page: int, page_size: int, sort_by: EnumReviewSort
+    ) -> tuple[list[Review], int]:
+        reviews = list(self.reviews.values())
+        if sort_by == EnumReviewSort.POPULAR:
+            reviews.sort(
+                key=lambda review: (
+                    self.like_counts.get(review.id or 0, 0),
+                    review.created_at,
+                    review.id or 0,
+                ),
+                reverse=True,
+            )
+        else:
+            reviews.sort(
+                key=lambda review: (review.created_at, review.id or 0),
+                reverse=True,
+            )
+
+        total = len(reviews)
+        start = (page - 1) * page_size
+        return reviews[start : start + page_size], total

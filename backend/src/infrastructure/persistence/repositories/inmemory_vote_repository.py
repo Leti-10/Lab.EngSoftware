@@ -1,3 +1,5 @@
+from collections.abc import Sequence
+
 from src.domain.entities import Vote
 from src.domain.enums.enums import EnumVoteTarget
 from src.domain.exceptions import VoteAlreadyExistsError
@@ -63,6 +65,7 @@ class InMemoryVoteRepository(VoteRepository):
         target_type: EnumVoteTarget | None = None,
         target_name: str | None = None,
         user_id: int | None = None,
+        target_ids: Sequence[int] | None = None,
     ) -> list[Vote]:
         normalized_user_name = user_name.casefold() if user_name else None
         normalized_target_name = target_name.casefold() if target_name else None
@@ -71,6 +74,7 @@ class InMemoryVoteRepository(VoteRepository):
             for vote in self.votes.values()
             if (status is None or vote.status == status)
             and (user_id is None or vote.user_id == user_id)
+            and (target_ids is None or vote.target_id in target_ids)
             and (
                 normalized_user_name is None
                 or normalized_user_name

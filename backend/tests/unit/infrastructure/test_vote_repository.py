@@ -51,7 +51,7 @@ async def test_vote_repository_saves_loads_and_filters_votes(postgres_engine):
         await session.commit()
 
         book_lists = InMemoryBookListRepository()
-        book_list = book_lists.save(
+        book_list = await book_lists.save(
             BookList(owner=user.id, name="Favorite List", description="Test list")
         )
         repository = SQLAlchemyVoteRepository(session, book_lists)

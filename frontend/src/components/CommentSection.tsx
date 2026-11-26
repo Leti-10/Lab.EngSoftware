@@ -1,11 +1,11 @@
 import { Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { api } from '../lib/api'
 import type { ReviewComment } from '../lib/types'
 import { Alert, Button } from './ui'
+import type { SubmitEvent } from 'react'
 
 const MAX_COMMENT = 500
 
@@ -26,7 +26,7 @@ export function CommentSection({ reviewId }: { reviewId: number }) {
     }
   }, [reviewId])
 
-  async function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!text.trim()) return
     setError(null)

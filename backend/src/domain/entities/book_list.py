@@ -12,7 +12,7 @@ class BookList:
     private: bool = field(default=False)
     books: list[int] = field(default_factory=list[int])
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.owner is None:
             raise InvalidListOwnerError("''")
 

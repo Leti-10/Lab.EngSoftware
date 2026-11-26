@@ -1,3 +1,6 @@
+from src.infrastructure.security.token_service import ACCESS_TOKEN_COOKIE_NAME
+
+
 BOOK = {
     "isbn": "9788535902778",
     "title": "Dom Casmurro",
@@ -26,7 +29,9 @@ def register(client, username):
         },
     )
     body = response.json()
-    return {"Authorization": f"Bearer {body['access_token']}"}, body["user"]["id"]
+    token = response.cookies[ACCESS_TOKEN_COOKIE_NAME]
+    client.cookies.clear()
+    return {"Authorization": f"Bearer {token}"}, body["user"]["id"]
 
 
 def make_book(client, headers, payload=BOOK):
@@ -176,6 +181,25 @@ def test_public_profile_shows_counts_and_public_lists(client, auth_headers):
     assert profile["bio"] == "Oi"
     assert [item["name"] for item in lists] == ["Publica"]
     assert client.get("/users/999").status_code == 404
+
+
+def test_public_list_includes_books(client, auth_headers):
+    user_id = client.get("/auth/me", headers=auth_headers).json()["id"]
+    book_id = make_book(client, auth_headers)
+    created = client.post(
+        "/lists",
+        json={"name": "Favoritos", "description": "Minhas obras favoritas"},
+        headers=auth_headers,
+    ).json()
+    client.post(
+        f"/lists/{created['id']}/books",
+        json={"book_id": book_id},
+        headers=auth_headers,
+    )
+    response = client.get(f"/users/{user_id}/lists")
+
+    assert response.status_code == 200
+    assert [book["id"] for book in response.json()[0]["books"]] == [book_id]
 
 
 def test_like_and_comment_notify_the_review_author_once_per_action(

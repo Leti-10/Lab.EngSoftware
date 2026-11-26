@@ -28,7 +28,5 @@ class UserResponseSchema(BaseModel):
     cover_url: str | None = None
 
 
-class TokenResponseSchema(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+class AuthResponseSchema(BaseModel):
     user: UserResponseSchema

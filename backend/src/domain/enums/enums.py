@@ -13,6 +13,11 @@ class EnumReadingStatus(str, Enum):
     READ = "read"
 
 
+class EnumReviewSort(str, Enum):
+    RECENT = "recent"
+    POPULAR = "popular"
+
+
 class EnumFollowTarget(str, Enum):
     USER = "users"
     LIST = "lists"
