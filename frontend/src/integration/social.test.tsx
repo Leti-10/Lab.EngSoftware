@@ -107,6 +107,7 @@ describe('perfil público e seguidores', () => {
 
     expect(await screen.findByRole('heading', { name: 'bia' })).toBeInTheDocument()
     expect(screen.getByText('Leitora de mangás')).toBeInTheDocument()
+    expect(screen.getByText('3 seguidores · 1 seguindo')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Favoritos/ })).toHaveAttribute('href', '/listas/5')
 
     const follow = await screen.findByRole('button', { name: 'Seguir' })

@@ -66,7 +66,10 @@ function UserProfile({ id }: { id: string | undefined }) {
         />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-3xl font-semibold">{profile.username}</h1>
-          <p className="mt-1 text-sm text-ink-soft">{profile.following} seguindo</p>
+          <p className="mt-1 text-sm text-ink-soft">
+            {profile.followers} {profile.followers === 1 ? 'seguidor' : 'seguidores'} ·{' '}
+            {profile.following} seguindo
+          </p>
         </div>
         {isMe ? (
           <Link to="/perfil" className="text-sm font-medium text-blue-warm-600 hover:underline">
