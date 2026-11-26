@@ -20,8 +20,8 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 | ID | Requisito | Tela | Status |
 | --- | --- | --- | --- |
 | RF01 | O sistema deve permitir criar uma conta com nome de usuário, e-mail e senha | Cadastro | ✓ |
-| RF02 | O sistema deve autenticar por e-mail e senha e emitir um token JWT | Login | ✓ |
-| RF03 | O sistema deve manter a sessão entre recarregamentos e permitir sair | Navbar | ✓ |
+| RF02 | O sistema deve autenticar por e-mail e senha e emitir um token JWT em cookie `HttpOnly` | Login | ✓ |
+| RF03 | O sistema deve restaurar a sessão pelo servidor entre recarregamentos e permitir sair | Navbar | ✓ |
 | RF04 | O sistema deve restringir cadastro de obras e listas a usuários autenticados | — | ✓ |
 | RF05 | O usuário autenticado deve cadastrar uma obra (título, autores, ISBN, editora, gêneros, temas, tipo) | Cadastrar obra | ✓ |
 | RF06 | O sistema deve listar as obras cadastradas em uma grade | Estante | ✓ |
@@ -54,8 +54,8 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 | --- | --- | --- |
 | RNF01 | Usabilidade | Interface minimalista, em português, com paleta creme e azul quente e foco visível para navegação por teclado |
 | RNF02 | Responsividade | Layout adaptável de celulares a desktops (grade de 2 a 5 colunas) |
-| RNF03 | Segurança | Senhas armazenadas com hash **bcrypt**; autenticação por **JWT** com expiração configurável |
-| RNF04 | Segurança | A API nunca devolve a senha; credenciais inválidas retornam mensagem única (não revela se o e-mail existe) |
+| RNF03 | Segurança | Senhas armazenadas com hash **bcrypt**; JWT em cookie **HttpOnly** com expiração configurável |
+| RNF04 | Segurança | A API não devolve senha nem JWT no JSON; credenciais inválidas retornam mensagem única (não revela se o e-mail existe) |
 | RNF05 | Segurança | CORS restrito às origens do frontend; listas privadas não vazam a própria existência (404) |
 | RNF06 | Arquitetura | Backend em camadas (Clean Architecture/DDD), com regras de negócio independentes de framework |
 | RNF07 | Manutenibilidade | Persistência desacoplada por interfaces de repositório |
@@ -85,14 +85,15 @@ O Estante permite que pessoas leitoras cadastrem **livros, mangás e quadrinhos*
 
 ## Rotas da API
 
-Documentação interativa (Swagger) em `http://localhost:8000/docs`. [login] = exige `Authorization: Bearer <token>`.
+Documentação interativa (Swagger) em `http://localhost:8000/docs`. [login] = exige a sessão no cookie `HttpOnly` (o esquema Bearer continua aceito por compatibilidade).
 
 ### Autenticação
 
 | Método | Rota | Descrição | Sucesso |
 | --- | --- | --- | --- |
-| `POST` | `/auth/register` | Cria a conta e devolve token + usuário | `201` |
-| `POST` | `/auth/login` | Autentica e devolve token + usuário | `200` |
+| `POST` | `/auth/register` | Cria a conta, define cookie de sessão e devolve o usuário | `201` |
+| `POST` | `/auth/login` | Autentica, define cookie de sessão e devolve o usuário | `200` |
+| `POST` | `/auth/logout` | Remove o cookie de sessão | `204` |
 | `GET` | `/auth/me` [login] | Usuário da sessão atual, com `bio`, `avatar_url` e `cover_url` | `200` |
 | `PUT` | `/auth/me` [login] | Atualiza `bio`, `avatar_url` e `cover_url` do usuário logado | `200` |
 

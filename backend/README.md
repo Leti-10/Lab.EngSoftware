@@ -97,13 +97,14 @@ O DER textual atualizado está em [Modelagem de Dados](../docs/MODELAGEM_DADOS.m
 
 ## <span id="app_route"> Rotas da Aplicação </span>
 
-[login] = exige `Authorization: Bearer <token>`. Detalhes e códigos de erro na [Especificação](../docs/ESPECIFICACAO.md#rotas-da-api).
+[login] = exige o cookie de sessão `HttpOnly` (Bearer aceito por compatibilidade). Login/cadastro definem o cookie, sem retornar JWT no JSON. Detalhes e códigos de erro na [Especificação](../docs/ESPECIFICACAO.md#rotas-da-api).
 
 | Método | Rota | Descrição |
 | --- | --- | --- |
 | `GET` | `/` | Health check |
-| `POST` | `/auth/register` | Cria conta e devolve token |
-| `POST` | `/auth/login` | Autentica e devolve token |
+| `POST` | `/auth/register` | Cria conta, define cookie de sessão e devolve usuário |
+| `POST` | `/auth/login` | Autentica, define cookie de sessão e devolve usuário |
+| `POST` | `/auth/logout` | Remove o cookie de sessão |
 | `POST` | `/reports` [login] | Cria denúncia persistida no PostgreSQL; o autor vem da sessão |
 | `GET` | `/reports/{report_id}` [login] | Busca denúncia por ID |
 | `GET` | `/reports` [login] | Lista denúncias com filtros opcionais |

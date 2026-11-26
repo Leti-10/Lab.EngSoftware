@@ -48,13 +48,13 @@ npm run test:coverage    # relatório de cobertura
 
 | Arquivo | Tipo | Cobre |
 | --- | --- | --- |
-| `src/lib/api.test.ts` | Unitário | Token Bearer, JSON, erros de `detail` (texto e lista do Pydantic), falha de rede, cancelamento |
+| `src/lib/api.test.ts` | Unitário | Credenciais via cookie, ausência de Authorization, remoção do token legado, JSON, erros de `detail`, falha de rede e cancelamento |
 | `src/lib/books.test.ts` | Unitário | `kindOf` (tipo da obra) e `splitList` |
 | `src/components/ui.test.tsx` | Unitário | `Button`, `Field` (rótulo e dica acessíveis), `Card`, `Alert` |
 | `src/components/BookCard.test.tsx` | Unitário | Card e capa da obra |
 | `src/auth/ProtectedRoute.test.tsx` | Unitário | Redirecionamento de visitantes, conteúdo para logados e estado de carregamento |
 | `src/integration/home.test.tsx` | Integração | Chamada principal, links da home e navbar |
-| `src/integration/login.test.tsx` | Integração | Login, corpo enviado, erro 401, restauração de sessão, token inválido e logout |
+| `src/integration/login.test.tsx` | Integração | Login sem persistir JWT no navegador, corpo enviado, erro 401, restauração via servidor e logout |
 | `src/integration/register.test.tsx` | Integração | Cadastro, senhas diferentes (sem chamar a API), e-mail duplicado e link vindo do login |
 | `src/integration/book-form.test.tsx` | Integração | Cadastro de obra: payload, tipo, ISBN duplicado, redirecionamento ao detalhe e rota protegida |
 | `src/integration/catalog.test.tsx` | Integração | Estante: listagem, estado vazio, busca com debounce, filtro, erro de API e navegação ao detalhe |
@@ -88,7 +88,7 @@ Utilitários em `src/test/`:
 | --- | --- |
 | Login | Sucesso, corpo enviado, erro 401, retorno à página que exigiu login |
 | Cadastro | Sucesso com login automático, senhas diferentes (sem chamar a API), e-mail duplicado (409) |
-| Sessão | Restauração por token, descarte de token inválido, logout, redirecionamento de rotas protegidas |
+| Sessão | Restauração via `/auth/me`, limpeza do token legado, rejeição de sessão inválida, logout e redirecionamento de rotas protegidas |
 | Estante | Listagem, estado vazio, busca com *debounce* (`q`), filtro (`genre`), erro de API, navegação ao detalhe |
 | Detalhe da obra | Dados, gêneros sem repetir o tipo, ocultação de temas vazios, 404 |
 | Cadastrar obra | Payload correto (tipo entra nos gêneros), redirecionamento, ISBN duplicado mantém o formulário |

@@ -94,6 +94,7 @@ Os testes que exercitam repositórios SQLAlchemy precisam de PostgreSQL acessív
 | `SECRET_KEY` | `your-secret-key` | Segredo de assinatura do JWT. **Troque em produção** e use um valor aleatório forte |
 | `ALGORITHM` | `HS256` | Algoritmo do JWT |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `60` | Validade do token |
+| `AUTH_COOKIE_SECURE` | `false` | Define `true` para exigir HTTPS no cookie de autenticação em produção |
 | `API_PORT` | `8000` | Porta publicada para a API pelo Compose |
 | `POSTGRES_PORT` | `5432` | Porta publicada para o PostgreSQL pelo Compose |
 | `FRONTEND_PORT` | `3000` | Porta publicada para o frontend pelo Compose |
@@ -129,6 +130,7 @@ Variáveis do `.env` não alteram automaticamente um volume PostgreSQL já inici
 
 ## Notas operacionais
 
+- O JWT é enviado em cookie `HttpOnly` (`SameSite=Lax`) e não fica acessível ao JavaScript nem é armazenado no `localStorage`. Em produção com HTTPS, configure `AUTH_COOKIE_SECURE=true`.
 - Os endpoints de produção usam repositórios SQLAlchemy; os adaptadores em memória são reservados aos testes.
 - `SEED_CATALOG=true` (padrão) insere no PostgreSQL as obras nativas ainda ausentes ao iniciar a API.
 - O Docker Compose e o `.env.example` usados pelo projeto ficam na raiz do repositório.

@@ -15,8 +15,8 @@ flowchart TB
     subgraph Navegador
         direction TB
         UI["React 19 + TypeScript<br/>Pages · Components"]
-        AUTH["AuthContext<br/>(token JWT no localStorage)"]
-        CLIENT["lib/api.ts<br/>fetch + Bearer token"]
+        AUTH["AuthContext<br/>(sessão via /auth/me)"]
+        CLIENT["lib/api.ts<br/>fetch + cookies"]
         UI --> AUTH --> CLIENT
         UI --> CLIENT
     end
@@ -34,7 +34,7 @@ flowchart TB
 
     DB[("PostgreSQL :5432<br/>Alembic migrations")]
 
-    CLIENT -- "HTTP REST · JSON<br/>CORS liberado para :5173" --> ROUTES
+    CLIENT -- "HTTP REST · JSON + cookie HttpOnly<br/>CORS com credenciais para :5173" --> ROUTES
     INFRA -- "SQLAlchemy async + asyncpg" --> DB
 ```
 
@@ -145,9 +145,9 @@ frontend/src/
 └── lib/          # Cliente HTTP, tipos da API e helpers de obras
 ```
 
-- **Estado de sessão:** `AuthProvider` guarda o usuário e restaura a sessão chamando `/auth/me` com o token salvo.
+- **Estado de sessão:** `AuthProvider` guarda o usuário e restaura a sessão chamando `/auth/me`; o JWT fica em cookie `HttpOnly`, não no `localStorage`.
 - **Rotas protegidas:** `ProtectedRoute` redireciona para `/login` e devolve a pessoa à página original após entrar.
-- **Cliente HTTP:** `api()` injeta o `Authorization`, converte erros do FastAPI em mensagens legíveis e suporta cancelamento.
+- **Cliente HTTP:** `api()` envia credenciais via cookie, converte erros do FastAPI em mensagens legíveis e suporta cancelamento.
 
 ## Fluxo de uma requisição
 
@@ -162,7 +162,7 @@ sequenceDiagram
     participant R as BookRepository
 
     U->>P: Preenche e envia o formulário
-    P->>A: POST /books (Bearer JWT)
+    P->>A: POST /books (cookie HttpOnly)
     A->>A: get_current_user valida o token
     A->>C: execute(Book)
     C->>R: get_by_isbn(isbn)

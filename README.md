@@ -24,7 +24,7 @@ Projeto da disciplina **Laboratório de Engenharia de Software** · Fatec São J
 | Tela | Rota | O que acontece |
 | --- | --- | --- |
 | **Início** | `/` | Apresentação do app e atalhos para a estante |
-| **Login** | `/login` | Entra com e-mail e senha (JWT) e volta para onde você estava |
+| **Login** | `/login` | Entra com e-mail e senha (sessão em cookie `HttpOnly`) e volta para onde você estava |
 | **Cadastro** | `/cadastro` | Cria a conta e já entra logada |
 | **Estante** | `/livros` | Grade de capas, busca por título/autor e filtros de Mangás e Quadrinhos. Logado, consulta Google Books quando configurado, com fallback para Open Library; sem chave, usa Open Library. A obra é cadastrada ao abrir |
 | **Perfil** | `/perfil` | Capa, avatar, bio, listas e favoritos da pessoa logada *(requer login)* |
@@ -68,7 +68,7 @@ Pronto: crie uma conta em `/cadastro` e cadastre sua primeira obra. Mais detalhe
 ```mermaid
 flowchart LR
     U([Pessoa usuária]) --> F["Frontend<br/>React + TypeScript + Tailwind"]
-    F -- "REST / JSON<br/>Bearer JWT" --> A["Backend<br/>FastAPI"]
+    F -- "REST / JSON<br/>Cookie HttpOnly" --> A["Backend<br/>FastAPI"]
     A --> UC["Casos de uso"]
     UC --> R["Repositórios"]
     R --> DB[("PostgreSQL")]
