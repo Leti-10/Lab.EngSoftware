@@ -164,3 +164,35 @@ def test_review_reports_likes_and_whether_viewer_liked(client, auth_headers):
     assert as_voter["liked_by_me"] is True
     assert as_voter["like_vote_id"] == vote["id"]
     assert anonymous["likes"] == 1 and anonymous["liked_by_me"] is False
+
+
+def test_review_feed_returns_page_metadata_and_book_details(client, auth_headers):
+    book = client.post(
+        "/books",
+        headers=auth_headers,
+        json={
+            "isbn": "9788542603835",
+            "title": "One Piece",
+            "publisher": "Panini",
+            "authors": ["Eiichiro Oda"],
+            "genre": ["Mangá"],
+            "theme": ["Aventura"],
+        },
+    ).json()
+    created = client.post(
+        "/reviews",
+        headers=auth_headers,
+        json={**REVIEW, "book_id": book["id"]},
+    ).json()
+
+    response = client.get("/reviews/feed")
+    next_page = client.get("/reviews/feed", params={"page": 2})
+
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["page"] == 1
+    assert response.json()["page_size"] == 30
+    assert response.json()["items"][0]["id"] == created["id"]
+    assert response.json()["items"][0]["book_title"] == book["title"]
+    assert response.json()["items"][0]["book_isbn"] == book["isbn"]
+    assert next_page.json()["items"] == []

@@ -7,6 +7,7 @@ const TITLES: [RegExp, string][] = [
   [/^\/login$/, 'Entrar'],
   [/^\/cadastro$/, 'Criar conta'],
   [/^\/livros$/, 'Estante'],
+  [/^\/resenhas$/, 'Resenhas'],
   [/^\/livros\/novo$/, 'Cadastrar obra'],
   [/^\/livros\/[^/]+\/editar$/, 'Editar obra'],
   [/^\/perfil$/, 'Meu perfil'],

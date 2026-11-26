@@ -150,6 +150,18 @@ export interface FeedItem extends Review {
   book_title: string | null
 }
 
+export interface ReviewFeedItem extends Review {
+  book_title: string | null
+  book_isbn: string | null
+}
+
+export interface ReviewFeedPage {
+  items: ReviewFeedItem[]
+  total: number
+  page: number
+  page_size: number
+}
+
 export interface Recommendation {
   book: Book
   reason: string

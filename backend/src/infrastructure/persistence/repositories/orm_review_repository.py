@@ -1,14 +1,16 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from src.domain.entities import Review
+from src.domain.enums.enums import EnumReviewSort, EnumVoteTarget
 from src.domain.repositories import ReviewRepository
 from src.infrastructure.persistence.mappers import ReviewMapper
 from src.infrastructure.persistence.models import (
     BookModelSQLAlchemy,
     ReviewModelSQLAlchemy,
     UserModelSQLAlchemy,
+    VoteModelSQLAlchemy,
 )
 from src.infrastructure.telemetry import logger_decorator
 
@@ -120,3 +122,45 @@ class SQLAlchemyReviewRepository(ReviewRepository):
 
         result = await self.session.execute(query)
         return [ReviewMapper.to_domain(model) for model in result.scalars().all()]
+
+    @logger_decorator
+    async def get_page(
+        self, page: int, page_size: int, sort_by: EnumReviewSort
+    ) -> tuple[list[Review], int]:
+        like_count = (
+            select(func.count(VoteModelSQLAlchemy.id))
+            .where(
+                VoteModelSQLAlchemy.status == "like",
+                VoteModelSQLAlchemy.target_entity == EnumVoteTarget.REVIEW.value,
+                VoteModelSQLAlchemy.target_id == ReviewModelSQLAlchemy.id,
+            )
+            .correlate(ReviewModelSQLAlchemy)
+            .scalar_subquery()
+        )
+        order_by = (
+            (
+                like_count.desc(),
+                ReviewModelSQLAlchemy.created_at.desc(),
+                ReviewModelSQLAlchemy.id.desc(),
+            )
+            if sort_by == EnumReviewSort.POPULAR
+            else (
+                ReviewModelSQLAlchemy.created_at.desc(),
+                ReviewModelSQLAlchemy.id.desc(),
+            )
+        )
+        total = await self.session.scalar(
+            select(func.count()).select_from(ReviewModelSQLAlchemy)
+        )
+        result = await self.session.execute(
+            select(ReviewModelSQLAlchemy)
+            .order_by(*order_by)
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+        reviews = [
+            domain
+            for model in result.scalars().all()
+            if (domain := ReviewMapper.to_domain(model)) is not None
+        ]
+        return reviews, total or 0
