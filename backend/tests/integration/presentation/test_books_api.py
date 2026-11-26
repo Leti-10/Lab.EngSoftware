@@ -12,7 +12,7 @@ def test_create_book_requires_login(client):
 
 
 def test_create_book_returns_201(client, auth_headers):
-    response = client.get("/books", params={"q": BOOK["isbn"]})
+    response = client.get("/books", params={"isbn": BOOK["isbn"]})
     id = response.json()[0]["id"] if response.json() else None
     deleted = client.delete(f"/books/{id}", headers=auth_headers)
 
