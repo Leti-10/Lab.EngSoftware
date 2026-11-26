@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw'
 import { server } from '../test/server'
 import { API } from '../test/fixtures'
-import { ApiError, api, tokenStorage } from './api'
+import { ApiError, api, clearLegacyAuthToken } from './api'
 
 async function failure(promise: Promise<unknown>): Promise<ApiError> {
   try {
@@ -12,13 +12,13 @@ async function failure(promise: Promise<unknown>): Promise<ApiError> {
   throw new Error('esperava que a chamada falhasse')
 }
 
-describe('tokenStorage', () => {
-  it('guarda, lê e limpa o token', () => {
-    expect(tokenStorage.get()).toBeNull()
-    tokenStorage.set('abc')
-    expect(tokenStorage.get()).toBe('abc')
-    tokenStorage.clear()
-    expect(tokenStorage.get()).toBeNull()
+describe('autenticação por cookie', () => {
+  it('remove o token legado do localStorage', () => {
+    localStorage.setItem('estante.token', 'jwt-legado')
+
+    clearLegacyAuthToken()
+
+    expect(localStorage.getItem('estante.token')).toBeNull()
   })
 })
 
@@ -29,33 +29,21 @@ describe('api', () => {
     await expect(api('/books')).resolves.toEqual([{ id: 1 }])
   })
 
-  it('envia o token como Bearer quando existe', async () => {
+  it('envia cookies e não envia Authorization', async () => {
     let auth: string | null = null
+    let credentials: RequestCredentials | undefined
     server.use(
       http.get(`${API}/auth/me`, ({ request }) => {
         auth = request.headers.get('Authorization')
+        credentials = request.credentials
         return HttpResponse.json({})
       }),
     )
-    tokenStorage.set('meu-token')
 
     await api('/auth/me')
 
-    expect(auth).toBe('Bearer meu-token')
-  })
-
-  it('não envia Authorization sem token', async () => {
-    let auth: string | null = 'x'
-    server.use(
-      http.get(`${API}/books`, ({ request }) => {
-        auth = request.headers.get('Authorization')
-        return HttpResponse.json([])
-      }),
-    )
-
-    await api('/books')
-
     expect(auth).toBeNull()
+    expect(credentials).toBe('include')
   })
 
   it('define Content-Type JSON quando há corpo', async () => {

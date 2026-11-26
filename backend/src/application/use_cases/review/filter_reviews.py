@@ -12,10 +12,15 @@ class FilterReviewsUseCase:
         username: str | None = None,
         book_title: str | None = None,
         comment: str | None = None,
+        book_id: int | None = None,
+        user_id: int | None = None,
     ) -> list[Review]:
-        return await self.review_repository.find_by_filter(
+        reviews = await self.review_repository.find_by_filter(
             rating=rating,
             username=username,
             book_title=book_title,
             comment=comment,
+            book_id=book_id,
+            user_id=user_id,
         )
+        return [review for review in reviews if review is not None]

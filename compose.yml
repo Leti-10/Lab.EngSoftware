@@ -1,0 +1,59 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: api-container:dev
+    container_name: api-container
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=postgres
+    ports:
+      - "${API_PORT:-8000}:8000"
+    networks:
+      - postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+  postgres:
+    container_name: postgresdb
+    image: postgres
+    environment:
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-mypass}
+      - POSTGRES_DB=${DB_NAME:-mydb}
+      - PGDATA=/data/postgres
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    image: frontend:dev
+    container_name: frontend-container
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    networks:
+      - postgres
+    depends_on:
+      - backend
+
+volumes:
+  postgres:
+
+networks:
+  postgres:
+    driver: bridge

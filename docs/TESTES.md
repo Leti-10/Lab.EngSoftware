@@ -32,7 +32,10 @@ uv run pytest
 ```
 
 - Testes unitários em `tests/unit/{domain,application,infrastructure}`.
-- Testes de API em `tests/unit/presentation`, usando `app.dependency_overrides` para trocar os repositórios por versões em memória isoladas por teste (`conftest.py`).
+- Resenhas e status de leitura têm testes de API próprios (`test_reviews_api.py`, `test_readings_api.py`): login obrigatório, dono da resenha, uma resenha por obra, filtros, curtidas e privacidade do status.
+- `test_social_api.py` cobre comentários, seguidores, perfil público, notificações (curtida, comentário e seguidor), preferências, feed e recomendações.
+- Testes de API em `tests/integration/presentation`; o `conftest.py` troca os repositórios por versões em memória isoladas por teste via `app.dependency_overrides`.
+- Testes de repositórios SQLAlchemy ficam em `tests/integration/infrastructure/persitence/repository` e usam schemas PostgreSQL temporários.
 
 ## Frontend
 
@@ -45,17 +48,24 @@ npm run test:coverage    # relatório de cobertura
 
 | Arquivo | Tipo | Cobre |
 | --- | --- | --- |
-| `src/lib/api.test.ts` | Unitário | Token Bearer, JSON, erros de `detail` (texto e lista do Pydantic), falha de rede, cancelamento |
+| `src/lib/api.test.ts` | Unitário | Credenciais via cookie, ausência de Authorization, remoção do token legado, JSON, erros de `detail`, falha de rede e cancelamento |
 | `src/lib/books.test.ts` | Unitário | `kindOf` (tipo da obra) e `splitList` |
 | `src/components/ui.test.tsx` | Unitário | `Button`, `Field` (rótulo e dica acessíveis), `Card`, `Alert` |
 | `src/components/BookCard.test.tsx` | Unitário | Card e capa da obra |
 | `src/auth/ProtectedRoute.test.tsx` | Unitário | Redirecionamento de visitantes, conteúdo para logados e estado de carregamento |
 | `src/integration/home.test.tsx` | Integração | Chamada principal, links da home e navbar |
-| `src/integration/login.test.tsx` | Integração | Login, corpo enviado, erro 401, restauração de sessão, token inválido e logout |
+| `src/integration/login.test.tsx` | Integração | Login sem persistir JWT no navegador, corpo enviado, erro 401, restauração via servidor e logout |
 | `src/integration/register.test.tsx` | Integração | Cadastro, senhas diferentes (sem chamar a API), e-mail duplicado e link vindo do login |
 | `src/integration/book-form.test.tsx` | Integração | Cadastro de obra: payload, tipo, ISBN duplicado, redirecionamento ao detalhe e rota protegida |
 | `src/integration/catalog.test.tsx` | Integração | Estante: listagem, estado vazio, busca com debounce, filtro, erro de API e navegação ao detalhe |
 | `src/integration/book-detail.test.tsx` | Integração | Detalhe da obra: dados, gêneros, temas e 404 |
+| `src/integration/reviews.test.tsx` | Integração | Média e lista de resenhas, spoiler borrado, publicar, editar, exigir nota, curtir e descurtir |
+| `src/integration/social.test.tsx` | Integração | Comentários, perfil público e seguir, seguir lista, sino e página de notificações com preferências, feed e recomendações |
+| `src/integration/accessibility.test.tsx` | Integração | axe-core em 13 páginas, link de pular conteúdo, título da aba, foco ao navegar e Esc no menu |
+| `src/integration/profile-edit.test.tsx` | Integração | Perfil com bio, editar e salvar bio, avatar e capa, link sem http recusado, erro da API e rota protegida |
+| `src/integration/reading-status.test.tsx` | Integração | Marcar, desmarcar e restaurar o status de leitura; botões desabilitados para visitantes |
+| `src/integration/catalog-search.test.tsx` | Integração | Busca no catálogo externo dentro do cadastro de obra |
+| `src/lib/reviews.test.ts`, `src/lib/catalog.test.ts` | Unitário | Média das notas e remoção de autores repetidos |
 | `src/integration/lists.test.tsx` | Integração | Minhas listas e detalhe da lista |
 
 Cada branch de tela traz os testes da própria tela, e cada commit deixa `npm test`, `npm run build` e `npm run format:check` passando.
@@ -69,7 +79,7 @@ Utilitários em `src/test/`:
 | Arquivo | Função |
 | --- | --- |
 | `server.ts` | Servidor MSW compartilhado |
-| `fixtures.ts` | Usuário, obras e lista de exemplo |
+| `fixtures.ts` | Usuário, obras, lista e resenha de exemplo |
 | `render.tsx` | `renderApp(rota)` renderiza o app completo; `signIn()` simula sessão ativa |
 
 ## O que os testes de integração cobrem
@@ -78,7 +88,7 @@ Utilitários em `src/test/`:
 | --- | --- |
 | Login | Sucesso, corpo enviado, erro 401, retorno à página que exigiu login |
 | Cadastro | Sucesso com login automático, senhas diferentes (sem chamar a API), e-mail duplicado (409) |
-| Sessão | Restauração por token, descarte de token inválido, logout, redirecionamento de rotas protegidas |
+| Sessão | Restauração via `/auth/me`, limpeza do token legado, rejeição de sessão inválida, logout e redirecionamento de rotas protegidas |
 | Estante | Listagem, estado vazio, busca com *debounce* (`q`), filtro (`genre`), erro de API, navegação ao detalhe |
 | Detalhe da obra | Dados, gêneros sem repetir o tipo, ocultação de temas vazios, 404 |
 | Cadastrar obra | Payload correto (tipo entra nos gêneros), redirecionamento, ISBN duplicado mantém o formulário |

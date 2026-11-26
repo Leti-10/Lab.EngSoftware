@@ -26,10 +26,15 @@ class BookRepository(ABC):
     @abstractmethod
     async def find_by_filter(
         self,
+        isbn: str | None = None,
         title: str | None = None,
         author: str | None = None,
         genre: str | None = None,
         theme: str | None = None,
         publisher: str | None = None,
     ) -> list[Book | None]:
+        pass
+
+    @abstractmethod
+    async def get_all(self) -> list[Book]:
         pass

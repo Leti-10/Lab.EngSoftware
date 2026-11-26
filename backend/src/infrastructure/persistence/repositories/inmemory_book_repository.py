@@ -17,7 +17,7 @@ class InMemoryBookRepository(BookRepository):
     async def update(self, book: Book) -> Book:
         if book.id is None or book.id not in self.books:
             raise ValueError(f"Book with id {book.id} not found.")
-        
+
         self.books[book.id] = book
         return book
 
@@ -38,6 +38,7 @@ class InMemoryBookRepository(BookRepository):
 
     async def find_by_filter(
         self,
+        isbn: str | None = None,
         title: str | None = None,
         author: str | None = None,
         genre: str | None = None,
@@ -53,15 +54,19 @@ class InMemoryBookRepository(BookRepository):
 
         results = []
         for book in self.books.values():
-            if title and not contains(title, book.title):
-                continue
-            if author and not any_contains(author, book.authors):
-                continue
-            if genre and not any(genre.lower() == g.lower() for g in book.genre):
-                continue
-            if theme and not any_contains(theme, book.theme):
-                continue
-            if publisher and not contains(publisher, book.publisher):
-                continue
-            results.append(book)
+            if title and contains(title, book.title):
+                results.append(book)
+            if author and any_contains(author, book.authors):
+                results.append(book)
+            if genre and any_contains(genre, book.genre):
+                results.append(book)
+            if theme and any_contains(theme, book.theme):
+                results.append(book)
+            if publisher and contains(publisher, book.publisher):
+                results.append(book)
+            if isbn and contains(isbn, book.isbn):
+                results.append(book)
         return results
+
+    async def get_all(self) -> list[Book]:
+        return list(self.books.values())

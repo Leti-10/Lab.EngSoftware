@@ -1,13 +1,8 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import Column, ForeignKey, Table
+from sqlalchemy import Column, ForeignKey, String, Table
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from src.infrastructure.persistence.models.base import Base
-
-if TYPE_CHECKING:
-    from src.infrastructure.persistence.models.review_model import ReviewModelSQLAlchemy
-
 
 book_author_association = Table(
     "book_author",
@@ -20,7 +15,7 @@ book_author_association = Table(
 class AuthorModelSQLAlchemy(Base):
     __tablename__ = "authors"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(nullable=False, index=True, default="unknown")
 
     books: Mapped[list["BookModelSQLAlchemy"]] = relationship(
         secondary=book_author_association, back_populates="authors"
@@ -30,12 +25,15 @@ class AuthorModelSQLAlchemy(Base):
 class BookModelSQLAlchemy(Base):
     __tablename__ = "books"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    isbn: Mapped[str] = mapped_column(nullable=False)
-    title: Mapped[str] = mapped_column(nullable=False)
+    isbn: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
+    title: Mapped[str] = mapped_column(nullable=False, index=True)
     publisher: Mapped[str] = mapped_column(nullable=True)
+    genre: Mapped[list[str]] = mapped_column(
+        ARRAY(String), nullable=False, default=list
+    )
+    theme: Mapped[list[str]] = mapped_column(
+        ARRAY(String), nullable=False, default=list
+    )
     authors: Mapped[list["AuthorModelSQLAlchemy"]] = relationship(
         secondary=book_author_association, back_populates="books"
-    )
-    reviews: Mapped[list["ReviewModelSQLAlchemy"]] = relationship(
-        back_populates="book", cascade="all, delete-orphan"
     )

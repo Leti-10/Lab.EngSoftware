@@ -1,0 +1,41 @@
+from abc import ABC, abstractmethod
+from collections.abc import Sequence
+
+from src.domain.entities import Vote
+from src.domain.enums.enums import EnumVoteTarget
+
+
+class VoteRepository(ABC):
+    @abstractmethod
+    async def save(self, vote: Vote) -> Vote:
+        pass
+
+    @abstractmethod
+    async def get_by_id(self, vote_id: int) -> Vote | None:
+        pass
+
+    @abstractmethod
+    async def delete(self, vote_id: int) -> bool:
+        pass
+
+    @abstractmethod
+    async def delete_by_target(
+        self,
+        user_id: int,
+        target_type: EnumVoteTarget,
+        target_id: int,
+        status: str,
+    ) -> bool:
+        pass
+
+    @abstractmethod
+    async def find_by_filter(
+        self,
+        status: str | None = None,
+        user_name: str | None = None,
+        target_type: EnumVoteTarget | None = None,
+        target_name: str | None = None,
+        user_id: int | None = None,
+        target_ids: Sequence[int] | None = None,
+    ) -> list[Vote]:
+        pass

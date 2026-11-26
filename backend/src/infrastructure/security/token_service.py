@@ -2,7 +2,9 @@ from datetime import datetime, timedelta, timezone
 
 import jwt
 
-from src.core.config import settings
+from src.core import settings
+
+ACCESS_TOKEN_COOKIE_NAME = "estante_access_token"
 
 
 class TokenService:

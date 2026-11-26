@@ -2,10 +2,16 @@ from .book_repository import BookRepository
 from .user_repository import UserRepository
 from .book_list_repository import BookListRepository
 from .review_repository import ReviewRepository
+from .report_repository import ReportRepository
+from .vote_repository import VoteRepository
+from .reading_repository import ReadingRepository
 
 __all__ = [
-    "BookRepository", 
-    "UserRepository", 
+    "BookRepository",
+    "UserRepository",
     "BookListRepository",
     "ReviewRepository",
+    "ReportRepository",
+    "VoteRepository",
+    "ReadingRepository",
 ]

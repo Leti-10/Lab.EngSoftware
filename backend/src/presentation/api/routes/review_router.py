@@ -1,57 +1,227 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.application.use_cases.review import (
     CreateReviewUseCase,
     FilterReviewsUseCase,
+    GetReviewFeedUseCase,
     GetReviewByIdUseCase,
+    UpdateReviewUseCase,
 )
+from src.domain.entities import User
 from src.domain.entities.review import Review
+from src.domain.enums.enums import EnumReviewSort, EnumVoteTarget
+from src.domain.exceptions import ReviewAlreadyExistsError, ReviewNotFoundError
+from src.domain.repositories import BookRepository, UserRepository, VoteRepository
 from src.domain.repositories.review_repository import ReviewRepository
-from src.infrastructure.persistence.database import get_db_context
-from src.infrastructure.persistence.repositories import SQLAlchemyReviewRepository
+from src.presentation.api.dependencies import (
+    get_current_user,
+    get_optional_user,
+    get_review_repository,
+    get_user_repository,
+)
+from src.presentation.api.routes.book_router import get_book_repository
+from src.presentation.api.routes.vote_router import get_vote_repository
 from src.presentation.api.schemas.review_schema import (
     CreateReviewSchema,
+    ReviewFeedItemSchema,
+    ReviewFeedPageSchema,
     ReviewResponseSchema,
+    UpdateReviewSchema,
+    UpdateReviewSpoilerSchema,
 )
+
+LIKE_STATUS = "like"
+REVIEW_FEED_PAGE_SIZE = 30
 
 router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
 
-async def get_review_repository(
-    session: AsyncSession = Depends(get_db_context),
-) -> ReviewRepository:
-    return SQLAlchemyReviewRepository(session)
+async def build_responses(
+    reviews: list[Review],
+    users: UserRepository,
+    votes: VoteRepository,
+    viewer: User | None,
+) -> list[ReviewResponseSchema]:
+    likes = await votes.find_by_filter(
+        status=LIKE_STATUS,
+        target_type=EnumVoteTarget.REVIEW,
+        target_ids=[review.id for review in reviews if review.id is not None],
+    )
+    like_count: dict[int, int] = {}
+    my_likes: dict[int, int | None] = {}
+    for vote in likes:
+        like_count[vote.target_id] = like_count.get(vote.target_id, 0) + 1
+        if viewer is not None and vote.user_id == viewer.id:
+            my_likes[vote.target_id] = vote.id
+
+    usernames: dict[int, str | None] = {}
+    responses = []
+    for review in reviews:
+        if review.user_id not in usernames:
+            author = await users.get_by_id(review.user_id)
+            usernames[review.user_id] = author.username if author else None
+        response = ReviewResponseSchema.model_validate(review)
+        response.username = usernames[review.user_id]
+        response.likes = like_count.get(review.id, 0)
+        response.liked_by_me = review.id in my_likes
+        response.like_vote_id = my_likes.get(review.id)
+        responses.append(response)
+    return responses
+
+
+async def load_review(review_id: int, repository: ReviewRepository) -> Review:
+    try:
+        return await GetReviewByIdUseCase(repository).execute(review_id)
+    except ReviewNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=exc.message
+        ) from exc
+
+
+def ensure_owner(review: Review, user: User) -> None:
+    if review.user_id != user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Você só pode alterar a sua própria resenha.",
+        )
+
+
+@router.get("/feed", response_model=ReviewFeedPageSchema)
+async def review_feed(
+    page: int = Query(default=1, ge=1),
+    sort: EnumReviewSort = Query(default=EnumReviewSort.RECENT),
+    repository: ReviewRepository = Depends(get_review_repository),
+    users: UserRepository = Depends(get_user_repository),
+    votes: VoteRepository = Depends(get_vote_repository),
+    books: BookRepository = Depends(get_book_repository),
+    viewer: User | None = Depends(get_optional_user),
+) -> ReviewFeedPageSchema:
+    reviews, total = await GetReviewFeedUseCase(repository).execute(
+        page=page,
+        page_size=REVIEW_FEED_PAGE_SIZE,
+        sort_by=sort,
+    )
+    responses = await build_responses(reviews, users, votes, viewer)
+    items = []
+    for response in responses:
+        book = await books.get_by_id(response.book_id)
+        items.append(
+            ReviewFeedItemSchema(
+                **response.model_dump(),
+                book_title=book.title if book is not None else None,
+                book_isbn=book.isbn if book is not None else None,
+            )
+        )
+    return ReviewFeedPageSchema(
+        items=items,
+        total=total,
+        page=page,
+        page_size=REVIEW_FEED_PAGE_SIZE,
+    )
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_review(
     payload: CreateReviewSchema,
     repository: ReviewRepository = Depends(get_review_repository),
+    users: UserRepository = Depends(get_user_repository),
+    votes: VoteRepository = Depends(get_vote_repository),
+    current_user: User = Depends(get_current_user),
 ) -> ReviewResponseSchema:
+    existing = await FilterReviewsUseCase(repository).execute(
+        book_id=payload.book_id, user_id=current_user.id
+    )
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=ReviewAlreadyExistsError().message,
+        )
     try:
-        use_case = CreateReviewUseCase(repository)
-        new_review = await use_case.execute(Review(**payload.model_dump()))
-        return ReviewResponseSchema.model_validate(new_review)
+        new_review = await CreateReviewUseCase(repository).execute(
+            Review(**payload.model_dump(), user_id=current_user.id)
+        )
     except IntegrityError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="O usuário ou o livro informado não existe.",
+            detail="O usuário informado não existe.",
         ) from exc
+    return (await build_responses([new_review], users, votes, current_user))[0]
 
 
 @router.get("/{review_id}")
 async def get_review(
     review_id: int,
     repository: ReviewRepository = Depends(get_review_repository),
+    users: UserRepository = Depends(get_user_repository),
+    votes: VoteRepository = Depends(get_vote_repository),
+    viewer: User | None = Depends(get_optional_user),
 ) -> ReviewResponseSchema:
-    review = await GetReviewByIdUseCase(repository).execute(review_id)
-    if review is None:
+    review = await load_review(review_id, repository)
+    return (await build_responses([review], users, votes, viewer))[0]
+
+
+@router.put("/{review_id}")
+async def update_review(
+    review_id: int,
+    payload: UpdateReviewSchema,
+    repository: ReviewRepository = Depends(get_review_repository),
+    users: UserRepository = Depends(get_user_repository),
+    votes: VoteRepository = Depends(get_vote_repository),
+    current_user: User = Depends(get_current_user),
+) -> ReviewResponseSchema:
+    review = await load_review(review_id, repository)
+    ensure_owner(review, current_user)
+
+    updated_review = Review(
+        id=review_id,
+        rating=payload.rating,
+        comment=payload.comment,
+        isSpoiler=payload.isSpoiler,
+        user_id=review.user_id,
+        book_id=review.book_id,
+        created_at=review.created_at,
+    )
+    try:
+        updated = await UpdateReviewUseCase(repository).execute(
+            review_id, updated_review
+        )
+    except ReviewNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=exc.message
+        ) from exc
+    except IntegrityError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="O usuário informado não existe.",
+        ) from exc
+    if updated is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Review não encontrada."
         )
-    return ReviewResponseSchema.model_validate(review)
+    return (await build_responses([updated], users, votes, current_user))[0]
+
+
+@router.patch("/{review_id}/spoiler")
+async def update_review_spoiler(
+    review_id: int,
+    payload: UpdateReviewSpoilerSchema,
+    repository: ReviewRepository = Depends(get_review_repository),
+    users: UserRepository = Depends(get_user_repository),
+    votes: VoteRepository = Depends(get_vote_repository),
+    current_user: User = Depends(get_current_user),
+) -> ReviewResponseSchema:
+    review = await load_review(review_id, repository)
+    ensure_owner(review, current_user)
+
+    review.isSpoiler = payload.isSpoiler
+    try:
+        updated = await UpdateReviewUseCase(repository).execute(review_id, review)
+    except ReviewNotFoundError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=exc.message
+        ) from exc
+    return (await build_responses([updated], users, votes, current_user))[0]
 
 
 @router.get("", response_model=list[ReviewResponseSchema])
@@ -60,12 +230,19 @@ async def filter_reviews(
     username: str | None = Query(default=None, min_length=1),
     book_title: str | None = Query(default=None, min_length=1),
     comment: str | None = None,
+    book_id: int | None = Query(default=None, gt=0),
+    user_id: int | None = Query(default=None, gt=0),
     repository: ReviewRepository = Depends(get_review_repository),
+    users: UserRepository = Depends(get_user_repository),
+    votes: VoteRepository = Depends(get_vote_repository),
+    viewer: User | None = Depends(get_optional_user),
 ) -> list[ReviewResponseSchema]:
     reviews = await FilterReviewsUseCase(repository).execute(
         rating=rating,
         username=username,
         book_title=book_title,
         comment=comment,
+        book_id=book_id,
+        user_id=user_id,
     )
-    return [ReviewResponseSchema.model_validate(review) for review in reviews]
+    return await build_responses(reviews, users, votes, viewer)

@@ -1,9 +1,9 @@
 <div align="center">
 
-# 📚 Estante
+# Estante
 
 **Organize livros, mangás e quadrinhos em um só lugar.**
-Cadastre obras, busque na estante e monte suas listas de leitura.
+Cadastre obras, busque na estante, avalie, escreva resenhas e monte suas listas de leitura.
 
 ![Python](https://img.shields.io/badge/python-3.14-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
@@ -19,30 +19,37 @@ Projeto da disciplina **Laboratório de Engenharia de Software** · Fatec São J
 
 ---
 
-## ✨ O que dá para fazer
+## O que dá para fazer
 
 | Tela | Rota | O que acontece |
 | --- | --- | --- |
-| 🏠 **Início** | `/` | Apresentação do app e atalhos para a estante |
-| 🔑 **Login** | `/login` | Entra com e-mail e senha (JWT) e volta para onde você estava |
-| 📝 **Cadastro** | `/cadastro` | Cria a conta e já entra logada |
-| 🗂️ **Estante** | `/livros` | Grade de capas, busca por título/autor e filtros de Mangás e Quadrinhos |
-| 📖 **Detalhe da obra** | `/livros/:id` | Autores, editora, ISBN, gêneros e temas |
-| ➕ **Cadastrar obra** | `/livros/novo` | Formulário de livro, mangá ou quadrinho *(requer login)* |
-| 🧺 **Minhas listas** | `/listas` | Cria listas (públicas ou privadas) e vê todas as suas *(requer login)* |
-| 📑 **Detalhe da lista** | `/listas/:id` | Obras da lista e adição de novas obras *(requer login)* |
+| **Início** | `/` | Apresentação do app e atalhos para a estante |
+| **Login** | `/login` | Entra com e-mail e senha (sessão em cookie `HttpOnly`) e volta para onde você estava |
+| **Cadastro** | `/cadastro` | Cria a conta e já entra logada |
+| **Estante** | `/livros` | Grade de capas, busca por título/autor e filtros de Mangás e Quadrinhos. Logado, consulta Google Books quando configurado, com fallback para Open Library; sem chave, usa Open Library. A obra é cadastrada ao abrir |
+| **Perfil** | `/perfil` | Capa, avatar, bio, listas e favoritos da pessoa logada *(requer login)* |
+| **Editar perfil** | `/perfil/editar` | Personaliza bio, avatar e capa por link de imagem, com prévia *(requer login)* |
+| **Perfil público** | `/usuarios/:id` | Capa, bio, listas públicas e botão de seguir de outra pessoa |
+| **Feed** | `/feed` | Resenhas das pessoas que você segue *(requer login)* |
+| **Recomendações** | `/recomendacoes` | Obras sugeridas pelas suas avaliações e leituras *(requer login)* |
+| **Notificações** | `/notificacoes` | Curtidas, comentários e novos seguidores, com preferências *(requer login)* |
+| **Detalhe da obra** | `/livros/:id` | Autores, editora, ISBN, gêneros e temas; **nota de 1 a 5 estrelas**, **resenhas** (com aviso de spoiler e curtidas) e **status de leitura** (Quero ler, Lendo, Lido) |
+| **Cadastrar obra** | `/livros/novo` | Formulário de livro, mangá ou quadrinho *(requer login)* |
+| **Minhas listas** | `/listas` | Cria, edita e exclui listas (públicas ou privadas) *(requer login)* |
+| **Detalhe da lista** | `/listas/:id` | Obras da lista e adição de novas obras *(requer login)* |
 
-> 🎨 **Visual:** minimalista, inspirado no Skoob — fundo creme (`#FAF5EA`), azul de tom quente (`#3A5F8A`), títulos em *Lora* e texto em *Inter*.
+> **Visual:** minimalista, inspirado no Skoob — fundo creme (`#FAF5EA`), azul de tom quente (`#3A5F8A`), títulos em *Lora* e texto em *Inter*.
 
-## 🚀 Começando rápido
+## Começando rápido
 
-Você precisa de **Python 3.14 + [uv](https://docs.astral.sh/uv/)** e **Node 22+**.
+Você precisa de **Python 3.14 + [uv](https://docs.astral.sh/uv/)**, **Node 22+** e PostgreSQL local, ou pode usar Docker Compose.
 
 ```bash
 # 1. API  → http://localhost:8000  (documentação interativa em /docs)
 cd backend
-cp .env.example .env
+cp ../.env.example .env
 uv sync
+uv run alembic upgrade head
 uv run uvicorn src.presentation.api.main:app --reload --env-file .env
 ```
 
@@ -56,28 +63,32 @@ npm run dev
 
 Pronto: crie uma conta em `/cadastro` e cadastre sua primeira obra. Mais detalhes (Docker, migrations, testes) no [**Manual de Execução**](docs/MANUAL_EXECUCAO.md).
 
-## 🧱 Como tudo se conecta
+## Como tudo se conecta
 
 ```mermaid
 flowchart LR
-    U([Pessoa usuária]) --> F["Frontend<br/>React + TypeScript + Tailwind"]
-    F -- "REST / JSON<br/>Bearer JWT" --> A["Backend<br/>FastAPI"]
+    U([Pessoa usuária]) --> N["Nginx<br/>serve SPA + proxy reverso /api"]
+    N -- "arquivos da SPA" --> F["Frontend no navegador<br/>React + TypeScript + Tailwind"]
+    F -- "REST /api + Cookie HttpOnly" --> N
+    N -- "proxy_pass" --> A["Backend<br/>FastAPI"]
     A --> UC["Casos de uso"]
     UC --> R["Repositórios"]
     R --> DB[("PostgreSQL")]
 ```
 
+No Docker Compose, o Nginx serve os arquivos do frontend e encaminha `/api` ao backend. No desenvolvimento local, o Vite serve o frontend e ele acessa a API diretamente.
+
 ### Arquitetura e design patterns
 
-- **Arquitetura:** o backend segue **Clean Architecture / DDD**, em camadas (`presentation → application → domain`, com a `infrastructure` implementando as interfaces do domínio). O frontend é uma SPA em React que consome a API REST.
+- **Arquitetura:** o backend segue **Clean Architecture / DDD**; os casos de uso dependem das interfaces do domínio, e os providers da API injetam repositórios SQLAlchemy. O frontend é uma SPA em React que consome a API REST.
 - **Design patterns aplicados:**
-  - **Repository:** os casos de uso dependem de interfaces (`BookRepository`, `UserRepository`, `BookListRepository`), com implementações em memória e SQLAlchemy.
+  - **Repository:** os casos de uso dependem de interfaces (`BookRepository`, `UserRepository`, `BookListRepository`, `ReviewRepository`, `VoteRepository`, `ReadingRepository`, `FollowRepository`, `NotificationRepository`); a aplicação usa implementações SQLAlchemy e os testes usam adaptadores em memória.
   - **Data Mapper:** o `BookMapper` converte entre a entidade de domínio e o modelo do banco, mantendo o domínio livre de ORM.
   - **Dependency Injection:** o `Depends` do FastAPI injeta repositórios e o usuário logado.
 
 A explicação completa, com diagramas e exemplos de código, está em [**docs/ARQUITETURA.md**](docs/ARQUITETURA.md).
 
-## 🗺️ Estrutura do repositório
+## Estrutura do repositório
 
 ```text
 .
@@ -85,35 +96,35 @@ A explicação completa, com diagramas e exemplos de código, está em [**docs/A
 │   ├── src/
 │   ├── tests/          # pytest (unitários e de API)
 │   └── alembic/        # migrations
+├── compose.yml         # Frontend, backend e PostgreSQL
 ├── frontend/           # React + Vite + Tailwind
 │   └── src/            # pages, components, auth, lib, testes (*.test.ts[x])
-├── docs/               # especificação, arquitetura, modelagem, testes e manual
-│   └── pdf/            # versões em PDF para entrega
-└── img/der.png         # Diagrama Entidade-Relacionamento
+└── docs/               # especificação, arquitetura, modelagem, testes, manual e PDFs
 ```
 
-## 📋 Entregáveis do projeto
+## Entregáveis do projeto
 
 | Entregável | Situação | Onde |
 | --- | --- | --- |
-| **Backend Python** (FastAPI, REST limpa e tratada) | ✅ | [`backend/`](backend/) · erros mapeados para 401/403/404/409/422 |
-| **Design Patterns** (mínimo de 2) | ✅ Repository, Data Mapper, Dependency Injection | [Arquitetura](docs/ARQUITETURA.md#design-patterns) |
-| **Frontend React** (TypeScript) | ✅ | [`frontend/`](frontend/) |
-| **Repositório Git** (commits, branches, PRs, README) | ✅ branches por funcionalidade + Conventional Commits | este repositório |
-| **Banco relacional** (PostgreSQL, sem SQLite) | 🟡 PostgreSQL configurado; persistência da API ainda em transição | [Pendências](docs/MANUAL_EXECUCAO.md#pendencias-conhecidas) |
-| **Modelagem de dados** (DER) | ✅ | [Modelagem](docs/MODELAGEM_DADOS.md) · [`img/der.png`](img/der.png) |
-| **Desenho de arquitetura** (React + Python + BD) | ✅ | [Arquitetura](docs/ARQUITETURA.md) |
-| **Documentação técnica** (RFs, RNFs, manual de execução) | ✅ | [Especificação](docs/ESPECIFICACAO.md) · [Manual](docs/MANUAL_EXECUCAO.md) |
+| **Backend Python** (FastAPI, REST limpa e tratada) | ✓ | [`backend/`](backend/) · erros mapeados para 401/403/404/409/422 |
+| **Design Patterns** (mínimo de 2) | ✓ Repository, Data Mapper, Dependency Injection | [Arquitetura](docs/ARQUITETURA.md#design-patterns) |
+| **Frontend React** (TypeScript) | ✓ | [`frontend/`](frontend/) |
+| **Repositório Git** (commits, branches, PRs, README) | ✓ branches por funcionalidade + Conventional Commits | este repositório |
+| **Banco relacional** (PostgreSQL, sem SQLite) | ✓ PostgreSQL usado pelos repositórios de runtime | [Manual](docs/MANUAL_EXECUCAO.md) |
+| **Modelagem de dados** (DER) | ✓ | [Modelagem atualizada](docs/MODELAGEM_DADOS.md) |
+| **Desenho de arquitetura** (React + Python + BD) | ✓ | [Arquitetura](docs/ARQUITETURA.md) |
+| **Documentação técnica** (RFs, RNFs, manual de execução) | ✓ | [Especificação](docs/ESPECIFICACAO.md) · [Manual](docs/MANUAL_EXECUCAO.md) |
 
-## 🌿 Fluxo de trabalho
+## Fluxo de trabalho
 
 Cada funcionalidade nasce em uma branch própria a partir de `develop` e entra por Pull Request. Commits seguem o padrão `tipo(escopo): descrição` (`feat`, `fix`, `docs`, `test`, `chore`).
 
-## 📚 Documentação
+## Documentação
 
 - [Especificação (RFs, RNFs, regras e rotas)](docs/ESPECIFICACAO.md)
 - [Arquitetura e design patterns](docs/ARQUITETURA.md)
 - [Modelagem de dados (DER)](docs/MODELAGEM_DADOS.md)
+- [Acessibilidade (WCAG 2.1)](docs/ACESSIBILIDADE.md)
 - [Estratégia de testes](docs/TESTES.md)
 - [Manual de execução](docs/MANUAL_EXECUCAO.md)
 - [README do backend](backend/README.md) · [README do frontend](frontend/README.md)

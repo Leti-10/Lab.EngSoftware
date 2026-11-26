@@ -1,7 +1,7 @@
 from src.domain.entities import Book
 from src.domain.repositories import BookRepository
 
-NATIVE_BOOKS: list[dict] = [
+NATIVE_BOOKS = [
     {
         "isbn": "9788593828966",
         "title": "O Cortiço",
@@ -320,7 +320,8 @@ NATIVE_BOOKS: list[dict] = [
 async def seed_native_catalog(repository: BookRepository) -> int:
     added = 0
     for item in NATIVE_BOOKS:
-        if await repository.get_by_isbn(item["isbn"]) is None:
+        existing_book = await repository.get_by_isbn(item["isbn"])
+        if existing_book is None:
             await repository.save(Book(**item))
             added += 1
     return added

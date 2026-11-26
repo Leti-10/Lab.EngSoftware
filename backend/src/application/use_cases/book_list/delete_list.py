@@ -1,0 +1,18 @@
+from src.domain.repositories import BookListRepository
+from src.domain.exceptions import BookListForbiddenError, BookListNotFoundError
+
+
+class DeleteBookListUseCase:
+    def __init__(self, book_list_repository: BookListRepository):
+        self.book_list_repository = book_list_repository
+
+    async def execute(self, list_id: int, user_id: int) -> None:
+        book_list = await self.book_list_repository.get_by_id(list_id)
+        if book_list is None:
+            raise BookListNotFoundError(list_id)
+
+        if book_list.owner != user_id:
+            raise BookListForbiddenError()
+
+        if not await self.book_list_repository.delete(list_id):
+            raise BookListNotFoundError(list_id)

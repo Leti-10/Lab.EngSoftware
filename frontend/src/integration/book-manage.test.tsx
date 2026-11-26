@@ -97,6 +97,41 @@ describe('excluir obra', () => {
       '/livros/1/editar',
     )
     expect(screen.getByRole('button', { name: 'Excluir' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Reportar' })).toBeInTheDocument()
+  })
+
+  it('abre o modal e envia uma denúncia da obra', async () => {
+    let body: unknown
+    server.use(
+      http.post(`${API}/reports`, async ({ request }) => {
+        body = await request.json()
+        return HttpResponse.json(
+          {
+            id: 1,
+            user_id: 1,
+            target_id: 1,
+            target_entity: 'book',
+            description: 'Informações incorretas',
+          },
+          { status: 201 },
+        )
+      }),
+    )
+    signIn()
+    const { user } = renderApp('/livros/1')
+
+    await user.click(await screen.findByRole('button', { name: 'Reportar' }))
+    expect(screen.getByRole('dialog', { name: 'Reportar conteúdo' })).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Motivo'), 'Informações incorretas')
+    await user.click(screen.getByRole('button', { name: 'Enviar denúncia' }))
+
+    expect(await screen.findByRole('status')).toHaveTextContent('Denúncia enviada')
+    expect(body).toEqual({
+      target_id: 1,
+      target_entity: 'book',
+      description: 'Informações incorretas',
+    })
   })
 
   it('pede confirmação e permite cancelar sem excluir', async () => {
