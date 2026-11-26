@@ -1,11 +1,16 @@
 from collections.abc import AsyncIterator
 from uuid import uuid4
 
+import pytest
 import pytest_asyncio
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from src.core.config import settings
+from src.infrastructure.persistence.repositories import (
+    InMemoryBookRepository,
+    InMemoryReviewRepository,
+)
 
 
 @pytest_asyncio.fixture
@@ -28,3 +33,15 @@ async def postgres_engine() -> AsyncIterator[AsyncEngine]:
                 await connection.execute(text(f'DROP SCHEMA "{schema}" CASCADE'))
     finally:
         await admin_engine.dispose()
+
+
+@pytest.fixture
+def book_repository():
+    repo = InMemoryBookRepository()
+    yield repo
+
+
+@pytest.fixture
+def review_repository():
+    repo = InMemoryReviewRepository()
+    yield repo

@@ -12,6 +12,19 @@ import { Alert, Button, Card } from './ui'
 
 const MAX_COMMENT = 1000
 
+function formatReviewDate(value: Review['created_at']) {
+  if (value == null) return 'Data indisponível'
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return 'Data indisponível'
+
+  return date.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
 function ReviewForm({
   bookId,
   mine,
@@ -159,6 +172,8 @@ export function ReviewItem({
   return (
     <li className="rounded-2xl border border-line bg-cream-50 p-5">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="text-sm text-ink-soft">{formatReviewDate(review.created_at)}</span>
+        <span className="text-sm text-ink-soft">•</span>
         <Link to={`/usuarios/${review.user_id}`} className="font-medium text-ink hover:underline">
           {review.username ?? 'Leitor'}
         </Link>

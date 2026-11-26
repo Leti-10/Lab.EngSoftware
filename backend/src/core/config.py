@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     SEED_CATALOG: bool = True
     GOOGLE_BOOKS_API_KEY: str = ""
     CATALOG_TIMEOUT_SECONDS: float = 8
+    LOG_LEVEL: str = "DEBUG"
+    DATABASE_ECHO: bool = True
 
     # Database settings
     DB_HOST: str = "localhost"

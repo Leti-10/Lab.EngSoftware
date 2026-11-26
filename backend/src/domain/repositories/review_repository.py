@@ -5,7 +5,7 @@ from src.domain.entities import Review
 
 class ReviewRepository(ABC):
     @abstractmethod
-    async def save(self, review: Review) -> Review | None:
+    async def save(self, review: Review) -> Review:
         pass
 
     @abstractmethod
@@ -26,4 +26,8 @@ class ReviewRepository(ABC):
         book_id: int | None = None,
         user_id: int | None = None,
     ) -> list[Review | None]:
+        pass
+
+    @abstractmethod
+    async def get_all(self, order_by: str = "id") -> list[Review]:
         pass

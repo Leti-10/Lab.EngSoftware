@@ -15,6 +15,7 @@ class ReviewMapper:
             isSpoiler=domain.isSpoiler,
             user_id=domain.user_id,
             book_id=domain.book_id,
+            created_at=domain.created_at,
         )
 
     @staticmethod
@@ -29,4 +30,5 @@ class ReviewMapper:
             isSpoiler=db_model.isSpoiler,
             user_id=db_model.user_id,
             book_id=db_model.book_id,
+            created_at=db_model.created_at,
         )

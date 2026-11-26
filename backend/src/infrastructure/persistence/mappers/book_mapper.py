@@ -7,14 +7,19 @@ from src.infrastructure.persistence.models import (
 
 class BookMapper:
     @staticmethod
-    def to_sqlalchemy(domain: Book) -> BookModelSQLAlchemy:
+    def to_sqlalchemy(domain: Book) -> BookModelSQLAlchemy | None:
         """Converte o modelo de Domínio (Dataclass) para o modelo do SQLAlchemy."""
         if not domain:
             return None
 
+        domain_authors = (
+            [domain.authors]
+            if isinstance(domain.authors, str)
+            else domain.authors
+        )
         authors = (
-            [AuthorModelSQLAlchemy(name=nome) for nome in domain.authors]
-            if domain.authors
+            [AuthorModelSQLAlchemy(name=name) for name in domain_authors]
+            if domain_authors
             else []
         )
 
@@ -24,10 +29,12 @@ class BookMapper:
             title=domain.title,
             authors=authors,
             publisher=domain.publisher,
+            genre=list(domain.genre or []),
+            theme=list(domain.theme or []),
         )
 
     @staticmethod
-    def to_domain(db_model: BookModelSQLAlchemy) -> Book:
+    def to_domain(db_model: BookModelSQLAlchemy) -> Book | None:
         """Converte o modelo do SQLAlchemy para a Entidade de Domínio (Dataclass)."""
         if not db_model:
             return None
@@ -42,4 +49,6 @@ class BookMapper:
             title=db_model.title,
             authors=authors,
             publisher=db_model.publisher,
+            genre=list(db_model.genre or []),
+            theme=list(db_model.theme or []),
         )

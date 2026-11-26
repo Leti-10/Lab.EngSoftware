@@ -63,6 +63,20 @@ class SQLAlchemyReviewRepository(ReviewRepository):
             return None
         return ReviewMapper.to_domain(model)
 
+    async def get_all(self, order_by: str = "id") -> list[Review]:
+        query = select(ReviewModelSQLAlchemy)
+        if order_by == "rating":
+            query = query.order_by(ReviewModelSQLAlchemy.rating.desc())
+        elif order_by == "created_at":
+            query = query.order_by(ReviewModelSQLAlchemy.created_at.desc())
+        else:
+            query = query.order_by(ReviewModelSQLAlchemy.id)
+
+        result = await self.session.execute(query)
+        return [
+            ReviewMapper.to_domain(model) for model in result.scalars().all()
+        ]
+
     async def find_by_filter(
         self,
         rating: int | None = None,

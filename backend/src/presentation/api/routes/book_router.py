@@ -51,7 +51,7 @@ def to_response(book: Book) -> BookResponseSchema:
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def create_book(
     payload: CreateBookSchema,
-    repository: BookRepository = Depends(get_book_m_repository),
+    repository: BookRepository = Depends(get_book_repository),
     _current_user: User = Depends(get_current_user),
 ) -> BookResponseSchema:
     try:
@@ -73,16 +73,16 @@ async def create_book(
 async def list_books(
     q: str | None = None,
     genre: str | None = None,
-    repository: BookRepository = Depends(get_book_m_repository),
+    repository: BookRepository = Depends(get_book_repository),
 ) -> list[BookResponseSchema]:
-    books = await SearchBooksUseCase(repository).execute(query=q)
+    books = await SearchBooksUseCase(repository).execute(query=q, genre=genre)
     return [to_response(book) for book in books]
 
 
 @router.get("/{book_id}")
 async def get_book(
     book_id: int,
-    repository: BookRepository = Depends(get_book_m_repository),
+    repository: BookRepository = Depends(get_book_repository),
 ) -> BookResponseSchema:
     try:
         book = await GetBookUseCase(repository).execute(book_id)
@@ -97,7 +97,7 @@ async def get_book(
 async def update_book(
     book_id: int,
     payload: CreateBookSchema,
-    repository: BookRepository = Depends(get_book_m_repository),
+    repository: BookRepository = Depends(get_book_repository),
     _current_user: User = Depends(get_current_user),
 ) -> BookResponseSchema:
     try:
@@ -123,7 +123,7 @@ async def update_book(
 @router.delete("/{book_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_book(
     book_id: int,
-    repository: BookRepository = Depends(get_book_m_repository),
+    repository: BookRepository = Depends(get_book_repository),
     _current_user: User = Depends(get_current_user),
 ) -> None:
     try:

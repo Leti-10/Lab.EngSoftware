@@ -1,5 +1,5 @@
 BOOK = {
-    "isbn": "9788535902778",
+    "isbn": "0000000000000",
     "title": "Dom Casmurro",
     "publisher": "Companhia das Letras",
     "authors": ["Machado de Assis"],
@@ -12,8 +12,13 @@ def test_create_book_requires_login(client):
 
 
 def test_create_book_returns_201(client, auth_headers):
+    response = client.get("/books", params={"q": BOOK["isbn"]})
+    id = response.json()[0]["id"] if response.json() else None
+    deleted = client.delete(f"/books/{id}", headers=auth_headers)
+
     response = client.post("/books", json=BOOK, headers=auth_headers)
 
+    assert deleted.status_code in (204, 404)
     assert response.status_code == 201
     body = response.json()
     assert body["id"] == 1
@@ -52,7 +57,7 @@ def test_list_books_is_public_and_filters(client, auth_headers):
     searched = client.get("/books", params={"q": "casmurro"})
     by_genre = client.get("/books", params={"q": "Mangá"})
 
-    assert [b["title"] for b in everything.json()] == []
+    assert [b["title"] for b in everything.json()] == ["Dom Casmurro", "One Piece"]
     assert [b["title"] for b in searched.json()] == ["Dom Casmurro"]
     assert [b["title"] for b in by_genre.json()] == ["One Piece"]
 

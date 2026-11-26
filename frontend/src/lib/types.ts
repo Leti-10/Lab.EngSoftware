@@ -61,6 +61,7 @@ export interface Review {
   likes: number
   liked_by_me: boolean
   like_vote_id: number | null
+  created_at: string | number | Date
 }
 
 export interface ReviewPayload {

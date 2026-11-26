@@ -1,6 +1,6 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
-import { API, domCasmurro, onePiece } from '../test/fixtures'
+import { API, domCasmurro, onePiece, review } from '../test/fixtures'
 import { renderApp } from '../test/render'
 import { server } from '../test/server'
 
@@ -113,6 +113,26 @@ describe('detalhe da obra', () => {
     await screen.findByRole('heading', { name: 'One Piece, Vol. 1' })
     expect(screen.getByRole('link', { name: 'Resenhar' })).toHaveAttribute('href', '#resenhas')
     expect(screen.getByText('Ainda sem avaliações')).toBeInTheDocument()
+  })
+
+  it('carrega e mostra a data de criação da resenha', async () => {
+    mockBook()
+    server.use(http.get(`${API}/reviews`, () => HttpResponse.json([review])))
+    renderApp('/livros/1')
+
+    await screen.findByRole('heading', { name: 'One Piece, Vol. 1' })
+    expect(await screen.findByText('15 de jun. de 2024')).toBeInTheDocument()
+  })
+
+  it('não mostra Invalid Date quando a API não retorna a data da resenha', async () => {
+    mockBook()
+    const reviewWithoutDate = { ...review }
+    Reflect.deleteProperty(reviewWithoutDate, 'created_at')
+    server.use(http.get(`${API}/reviews`, () => HttpResponse.json([reviewWithoutDate])))
+    renderApp('/livros/1')
+
+    expect(await screen.findByText('Data indisponível')).toBeInTheDocument()
+    expect(screen.queryByText('Invalid Date')).not.toBeInTheDocument()
   })
 
   it('mostra "Obra não encontrada" para 404', async () => {

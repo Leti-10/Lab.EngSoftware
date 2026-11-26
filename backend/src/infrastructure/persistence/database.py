@@ -3,7 +3,7 @@ from src.core.config import settings
 
 async_engine = create_async_engine(
     url=settings.database_url,
-    echo=True,
+    echo=settings.DATABASE_ECHO,
 )
 
 AsyncSessionLocal = async_sessionmaker(bind=async_engine, expire_on_commit=False)

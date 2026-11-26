@@ -64,3 +64,13 @@ class InMemoryReviewRepository(ReviewRepository):
                 continue
             results.append(review)
         return results
+
+    async def get_all(self, order_by: str | None = None) -> list[Review]:
+        reviews = list(self.reviews.values())
+        if order_by == "rating":
+            reviews.sort(key=lambda review: review.rating, reverse=True)
+        elif order_by == "created_at":
+            reviews.sort(key=lambda review: review.created_at, reverse=True)
+        else:
+            reviews.sort(key=lambda review: review.id or 0)
+        return reviews
