@@ -10,7 +10,7 @@ from src.infrastructure.persistence.models import (
     AuthorModelSQLAlchemy,
     BookModelSQLAlchemy,
 )
-
+from src.infrastructure.telemetry import logger_decorator
 from src.infrastructure.telemetry.performance_decorator import perf_decorator
 
 
@@ -18,6 +18,7 @@ class SQLAlchemyRepository(BookRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
+    @logger_decorator
     @perf_decorator
     async def save(self, book: Book) -> Book:
         book_model = BookMapper.to_sqlalchemy(book)
@@ -37,6 +38,7 @@ class SQLAlchemyRepository(BookRepository):
             raise ValueError("O livro salvo não pôde ser convertido.")
         return saved
 
+    @logger_decorator
     @perf_decorator
     async def update(self, book: Book) -> Book:
         if book.id is None:
@@ -74,6 +76,7 @@ class SQLAlchemyRepository(BookRepository):
             raise ValueError("O livro atualizado não pôde ser convertido.")
         return updated_book
 
+    @logger_decorator
     @perf_decorator
     async def delete(self, book_id: int) -> bool:
         query = (
@@ -94,6 +97,7 @@ class SQLAlchemyRepository(BookRepository):
             raise
         return True
 
+    @logger_decorator
     @perf_decorator
     async def get_by_id(self, book_id: int) -> Book | None:
         query = (
@@ -110,6 +114,7 @@ class SQLAlchemyRepository(BookRepository):
 
         return BookMapper.to_domain(book_alchemy)
 
+    @logger_decorator
     @perf_decorator
     async def get_by_isbn(self, isbn: str) -> Book | None:
         query = (
@@ -123,6 +128,7 @@ class SQLAlchemyRepository(BookRepository):
             return None
         return BookMapper.to_domain(book_alchemy)
 
+    @logger_decorator
     @perf_decorator
     async def find_by_filter(
         self,
@@ -163,6 +169,7 @@ class SQLAlchemyRepository(BookRepository):
         books = result.scalars().all()
         return [BookMapper.to_domain(book) for book in books]
 
+    @logger_decorator
     @perf_decorator
     async def get_all(self) -> list[Book]:
         query = select(BookModelSQLAlchemy).options(

@@ -20,6 +20,7 @@ from src.infrastructure.persistence.models.social_model import (
     NotificationModelSQLAlchemy,
     NotificationPreferenceModelSQLAlchemy,
 )
+from src.infrastructure.telemetry import logger_decorator
 
 
 def _comment(model: CommentModelSQLAlchemy) -> Comment:
@@ -59,6 +60,7 @@ class SQLAlchemyCommentRepository(CommentRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
+    @logger_decorator
     async def save(self, comment: Comment) -> Comment:
         model = CommentModelSQLAlchemy(
             review_id=comment.review_id,
@@ -71,10 +73,12 @@ class SQLAlchemyCommentRepository(CommentRepository):
         await self.session.refresh(model)
         return _comment(model)
 
+    @logger_decorator
     async def get_by_id(self, comment_id: int) -> Comment | None:
         model = await self.session.get(CommentModelSQLAlchemy, comment_id)
         return _comment(model) if model is not None else None
 
+    @logger_decorator
     async def delete(self, comment_id: int) -> bool:
         model = await self.session.get(CommentModelSQLAlchemy, comment_id)
         if model is None:
@@ -83,6 +87,7 @@ class SQLAlchemyCommentRepository(CommentRepository):
         await self.session.commit()
         return True
 
+    @logger_decorator
     async def find_by_review(self, review_id: int) -> list[Comment]:
         result = await self.session.execute(
             select(CommentModelSQLAlchemy)
@@ -103,6 +108,7 @@ class SQLAlchemyFollowRepository(FollowRepository):
             FollowModelSQLAlchemy.target_id == target_id,
         )
 
+    @logger_decorator
     async def save(self, follow: Follow) -> Follow:
         result = await self.session.execute(
             select(FollowModelSQLAlchemy).where(
@@ -122,6 +128,7 @@ class SQLAlchemyFollowRepository(FollowRepository):
             await self.session.refresh(model)
         return _follow(model)
 
+    @logger_decorator
     async def delete(
         self, follower_id: int, target_type: EnumFollowTarget, target_id: int
     ) -> bool:
@@ -133,6 +140,7 @@ class SQLAlchemyFollowRepository(FollowRepository):
         await self.session.commit()
         return bool(result.rowcount)
 
+    @logger_decorator
     async def exists(
         self, follower_id: int, target_type: EnumFollowTarget, target_id: int
     ) -> bool:
@@ -143,6 +151,7 @@ class SQLAlchemyFollowRepository(FollowRepository):
         )
         return result.first() is not None
 
+    @logger_decorator
     async def find_by_follower(
         self, follower_id: int, target_type: EnumFollowTarget | None = None
     ) -> list[Follow]:
@@ -154,6 +163,7 @@ class SQLAlchemyFollowRepository(FollowRepository):
         result = await self.session.execute(query.order_by(FollowModelSQLAlchemy.id))
         return [_follow(model) for model in result.scalars().all()]
 
+    @logger_decorator
     async def count_followers(
         self, target_type: EnumFollowTarget, target_id: int
     ) -> int:
@@ -172,6 +182,7 @@ class SQLAlchemyNotificationRepository(NotificationRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
+    @logger_decorator
     async def save(self, notification: Notification) -> Notification:
         model = NotificationModelSQLAlchemy(
             user_id=notification.user_id,
@@ -187,6 +198,7 @@ class SQLAlchemyNotificationRepository(NotificationRepository):
         await self.session.refresh(model)
         return _notification(model)
 
+    @logger_decorator
     async def find_by_user(self, user_id: int, limit: int = 50) -> list[Notification]:
         result = await self.session.execute(
             select(NotificationModelSQLAlchemy)
@@ -196,6 +208,7 @@ class SQLAlchemyNotificationRepository(NotificationRepository):
         )
         return [_notification(model) for model in result.scalars().all()]
 
+    @logger_decorator
     async def count_unread(self, user_id: int) -> int:
         result = await self.session.execute(
             select(func.count())
@@ -207,6 +220,7 @@ class SQLAlchemyNotificationRepository(NotificationRepository):
         )
         return int(result.scalar_one())
 
+    @logger_decorator
     async def mark_read(self, user_id: int, notification_id: int) -> bool:
         result = await self.session.execute(
             update(NotificationModelSQLAlchemy)
@@ -219,6 +233,7 @@ class SQLAlchemyNotificationRepository(NotificationRepository):
         await self.session.commit()
         return bool(result.rowcount)
 
+    @logger_decorator
     async def mark_all_read(self, user_id: int) -> None:
         await self.session.execute(
             update(NotificationModelSQLAlchemy)
@@ -232,6 +247,7 @@ class SQLAlchemyNotificationPreferenceRepository(NotificationPreferenceRepositor
     def __init__(self, session: AsyncSession):
         self.session = session
 
+    @logger_decorator
     async def get(self, user_id: int) -> NotificationPreference:
         model = await self.session.get(NotificationPreferenceModelSQLAlchemy, user_id)
         if model is None:
@@ -243,6 +259,7 @@ class SQLAlchemyNotificationPreferenceRepository(NotificationPreferenceRepositor
             follows=model.follows,
         )
 
+    @logger_decorator
     async def save(self, preference: NotificationPreference) -> NotificationPreference:
         model = await self.session.get(
             NotificationPreferenceModelSQLAlchemy, preference.user_id

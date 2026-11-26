@@ -1,24 +1,47 @@
 import functools
+import inspect
 import logging
+from collections.abc import Callable
+from typing import Any, TypeVar, cast
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+
+F = TypeVar("F", bound=Callable[..., Any])
 
 
-def logger_decorator(func):
+def logger_decorator(func: F) -> F:
+    operation = func.__qualname__
+    if inspect.iscoroutinefunction(func):
+        @functools.wraps(func)
+        async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+            logger.info("Starting persistence operation: %s", operation)
+            try:
+                result = await func(*args, **kwargs)
+            except Exception as error:
+                logger.error(
+                    "Persistence operation failed: %s (%s)",
+                    operation,
+                    type(error).__name__,
+                )
+                raise
+            logger.info("Completed persistence operation: %s", operation)
+            return result
+
+        return cast(F, async_wrapper)
+
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        logger.info(f"Starting '{func.__name__}' | args={args}, kwargs={kwargs}")
-
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        logger.info("Starting persistence operation: %s", operation)
         try:
-            resultado = func(*args, **kwargs)
-            logger.info(f"Finished '{func.__name__}' | return={resultado}")
-            return resultado
-        except Exception:
-            logger.exception(f"Error occurred while executing '{func.__name__}'")
+            result = func(*args, **kwargs)
+        except Exception as error:
+            logger.error(
+                "Persistence operation failed: %s (%s)",
+                operation,
+                type(error).__name__,
+            )
             raise
+        logger.info("Completed persistence operation: %s", operation)
+        return result
 
-    return wrapper
+    return cast(F, wrapper)

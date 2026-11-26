@@ -7,12 +7,14 @@ from src.domain.exceptions import ReportAlreadyExistsError
 from src.domain.repositories import ReportRepository
 from src.infrastructure.persistence.mappers import ReportMapper
 from src.infrastructure.persistence.models import ReportModelSQLAlchemy
+from src.infrastructure.telemetry import logger_decorator
 
 
 class SQLAlchemyReportRepository(ReportRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
+    @logger_decorator
     async def save(self, report: Report) -> Report:
         duplicate_query = select(ReportModelSQLAlchemy.id).where(
             ReportModelSQLAlchemy.user_id == report.user_id,
@@ -49,6 +51,7 @@ class SQLAlchemyReportRepository(ReportRepository):
         await self.session.refresh(model)
         return ReportMapper.to_domain(model)
 
+    @logger_decorator
     async def get_by_id(self, report_id: int) -> Report | None:
         result = await self.session.execute(
             select(ReportModelSQLAlchemy).where(ReportModelSQLAlchemy.id == report_id)
@@ -58,6 +61,7 @@ class SQLAlchemyReportRepository(ReportRepository):
             return None
         return ReportMapper.to_domain(model)
 
+    @logger_decorator
     async def find_by_filter(
         self,
         user_id: int | None = None,

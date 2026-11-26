@@ -2,7 +2,7 @@ from collections.abc import AsyncIterator
 from uuid import uuid4
 
 import pytest_asyncio
-from backend.src.core.config import settings
+from src.core.config import settings
 from sqlalchemy import URL, text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 

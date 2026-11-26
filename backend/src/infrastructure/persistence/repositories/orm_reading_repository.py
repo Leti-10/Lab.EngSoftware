@@ -6,12 +6,14 @@ from src.domain.enums.enums import EnumReadingStatus
 from src.domain.repositories import ReadingRepository
 from src.infrastructure.persistence.mappers import ReadingMapper
 from src.infrastructure.persistence.models import ReadingModelSQLAlchemy
+from src.infrastructure.telemetry import logger_decorator
 
 
 class SQLAlchemyReadingRepository(ReadingRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
+    @logger_decorator
     async def _find_model(
         self, user_id: int, book_id: int
     ) -> ReadingModelSQLAlchemy | None:
@@ -23,6 +25,7 @@ class SQLAlchemyReadingRepository(ReadingRepository):
         )
         return result.scalar_one_or_none()
 
+    @logger_decorator
     async def save(self, reading: Reading) -> Reading:
         model = await self._find_model(reading.user_id, reading.book_id)
         if model is None:
@@ -34,6 +37,7 @@ class SQLAlchemyReadingRepository(ReadingRepository):
         await self.session.refresh(model)
         return ReadingMapper.to_domain(model)
 
+    @logger_decorator
     async def delete(self, user_id: int, book_id: int) -> bool:
         model = await self._find_model(user_id, book_id)
         if model is None:
@@ -42,6 +46,7 @@ class SQLAlchemyReadingRepository(ReadingRepository):
         await self.session.commit()
         return True
 
+    @logger_decorator
     async def find_by_user(
         self,
         user_id: int,
