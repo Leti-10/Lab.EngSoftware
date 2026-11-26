@@ -1,6 +1,5 @@
 import { screen, waitFor } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
-import { tokenStorage } from '../lib/api'
 import { API, user } from '../test/fixtures'
 import { renderApp } from '../test/render'
 import { server } from '../test/server'
@@ -13,7 +12,6 @@ const profile = {
 }
 
 function signInAs(current = user) {
-  tokenStorage.set('token-123')
   server.use(
     http.get(`${API}/auth/me`, () => HttpResponse.json(current)),
     http.get(`${API}/lists`, () => HttpResponse.json([])),
@@ -41,10 +39,15 @@ describe('editar perfil', () => {
   it('salva bio, avatar e capa e volta ao perfil atualizado', async () => {
     signInAs()
     let sent: unknown
+    let listsLoaded = false
     server.use(
       http.put(`${API}/auth/me`, async ({ request }) => {
         sent = await request.json()
         return HttpResponse.json(profile)
+      }),
+      http.get(`${API}/lists`, () => {
+        listsLoaded = true
+        return HttpResponse.json([])
       }),
     )
     const { user: events } = renderApp('/perfil/editar')
@@ -61,7 +64,9 @@ describe('editar perfil', () => {
         cover_url: profile.cover_url,
       }),
     )
-    expect(await screen.findByText('Leitora de mangás')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'ana' })).toBeInTheDocument()
+    await waitFor(() => expect(listsLoaded).toBe(true))
+    expect(screen.getByText('Leitora de mangás')).toBeInTheDocument()
   })
 
   it('recusa link de imagem sem http e não chama a API', async () => {

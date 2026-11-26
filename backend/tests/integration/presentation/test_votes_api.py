@@ -261,7 +261,10 @@ def test_user_cannot_read_or_delete_another_users_vote(client, auth_headers):
             "password": "senha123",
         },
     )
-    other_headers = {"Authorization": f"Bearer {other_user.json()['access_token']}"}
+    other_headers = {
+        "Authorization": f"Bearer {other_user.cookies['estante_access_token']}"
+    }
+    client.cookies.clear()
 
     assert client.get(f"/votes/{vote_id}", headers=other_headers).status_code == 404
     assert client.delete(f"/votes/{vote_id}", headers=other_headers).status_code == 404

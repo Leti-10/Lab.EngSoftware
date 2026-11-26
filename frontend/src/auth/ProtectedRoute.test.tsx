@@ -1,7 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { http, HttpResponse } from 'msw'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { tokenStorage } from '../lib/api'
 import { API } from '../test/fixtures'
 import { server } from '../test/server'
 import { AuthProvider } from './AuthContext'
@@ -30,7 +29,6 @@ describe('ProtectedRoute', () => {
   })
 
   it('mostra o conteúdo para quem está logado', async () => {
-    tokenStorage.set('token-123')
     server.use(
       http.get(`${API}/auth/me`, () =>
         HttpResponse.json({ id: 1, username: 'ana', email: 'ana@example.com', role: 'user' }),
@@ -41,8 +39,7 @@ describe('ProtectedRoute', () => {
     expect(await screen.findByText('conteúdo protegido')).toBeInTheDocument()
   })
 
-  it('mostra carregando enquanto valida o token salvo', () => {
-    tokenStorage.set('token-123')
+  it('mostra carregando enquanto valida a sessão no servidor', () => {
     server.use(http.get(`${API}/auth/me`, () => new Promise(() => {})))
     renderProtected()
 

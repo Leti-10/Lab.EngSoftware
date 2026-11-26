@@ -15,6 +15,7 @@ from src.infrastructure.persistence.repositories import (
     InMemoryUserRepository,
     InMemoryVoteRepository,
 )
+from src.infrastructure.security.token_service import ACCESS_TOKEN_COOKIE_NAME
 from src.presentation.api.dependencies import (
     get_comment_repository,
     get_follow_repository,
@@ -78,4 +79,6 @@ def auth_headers(client):
             "password": "senha123",
         },
     )
-    return {"Authorization": f"Bearer {response.json()['access_token']}"}
+    token = response.cookies[ACCESS_TOKEN_COOKIE_NAME]
+    client.cookies.clear()
+    return {"Authorization": f"Bearer {token}"}

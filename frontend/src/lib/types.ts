@@ -8,9 +8,7 @@ export interface User {
   cover_url?: string | null
 }
 
-export interface TokenResponse {
-  access_token: string
-  token_type: string
+export interface AuthResponse {
   user: User
 }
 

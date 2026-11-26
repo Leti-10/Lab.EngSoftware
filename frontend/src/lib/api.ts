@@ -1,11 +1,7 @@
 export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
-const TOKEN_KEY = 'estante.token'
-
-export const tokenStorage = {
-  get: () => localStorage.getItem(TOKEN_KEY),
-  set: (token: string) => localStorage.setItem(TOKEN_KEY, token),
-  clear: () => localStorage.removeItem(TOKEN_KEY),
+export function clearLegacyAuthToken() {
+  localStorage.removeItem('estante.token')
 }
 
 export class ApiError extends Error {
@@ -35,12 +31,9 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (init.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
-  const token = tokenStorage.get()
-  if (token) headers.set('Authorization', `Bearer ${token}`)
-
   let response: Response
   try {
-    response = await fetch(`${API_URL}${path}`, { ...init, headers })
+    response = await fetch(`${API_URL}${path}`, { ...init, headers, credentials: 'include' })
   } catch (err) {
     if ((err as Error)?.name === 'AbortError') throw err
     throw new ApiError(0, 'Não foi possível conectar ao servidor.')

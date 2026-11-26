@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     SECRET_KEY: str = "your-secret-key"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    AUTH_COOKIE_SECURE: bool = False
     SEED_CATALOG: bool = True
     GOOGLE_BOOKS_API_KEY: str = ""
     CATALOG_TIMEOUT_SECONDS: float = 8

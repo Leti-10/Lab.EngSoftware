@@ -1,3 +1,6 @@
+from src.infrastructure.security.token_service import ACCESS_TOKEN_COOKIE_NAME
+
+
 REVIEW = {
     "rating": 5,
     "comment": "Excelente leitura",
@@ -14,7 +17,9 @@ def register(client, username):
             "password": "senha123",
         },
     )
-    return {"Authorization": f"Bearer {response.json()['access_token']}"}
+    token = response.cookies[ACCESS_TOKEN_COOKIE_NAME]
+    client.cookies.clear()
+    return {"Authorization": f"Bearer {token}"}
 
 
 def test_create_review_requires_login(client):

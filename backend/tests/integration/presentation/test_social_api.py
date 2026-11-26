@@ -1,3 +1,6 @@
+from src.infrastructure.security.token_service import ACCESS_TOKEN_COOKIE_NAME
+
+
 BOOK = {
     "isbn": "9788535902778",
     "title": "Dom Casmurro",
@@ -26,7 +29,9 @@ def register(client, username):
         },
     )
     body = response.json()
-    return {"Authorization": f"Bearer {body['access_token']}"}, body["user"]["id"]
+    token = response.cookies[ACCESS_TOKEN_COOKIE_NAME]
+    client.cookies.clear()
+    return {"Authorization": f"Bearer {token}"}, body["user"]["id"]
 
 
 def make_book(client, headers, payload=BOOK):

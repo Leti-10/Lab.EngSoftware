@@ -4,7 +4,6 @@ import { http, HttpResponse } from 'msw'
 import { MemoryRouter } from 'react-router-dom'
 import { AppRoutes } from '../App'
 import { AuthProvider } from '../auth/AuthContext'
-import { tokenStorage } from '../lib/api'
 import { API, user } from './fixtures'
 import { server } from './server'
 
@@ -21,6 +20,6 @@ export function renderApp(route = '/') {
 }
 
 export function signIn() {
-  tokenStorage.set('token-123')
+  localStorage.setItem('estante.token', 'legacy-token')
   server.use(http.get(`${API}/auth/me`, () => HttpResponse.json(user)))
 }

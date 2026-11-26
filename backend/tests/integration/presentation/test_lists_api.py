@@ -1,3 +1,6 @@
+from src.infrastructure.security.token_service import ACCESS_TOKEN_COOKIE_NAME
+
+
 BOOK = {
     "isbn": "9788535902778",
     "title": "Dom Casmurro",
@@ -13,7 +16,9 @@ def _other_user_headers(client):
         "/auth/register",
         json={"username": "bia", "email": "bia@example.com", "password": "senha123"},
     )
-    return {"Authorization": f"Bearer {response.json()['access_token']}"}
+    token = response.cookies[ACCESS_TOKEN_COOKIE_NAME]
+    client.cookies.clear()
+    return {"Authorization": f"Bearer {token}"}
 
 
 def test_lists_require_login(client):

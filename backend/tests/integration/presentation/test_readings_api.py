@@ -1,3 +1,6 @@
+from src.infrastructure.security.token_service import ACCESS_TOKEN_COOKIE_NAME
+
+
 def register(client, username):
     response = client.post(
         "/auth/register",
@@ -7,7 +10,9 @@ def register(client, username):
             "password": "senha123",
         },
     )
-    return {"Authorization": f"Bearer {response.json()['access_token']}"}
+    token = response.cookies[ACCESS_TOKEN_COOKIE_NAME]
+    client.cookies.clear()
+    return {"Authorization": f"Bearer {token}"}
 
 
 def test_readings_require_login(client):

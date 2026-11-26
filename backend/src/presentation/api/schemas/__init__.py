@@ -6,9 +6,9 @@ from .book_list_schema import (
 )
 from .book_schema import BookResponseSchema, CreateBookSchema
 from .user_schema import (
+    AuthResponseSchema,
     LoginSchema,
     RegisterSchema,
-    TokenResponseSchema,
     UpdateProfileSchema,
     UserResponseSchema,
 )
@@ -17,6 +17,7 @@ from .report_schema import CreateReportSchema, ReportResponseSchema
 from .vote_schema import CreateVoteSchema, VoteResponseSchema
 
 __all__ = [
+    "AuthResponseSchema",
     "AddBookToListSchema",
     "BookListResponseSchema",
     "CreateBookListSchema",
@@ -25,7 +26,6 @@ __all__ = [
     "CreateBookSchema",
     "LoginSchema",
     "RegisterSchema",
-    "TokenResponseSchema",
     "UpdateProfileSchema",
     "UserResponseSchema",
     "ReviewResponseSchema",
