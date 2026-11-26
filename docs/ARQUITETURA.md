@@ -28,8 +28,8 @@ flowchart TB
         DOMAIN["Domain<br/>entidades + interfaces de repositório"]
         INFRA["Infrastructure<br/>repositórios · mappers · segurança"]
         ROUTES --> USECASES --> DOMAIN
-        INFRA -. implementa .-> DOMAIN
-        USECASES --> INFRA
+        ROUTES --> INFRA
+        INFRA -. implementa as interfaces de .-> DOMAIN
     end
 
     DB[("PostgreSQL :5432<br/>Alembic migrations")]
@@ -46,20 +46,21 @@ flowchart TB
 
 ## Camadas do backend
 
-A regra de dependência aponta sempre **para o núcleo**: `presentation → application → domain`, com `infrastructure` implementando as interfaces do `domain`.
+A regra de negócio e os casos de uso dependem do núcleo (`application → domain`), e `infrastructure` implementa as interfaces de repositório do domínio. Na composição atual, os providers de dependência da camada `presentation` instanciam os repositórios SQLAlchemy.
 
 ```text
 backend/src/
 ├── alembic
 │   └── versions                # Migrations da evolução do banco de dados
 ├── src
-│   ├── application             # Casos de uso de cada entidade (CreateBook, SearchBooks, AuthenticateUser, ...)
+│   ├── application             # Casos de uso (livros, listas, social, autenticação...)
 │   │   └── use_cases
 │   │       ├── book
 │   │       ├── book_list
 │   │       ├── catalog
 │   │       ├── reading
 │   │       ├── review
+│   │       ├── social
 │   │       ├── user
 │   │       └── vote
 │   ├── core                    # Configurações centralizadas para toda aplicação
@@ -71,17 +72,17 @@ backend/src/
 │   │   ├── persistence         # Elementos de persistência
 │   │   │   ├── mappers         # Mapeamento de entidades puras para implementações concretas
 │   │   │   ├── models          # Modelos do SQLAlchemy pra implementação concreta das entidades
-│   │   │   └── repositories    # Implementação concreta dos repositories com SQLAlchemy
+│   │   │   └── repositories    # Repositórios SQLAlchemy e adaptadores em memória para testes
 │   │   ├── catalog             # Provedores do catálogo externo (Open Library, Google Books)
-│   │   ├── security            # Configurações de segurança como criptografia e jwt
-│   │   └── seed                # Alimentação inicial dos dados para testes
+│   │   ├── security            # Hash de senha e JWT
+│   │   └── seed                # Alimentação do catálogo na inicialização
 │   └── presentation            # Camada de apresentação
 │       └── api                 # FastAPI
 │           ├── routes          # Implementação de rotas
 │           └── schemas         # Schemas pydantic para validação de entrada/saída
 └── tests
-    └── unit                    # Testes unitários usados no TDD
-        ├── [...]
+    ├── unit                    # Entidades, casos de uso e infraestrutura
+    └── integration             # Repositórios SQL e rotas da API
 ```
 
 | Camada | Conhece | Responsabilidade |
@@ -89,7 +90,7 @@ backend/src/
 | `domain` | Nada externo | Regras e invariantes (ex.: ISBN ≥ 10 caracteres) |
 | `application` | `domain` | Orquestra uma ação do usuário (ex.: impedir ISBN duplicado) |
 | `infrastructure` | `domain` | Implementações concretas: banco, bcrypt, JWT |
-| `presentation` | `application`, `domain` | HTTP: valida entrada, chama o caso de uso, traduz erros em status |
+| `presentation` | `application`, `domain`, `infrastructure` nos providers | HTTP: valida entrada, chama casos de uso e injeta os repositórios concretos |
 
 ## Design Patterns
 
@@ -98,7 +99,7 @@ backend/src/
 Isola o acesso a dados atrás de uma interface do domínio. Os casos de uso dependem da abstração, nunca do banco.
 
 - Interfaces: [`BookRepository`](../backend/src/domain/repositories/book_repository.py), `UserRepository`, `BookListRepository`, `ReviewRepository`, `VoteRepository`, `ReadingRepository`
-- Implementações: `InMemoryBookRepository` (testes e desenvolvimento) e `SQLAlchemyRepository` (PostgreSQL)
+- Implementações de runtime: repositórios SQLAlchemy para PostgreSQL. Os adaptadores `InMemory*` são usados nos testes via `app.dependency_overrides`, não para executar a aplicação.
 
 ```python
 class SearchBooksUseCase:
@@ -124,7 +125,7 @@ O `Depends` do FastAPI injeta repositório e usuário logado nos endpoints, e os
 ```python
 async def create_book(
     payload: CreateBookSchema,
-    repository: BookRepository = Depends(get_book_m_repository),
+    repository: BookRepository = Depends(get_book_repository),
     _current_user: User = Depends(get_current_user),
 ): ...
 ```

@@ -34,7 +34,8 @@ uv run pytest
 - Testes unitários em `tests/unit/{domain,application,infrastructure}`.
 - Resenhas e status de leitura têm testes de API próprios (`test_reviews_api.py`, `test_readings_api.py`): login obrigatório, dono da resenha, uma resenha por obra, filtros, curtidas e privacidade do status.
 - `test_social_api.py` cobre comentários, seguidores, perfil público, notificações (curtida, comentário e seguidor), preferências, feed e recomendações.
-- Testes de API em `tests/unit/presentation`, usando `app.dependency_overrides` para trocar os repositórios por versões em memória isoladas por teste (`conftest.py`).
+- Testes de API em `tests/integration/presentation`; o `conftest.py` troca os repositórios por versões em memória isoladas por teste via `app.dependency_overrides`.
+- Testes de repositórios SQLAlchemy ficam em `tests/integration/infrastructure/persitence/repository` e usam schemas PostgreSQL temporários.
 
 ## Frontend
 

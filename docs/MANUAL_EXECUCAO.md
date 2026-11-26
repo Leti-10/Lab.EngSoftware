@@ -9,7 +9,7 @@
 - [Testes e qualidade](#testes-e-qualidade)
 - [Variáveis de ambiente](#variáveis-de-ambiente)
 - [Docker](#docker)
-- [Pendências conhecidas](#pendencias-conhecidas)
+- [Notas operacionais](#notas-operacionais)
 
 ## Pré-requisitos
 
@@ -18,7 +18,8 @@
 | Python | 3.14 (versão final) | Backend |
 | [uv](https://docs.astral.sh/uv/) | recente | Gerenciador de dependências do backend |
 | Node.js | 22 ou superior | Frontend |
-| Docker | opcional | PostgreSQL e backend em contêiner |
+| PostgreSQL | disponível localmente ou via Compose | Persistência do backend |
+| Docker Compose | opcional | Frontend, backend e PostgreSQL em contêineres |
 
 > Use a versão **final** do Python 3.14: pré-lançamentos (`rc`) podem quebrar a importação do FastAPI/Pydantic.
 
@@ -26,8 +27,9 @@
 
 ```bash
 cd backend
-cp .env.example .env     # ajuste os valores se necessário
+cp ../.env.example .env  # ajuste as credenciais do PostgreSQL se necessário
 uv sync                  # cria o ambiente virtual e instala as dependências
+uv run alembic upgrade head
 uv run uvicorn src.presentation.api.main:app --reload --env-file .env
 ```
 
@@ -55,7 +57,7 @@ O backend libera CORS apenas para `http://localhost:5173` e `http://127.0.0.1:51
 3. Veja a obra na **Estante**, busque por título/autor e filtre por Mangás ou Quadrinhos.
 4. Em **Minhas listas**, crie uma lista e adicione obras a ela.
 
-> Os dados da API ficam **em memória** e são perdidos ao reiniciar o servidor (veja [Pendências](#pendencias-conhecidas)).
+> A API usa PostgreSQL para persistir usuários, obras, listas e demais dados. Execute as migrations antes da primeira inicialização.
 
 ## Testes e qualidade
 
@@ -85,15 +87,16 @@ Os testes que exercitam repositórios SQLAlchemy precisam de PostgreSQL acessív
 | Variável | Padrão | Descrição |
 | --- | --- | --- |
 | `DB_HOST` / `DB_PORT` | `localhost` / `5432` | Endereço do PostgreSQL |
-| `DB_USER` / `DB_PASSWORD` / `DB_NAME` | `postgres` / `postgres` / `mydb` | Credenciais e nome do banco |
+| `DB_USER` / `DB_PASSWORD` / `DB_NAME` | `postgres` / `postgres` / `mydb` | Credenciais padrão da aplicação; o `.env.example` do projeto define valores próprios |
 | `SEED_CATALOG` | `true` | Carrega as 39 obras nativas ao iniciar a API |
 | `GOOGLE_BOOKS_API_KEY` | vazio | Opcional. Com a chave, a busca externa usa o Google Books antes do Open Library |
 | `CATALOG_TIMEOUT_SECONDS` | `8` | Tempo limite de cada consulta ao catálogo externo |
-| `SECRET_KEY` | chave de desenvolvimento | Segredo de assinatura do JWT. **Troque em produção** (32+ caracteres) |
+| `SECRET_KEY` | `your-secret-key` | Segredo de assinatura do JWT. **Troque em produção** e use um valor aleatório forte |
 | `ALGORITHM` | `HS256` | Algoritmo do JWT |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `60` | Validade do token |
-| `POSTGRES_USER` / `POSTGRES_PASSWORD` | — | Credenciais do contêiner PostgreSQL |
-| `API_PORT` | `8000` | Porta publicada pelo Docker Compose |
+| `API_PORT` | `8000` | Porta publicada para a API pelo Compose |
+| `POSTGRES_PORT` | `5432` | Porta publicada para o PostgreSQL pelo Compose |
+| `FRONTEND_PORT` | `3000` | Porta publicada para o frontend pelo Compose |
 
 ### Frontend (`frontend/.env`)
 
@@ -103,16 +106,16 @@ Os testes que exercitam repositórios SQLAlchemy precisam de PostgreSQL acessív
 
 ## Docker
 
-O `backend/docker-compose.yml` sobe a API e o PostgreSQL:
+O arquivo `compose.yml`, na raiz do repositório, sobe frontend, API e PostgreSQL:
 
 ```bash
-cd backend
-docker compose build backend
+cp .env.example .env
+docker compose build
 docker compose run --rm backend alembic upgrade head
 docker compose up
 ```
 
-O Compose carrega `backend/.env`, configura o serviço da API para acessar o banco pelo hostname `postgres` e espera o banco ficar saudável antes de iniciar a API. Para chamadas feitas no computador host, use `http://localhost:8000`; `postgres` só é resolvido entre containers. Se executar com `docker compose run`, use `--service-ports` para publicar a porta da API.
+O Compose carrega o `.env` da raiz, configura o serviço da API para acessar o banco pelo hostname `postgres` e espera o banco ficar saudável antes de iniciar a API. Por padrão, frontend, API e PostgreSQL ficam disponíveis em `http://localhost:3000`, `http://localhost:8000` e `localhost:5432`. O hostname `postgres` só é resolvido entre containers. Se executar a API com `docker compose run`, use `--service-ports` para publicar a porta.
 
 Para iniciar a API localmente com Uvicorn em vez de executá-la no Docker, configure `DB_HOST=localhost` no `.env` e execute:
 
@@ -124,18 +127,8 @@ uv run uvicorn src.presentation.api.main:app --reload --env-file .env
 
 Variáveis do `.env` não alteram automaticamente um volume PostgreSQL já inicializado.
 
-<a id="pendencias-conhecidas"></a>
+## Notas operacionais
 
-## Pendências conhecidas
-
-Pontos identificados ao documentar que o time deve resolver antes da entrega final:
-
-| Item | Situação | O que fazer |
-| --- | --- | --- |
-| **Persistência da API** | Usuários, resenhas, votos, denúncias e status de leitura gravam no PostgreSQL; **obras e listas ainda ficam em memória** | Criar migrations de `lists`, completar o `books` (gênero e tema) e trocar os `Depends` |
-| **Obras em memória x resenhas no banco** | Ao reiniciar a API, as obras importadas somem, mas resenhas e status continuam apontando para o `book_id` antigo; por isso a FK `reviews.book_id` foi removida | Persistir as obras no PostgreSQL e restaurar a FK |
-| **Migrations novas** | As tabelas de comentários, seguidores, notificações e preferências, e as colunas do perfil, vêm nas migrations `b7d2e9a4c611` e `c3e5a7b9d014` | Rodar `alembic upgrade head` antes de iniciar a API |
-| **Alembic no Windows** | `alembic upgrade head` pode falhar com `ProactorEventLoop` | Rodar o Alembic com `asyncio.WindowsSelectorEventLoopPolicy` ou usar Docker |
-| **Dockerfile** | `CMD` aponta para `src.main:app` | Trocar por `src.presentation.api.main:app` |
-| **Usuários de denúncias** | O ID do autor vem da sessão autenticada; a persistência de usuários ainda é em memória | Migrar usuários para persistência SQL para voltar a impor FK em `reports.user_id` |
-| **Nome de lista único global** | Duas pessoas não podem ter listas com o mesmo nome | Tornar a unicidade por dono |
+- Os endpoints de produção usam repositórios SQLAlchemy; os adaptadores em memória são reservados aos testes.
+- `SEED_CATALOG=true` (padrão) insere no PostgreSQL as obras nativas ainda ausentes ao iniciar a API.
+- O Docker Compose e o `.env.example` usados pelo projeto ficam na raiz do repositório.

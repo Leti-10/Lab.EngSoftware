@@ -2,33 +2,31 @@
 
 ## Diagrama Entidade-Relacionamento (DER)
 
-![DER](./img/der.png)
-
-Versão textual do mesmo modelo, renderizada pelo GitHub:
+Diagrama textual alinhado aos modelos SQLAlchemy e às migrations atuais:
 
 ```mermaid
 erDiagram
-    USER ||--o{ USER_LIST : cria
-    LIST ||--|{ USER_LIST : "é criada por"
-    LIST ||--o{ BOOK_LIST : possui
-    BOOK ||--o{ BOOK_LIST : "está em"
+    USER ||--o{ BOOK_LIST : owns
+    BOOK_LIST ||--o{ BOOK_LIST_BOOK : contains
+    BOOK ||--o{ BOOK_LIST_BOOK : included_in
+    AUTHOR ||--o{ BOOK_AUTHOR : writes
+    BOOK ||--o{ BOOK_AUTHOR : has_author
     USER ||--o{ REVIEW : escreve
-    BOOK ||--o{ REVIEW : recebe
-    LIST ||--o{ LIST_REVIEW : avalia
-    REVIEW ||--o{ LIST_REVIEW : "avalia"
+    BOOK ||--o{ REVIEW : receives
     USER ||--o{ VOTE : vota
     USER ||--o{ READING : marca
     REVIEW ||--o{ COMMENT : recebe
     USER ||--o{ COMMENT : escreve
     USER ||--o{ FOLLOW : segue
-    USER ||--o{ NOTIFICATION : recebe
+    USER ||--o{ NOTIFICATION : receives
+    USER ||--o{ NOTIFICATION : acts
     USER ||--|| NOTIFICATION_PREFERENCE : configura
     BOOK ||--o{ READING : recebe
-    USER ||--o{ REPORT : realiza
+    USER ||--o{ REPORT : reports
 
     USER {
         int id PK
-        string name
+        string username
         string email
         string password
         string role
@@ -42,28 +40,33 @@ erDiagram
         string isbn
         string title
         string publisher
-        string_array author
         string_array genre
         string_array theme
     }
-    LIST {
+    BOOK_LIST {
         int id PK
+        int owner_id FK
         string name
         string description
-        bool is_private
+        bool private
     }
-    USER_LIST {
-        int user_id FK
-        int list_id FK
+    BOOK_LIST_BOOK {
+        int book_list_id PK, FK
+        int book_id PK, FK
+        int position
     }
-    BOOK_LIST {
-        int list_id FK
-        int book_id FK
+    AUTHOR {
+        int id PK
+        string name
+    }
+    BOOK_AUTHOR {
+        int book_id PK, FK
+        int author_id PK, FK
     }
     REVIEW {
         int id PK
         int user_id FK
-        int book_id FK
+        int book_id
         string comment
         int rating
         bool isSpoiler
@@ -101,12 +104,8 @@ erDiagram
     READING {
         int id PK
         int user_id FK
-        int book_id FK
+        int book_id
         string status
-    }
-    LIST_REVIEW {
-        int list_id FK
-        int review_id FK
     }
     VOTE {
         int id PK
@@ -128,9 +127,9 @@ erDiagram
 
 | Entidade | Descrição | Campos principais |
 | --- | --- | --- |
-| **User** | Pessoa usuária do sistema | `id`, `name`, `email`, `password` (hash), `role` (comum, desenvolvedor, admin), `created_at`, `bio`, `avatar_url`, `cover_url` (os três opcionais) |
+| **User** | Pessoa usuária do sistema | `id`, `username`, `email`, `password` (hash), `role` (padrão `user`), `created_at`, `bio`, `avatar_url`, `cover_url` (os três últimos opcionais) |
 | **Book** | Livro, mangá ou quadrinho | `id`, `isbn`, `title`, `publisher`, `author` (multivalorado), `genre` (multivalorado), `theme` (multivalorado) |
-| **List** | Lista de obras criada por um usuário | `id`, `name`, `description`, `is_private` |
+| **BookList** | Lista de obras criada por um usuário | `id`, `owner_id`, `name`, `description`, `private` |
 | **Review** | Avaliação de uma obra | `id`, `user_id`, `book_id`, `comment` (opcional), `rating` (1 a 5), `isSpoiler` |
 | **Vote** | Like/dislike ou marcação em um conteúdo (a curtida de resenha usa `status: "like"` e alvo `reviews`) | `id`, `user_id`, `target_id`, `target_entity`, `status` |
 | **Comment** | Comentário em uma resenha | `id`, `review_id`, `user_id`, `text` (até 500), `created_at` |
@@ -139,7 +138,7 @@ erDiagram
 | **NotificationPreference** | Tipos de aviso que o usuário quer receber | `user_id`, `likes`, `comments`, `follows` |
 | **Reading** | Status de leitura de uma obra por usuário | `id`, `user_id`, `book_id`, `status` (`want_to_read`, `reading`, `read`); único por usuário e obra |
 | **Report** | Denúncia de conteúdo | `id`, `user_id`, `target_id`, `target_entity`, `description` |
-| **User_List**, **Book_List**, **List_Review** | Tabelas associativas (N:N) | chaves estrangeiras das entidades relacionadas |
+| **BookListBook**, **BookAuthor** | Tabelas associativas (N:N) | `book_list_books` relaciona listas e obras; `book_author` relaciona obras e autores |
 
 ## Como o DER aparece no código
 
@@ -147,17 +146,17 @@ erDiagram
 | --- | --- | --- | --- |
 | User | ✓ `domain/entities/user.py` | ✓ `users` | ✓ `/auth/*` |
 | Book | ✓ `domain/entities/book.py` | ✓ `books`, `authors`, `book_author` | ✓ `/books` |
-| List | ✓ `domain/entities/book_list.py` | Previsto | ✓ `/lists` |
+| BookList | ✓ `domain/entities/book_list.py` | ✓ `book_lists`, `book_list_books` | ✓ `/lists` |
 | Review | ✓ `domain/entities/review.py` | ✓ `reviews` | ✓ `/reviews` |
 | Vote | ✓ `domain/entities/vote.py` | ✓ `votes` | ✓ `/votes` |
 | Comment, Follow, Notification, NotificationPreference | ✓ `domain/entities/social.py` | ✓ `comments`, `follows`, `notifications`, `notification_preferences` | ✓ `/reviews/{id}/comments`, `/follows`, `/notifications` |
 | Reading | ✓ `domain/entities/reading.py` | ✓ `readings` | ✓ `/readings` |
 | Report | ✓ `domain/entities/report.py` | ✓ `reports` | ✓ `/reports` |
 
-`Report.target_entity` e `Report.target_id` formam uma referência polimórfica. O alvo pode ser um usuário (por exemplo, `target_entity: "users"`) ou outro tipo de conteúdo; por isso, `target_id` não possui uma FK fixa. O autor (`user_id`) é obtido do token da sessão autenticada. Como os usuários são atualmente armazenados em um repositório em memória, `reports.user_id` não possui FK para `users.id`.
+`Report.target_entity` e `Report.target_id` formam uma referência polimórfica; `target_entity` é validado como texto, sem enum de tipos de alvo, e `target_id` não possui uma FK fixa. O autor (`user_id`) é obtido do token da sessão autenticada. `reports.user_id` também não declara uma FK para `users.id`, embora usuários sejam persistidos no PostgreSQL.
 
-> `follows.target_id` é polimórfico (usuário ou lista), sem chave estrangeira. `notifications.review_id` e `notifications.book_id` também não têm.
+> `follows.target_id` é polimórfico (usuário ou lista), sem chave estrangeira. `votes.target_id` também não possui FK; `notifications.review_id` e `notifications.book_id` igualmente não declaram FKs.
 
-> `reviews.book_id` e `readings.book_id` não têm chave estrangeira para `books`, porque as obras ainda ficam em memória (veja as [pendências](MANUAL_EXECUCAO.md#pendencias-conhecidas)).
+> `reviews.book_id` e `readings.book_id` não declaram chave estrangeira para `books`, mesmo com as obras persistidas no PostgreSQL.
 
-> Na implementação atual, o autor é normalizado em uma tabela própria (`authors`) ligada a `books` por `book_author`; gênero e tema ainda não têm tabela.
+> O autor é normalizado em uma tabela própria (`authors`) ligada a `books` por `book_author`; gênero e tema são arrays e não possuem tabelas próprias.
