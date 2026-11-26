@@ -13,7 +13,7 @@ from src.presentation.api.routes.book_list_router import (
     _to_response as list_to_response,
     get_book_list_repository,
 )
-from src.presentation.api.routes.book_router import get_book_m_repository
+from src.presentation.api.routes.book_router import get_book_repository
 from src.presentation.api.schemas import BookListResponseSchema
 from src.presentation.api.schemas.social_schema import PublicProfileSchema
 
@@ -59,7 +59,7 @@ async def get_public_lists(
     user_id: int,
     users: UserRepository = Depends(get_user_repository),
     lists: BookListRepository = Depends(get_book_list_repository),
-    books: BookRepository = Depends(get_book_m_repository),
+    books: BookRepository = Depends(get_book_repository),
 ) -> list[BookListResponseSchema]:
     await _require_user(user_id, users)
     public = [item for item in lists.list_by_owner(user_id) if not item.private]

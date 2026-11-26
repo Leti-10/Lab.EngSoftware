@@ -1,3 +1,7 @@
+from src.infrastructure.persistence.repositories import InMemoryBookRepository
+from src.presentation.api.main import app
+from src.presentation.api.routes.book_router import get_book_m_repository
+
 BOOK = {
     "isbn": "9788535902778",
     "title": "Dom Casmurro",
@@ -46,6 +50,7 @@ def test_duplicate_list_name_returns_409(client, auth_headers):
 def test_add_book_to_list(client, auth_headers):
     book = client.post("/books", json=BOOK, headers=auth_headers).json()
     created = client.post("/lists", json=LIST, headers=auth_headers).json()
+    app.dependency_overrides[get_book_m_repository] = InMemoryBookRepository
 
     response = client.post(
         f"/lists/{created['id']}/books",

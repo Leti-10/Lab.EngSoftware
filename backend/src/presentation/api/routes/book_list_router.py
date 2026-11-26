@@ -16,7 +16,7 @@ from src.domain.exceptions import (
 from src.domain.repositories import BookListRepository, BookRepository
 from src.infrastructure.persistence.repositories import InMemoryBookListRepository
 from src.presentation.api.dependencies import get_current_user
-from src.presentation.api.routes.book_router import get_book_m_repository, to_response
+from src.presentation.api.routes.book_router import get_book_repository, to_response
 from src.presentation.api.schemas import (
     AddBookToListSchema,
     BookListResponseSchema,
@@ -64,7 +64,7 @@ async def create_list(
     payload: CreateBookListSchema,
     current_user: User = Depends(get_current_user),
     repository: BookListRepository = Depends(get_book_list_repository),
-    book_repository: BookRepository = Depends(get_book_m_repository),
+    book_repository: BookRepository = Depends(get_book_repository),
 ) -> BookListResponseSchema:
     try:
         new_list = BookList(
@@ -92,7 +92,7 @@ async def create_list(
 async def my_lists(
     current_user: User = Depends(get_current_user),
     repository: BookListRepository = Depends(get_book_list_repository),
-    book_repository: BookRepository = Depends(get_book_m_repository),
+    book_repository: BookRepository = Depends(get_book_repository),
 ) -> list[BookListResponseSchema]:
     lists = repository.list_by_owner(current_user.id)
     return [await _to_response(book_list, book_repository) for book_list in lists]
@@ -103,7 +103,7 @@ async def get_list(
     list_id: int,
     current_user: User = Depends(get_current_user),
     repository: BookListRepository = Depends(get_book_list_repository),
-    book_repository: BookRepository = Depends(get_book_m_repository),
+    book_repository: BookRepository = Depends(get_book_repository),
 ) -> BookListResponseSchema:
     try:
         book_list = GetBookListUseCase(repository).execute(list_id, current_user.id)
@@ -118,7 +118,7 @@ async def add_book(
     payload: AddBookToListSchema,
     current_user: User = Depends(get_current_user),
     repository: BookListRepository = Depends(get_book_list_repository),
-    book_repository: BookRepository = Depends(get_book_m_repository),
+    book_repository: BookRepository = Depends(get_book_repository),
 ) -> BookListResponseSchema:
     try:
         book_list = await AddBookToListUseCase(repository, book_repository).execute(
