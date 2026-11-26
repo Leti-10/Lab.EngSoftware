@@ -197,9 +197,9 @@ def test_favorites_create_list_and_remove_book(client, auth_headers):
         == 204
     )
     assert (
-        client.get(
-            f"/votes/{existing_vote.json()['id']}", headers=auth_headers
-        ).json()["status"]
+        client.get(f"/votes/{existing_vote.json()['id']}", headers=auth_headers).json()[
+            "status"
+        ]
         == "favorite"
     )
     assert (
@@ -235,9 +235,7 @@ def test_user_cannot_read_or_delete_another_users_vote(client, auth_headers):
             "password": "senha123",
         },
     )
-    other_headers = {
-        "Authorization": f"Bearer {other_user.json()['access_token']}"
-    }
+    other_headers = {"Authorization": f"Bearer {other_user.json()['access_token']}"}
 
     assert client.get(f"/votes/{vote_id}", headers=other_headers).status_code == 404
     assert client.delete(f"/votes/{vote_id}", headers=other_headers).status_code == 404

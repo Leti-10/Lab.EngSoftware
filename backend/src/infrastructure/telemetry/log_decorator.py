@@ -15,9 +15,7 @@ def logger_decorator(func):
 
         try:
             resultado = func(*args, **kwargs)
-            logger.info(
-                f"Finished '{func.__name__}' | return={resultado}"
-            )
+            logger.info(f"Finished '{func.__name__}' | return={resultado}")
             return resultado
         except Exception:
             logger.exception(f"Error occurred while executing '{func.__name__}'")

@@ -122,9 +122,7 @@ def test_update_review_of_another_user_returns_403(client, auth_headers):
     created = client.post("/reviews", json=REVIEW, headers=auth_headers).json()
     other = register(client, "bia")
 
-    put = client.put(
-        f"/reviews/{created['id']}", json={"rating": 1}, headers=other
-    )
+    put = client.put(f"/reviews/{created['id']}", json={"rating": 1}, headers=other)
     patch = client.patch(
         f"/reviews/{created['id']}/spoiler", json={"isSpoiler": True}, headers=other
     )

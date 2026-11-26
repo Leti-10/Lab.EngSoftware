@@ -23,5 +23,5 @@ class CreateBookListUseCase:
             "Creating new book list",
             extra={"list_name": new_book_list.name},
         )
-        
+
         return new_book_list

@@ -75,10 +75,7 @@ async def create_vote(
                 user_id=current_user.id,
             )
         )
-        if (
-            payload.status == "like"
-            and payload.target_entity == EnumVoteTarget.REVIEW
-        ):
+        if payload.status == "like" and payload.target_entity == EnumVoteTarget.REVIEW:
             review = await reviews.get_by_id(payload.target_id)
             if review is not None:
                 await NotifyUseCase(notifications, preferences).execute(
@@ -138,9 +135,7 @@ async def add_favorite(
         target_type=EnumVoteTarget.BOOK,
         user_id=current_user.id,
     )
-    existing_vote = next(
-        (vote for vote in existing if vote.target_id == book_id), None
-    )
+    existing_vote = next((vote for vote in existing if vote.target_id == book_id), None)
     if existing_vote is not None and existing_vote.status == "favorite":
         return
 

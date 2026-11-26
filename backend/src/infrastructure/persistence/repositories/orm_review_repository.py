@@ -16,7 +16,7 @@ class SQLAlchemyReviewRepository(ReviewRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def save(self, review: Review) -> Review | None:
+    async def save(self, review: Review) -> Review:
         try:
             model = ReviewMapper.to_sqlalchemy(review)
             self.session.add(model)
@@ -25,7 +25,7 @@ class SQLAlchemyReviewRepository(ReviewRepository):
             if model is None:
                 raise ValueError(
                     "Failed to save the review. The model is None."
-                )  # TODO: Handle correctly the case when the model is None
+                )
             return ReviewMapper.to_domain(model)
         except IntegrityError:
             await self.session.rollback()
@@ -74,7 +74,9 @@ class SQLAlchemyReviewRepository(ReviewRepository):
 
         result = await self.session.execute(query)
         return [
-            ReviewMapper.to_domain(model) for model in result.scalars().all()
+            domain
+            for model in result.scalars().all()
+            if (domain := ReviewMapper.to_domain(model)) is not None
         ]
 
     async def find_by_filter(

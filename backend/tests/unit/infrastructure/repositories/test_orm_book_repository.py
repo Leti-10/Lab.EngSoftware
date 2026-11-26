@@ -114,9 +114,7 @@ async def test_book_repository_filters_by_fields_and_combines_matches_with_or(
         assert await repository.find_by_filter(theme="Memória") == [mystery]
         assert await repository.find_by_filter() == []
 
-        matches = await repository.find_by_filter(
-            title="Aventura", author="Bruno"
-        )
+        matches = await repository.find_by_filter(title="Aventura", author="Bruno")
         assert {book.id for book in matches if book is not None} == {
             fantasy.id,
             mystery.id,

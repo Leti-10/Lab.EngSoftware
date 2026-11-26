@@ -1,19 +1,19 @@
 import pytest
 from fastapi.testclient import TestClient
 
+from src.domain.enums.enums import EnumVoteTarget
 from src.infrastructure.persistence.repositories import (
     InMemoryBookListRepository,
+    InMemoryBookRepository,
     InMemoryCommentRepository,
     InMemoryFollowRepository,
     InMemoryNotificationPreferenceRepository,
     InMemoryNotificationRepository,
-    InMemoryBookRepository,
     InMemoryReadingRepository,
     InMemoryReviewRepository,
     InMemoryUserRepository,
     InMemoryVoteRepository,
 )
-from src.domain.enums.enums import EnumVoteTarget
 from src.presentation.api.dependencies import (
     get_comment_repository,
     get_follow_repository,
@@ -53,7 +53,9 @@ def client():
     app.dependency_overrides[get_comment_repository] = lambda: comments
     app.dependency_overrides[get_follow_repository] = lambda: follows
     app.dependency_overrides[get_notification_repository] = lambda: notifications
-    app.dependency_overrides[get_notification_preference_repository] = lambda: preferences
+    app.dependency_overrides[get_notification_preference_repository] = lambda: (
+        preferences
+    )
     app.dependency_overrides[get_user_repository] = lambda: users
     app.dependency_overrides[get_book_m_repository] = lambda: books
     app.dependency_overrides[get_book_repository] = lambda: books

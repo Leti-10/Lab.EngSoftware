@@ -1,5 +1,6 @@
 from src.domain.repositories import BookListRepository
 
+
 class DeleteBookListUseCase:
     def __init__(self, book_list_repository: BookListRepository):
         self.book_list_repository = book_list_repository

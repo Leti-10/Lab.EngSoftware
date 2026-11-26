@@ -13,9 +13,7 @@ class BookMapper:
             return None
 
         domain_authors = (
-            [domain.authors]
-            if isinstance(domain.authors, str)
-            else domain.authors
+            [domain.authors] if isinstance(domain.authors, str) else domain.authors
         )
         authors = (
             [AuthorModelSQLAlchemy(name=name) for name in domain_authors]

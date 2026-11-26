@@ -52,7 +52,9 @@ class User:
             if len(url) > MAX_URL_LENGTH:
                 raise ValueError(f"A URL do {label} é longa demais")
             if not url.lower().startswith(("http://", "https://")):
-                raise ValueError(f"A URL do {label} deve começar com http:// ou https://")
+                raise ValueError(
+                    f"A URL do {label} deve começar com http:// ou https://"
+                )
 
         self.bio = bio
         self.avatar_url = avatar_url

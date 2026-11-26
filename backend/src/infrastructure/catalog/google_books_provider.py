@@ -32,7 +32,9 @@ def parse_google_books(payload: dict, limit: int) -> list[CatalogBook]:
                 authors=list(info.get("authors") or []),
                 publisher=info.get("publisher") or "",
                 genres=list(info.get("categories") or []),
-                cover_url=thumbnail.replace("http://", "https://") if thumbnail else None,
+                cover_url=thumbnail.replace("http://", "https://")
+                if thumbnail
+                else None,
             )
         )
         if len(results) == limit:

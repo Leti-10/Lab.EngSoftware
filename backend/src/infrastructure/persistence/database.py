@@ -8,6 +8,7 @@ async_engine = create_async_engine(
 
 AsyncSessionLocal = async_sessionmaker(bind=async_engine, expire_on_commit=False)
 
+
 async def get_db_context():
     async with AsyncSessionLocal() as session:
         try:
