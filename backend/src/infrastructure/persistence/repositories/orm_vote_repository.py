@@ -153,7 +153,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
                             "A busca pelo nome de listas exige um "
                             "repositório de listas."
                         )
-                    book_list = self.book_list_repository.get_by_name(target_name)
+                    book_list = await self.book_list_repository.get_by_name(target_name)
                     target_ids = [book_list.id] if book_list is not None else []
                 else:
                     continue

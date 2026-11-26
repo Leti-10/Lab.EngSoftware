@@ -9,6 +9,7 @@ from src.infrastructure.persistence.repositories import (
     InMemoryFollowRepository,
     InMemoryNotificationPreferenceRepository,
     InMemoryNotificationRepository,
+    InMemoryReportRepository,
     InMemoryReadingRepository,
     InMemoryReviewRepository,
     InMemoryUserRepository,
@@ -23,10 +24,8 @@ from src.presentation.api.dependencies import (
 )
 from src.presentation.api.main import app
 from src.presentation.api.routes.book_list_router import get_book_list_repository
-from src.presentation.api.routes.book_router import (
-    get_book_m_repository,
-    get_book_repository,
-)
+from src.presentation.api.routes.book_router import get_book_repository
+from src.presentation.api.routes.report_router import get_report_repository
 from src.presentation.api.routes.reading_router import get_reading_repository
 from src.presentation.api.routes.review_router import get_review_repository
 from src.presentation.api.routes.vote_router import get_vote_repository
@@ -50,6 +49,7 @@ def client():
     follows = InMemoryFollowRepository()
     notifications = InMemoryNotificationRepository()
     preferences = InMemoryNotificationPreferenceRepository()
+    reports = InMemoryReportRepository()
     app.dependency_overrides[get_comment_repository] = lambda: comments
     app.dependency_overrides[get_follow_repository] = lambda: follows
     app.dependency_overrides[get_notification_repository] = lambda: notifications
@@ -57,9 +57,9 @@ def client():
         preferences
     )
     app.dependency_overrides[get_user_repository] = lambda: users
-    app.dependency_overrides[get_book_m_repository] = lambda: books
     app.dependency_overrides[get_book_repository] = lambda: books
     app.dependency_overrides[get_book_list_repository] = lambda: lists
+    app.dependency_overrides[get_report_repository] = lambda: reports
     readings = InMemoryReadingRepository()
     app.dependency_overrides[get_reading_repository] = lambda: readings
     app.dependency_overrides[get_review_repository] = lambda: reviews

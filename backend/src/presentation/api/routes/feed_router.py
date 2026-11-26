@@ -11,7 +11,7 @@ from src.presentation.api.dependencies import (
     get_review_repository,
     get_user_repository,
 )
-from src.presentation.api.routes.book_router import get_book_m_repository
+from src.presentation.api.routes.book_router import get_book_repository
 from src.presentation.api.routes.review_router import build_responses
 from src.presentation.api.routes.vote_router import get_vote_repository
 from src.presentation.api.schemas.social_schema import FeedItemSchema
@@ -25,7 +25,7 @@ async def get_feed(
     reviews: ReviewRepository = Depends(get_review_repository),
     users: UserRepository = Depends(get_user_repository),
     votes: VoteRepository = Depends(get_vote_repository),
-    books: BookRepository = Depends(get_book_m_repository),
+    books: BookRepository = Depends(get_book_repository),
     current_user: User = Depends(get_current_user),
 ) -> list[FeedItemSchema]:
     found = await BuildFeedUseCase(follows, reviews).execute(current_user.id)

@@ -1,7 +1,3 @@
-from src.infrastructure.persistence.repositories import InMemoryBookRepository
-from src.presentation.api.main import app
-from src.presentation.api.routes.book_router import get_book_m_repository
-
 BOOK = {
     "isbn": "9788535902778",
     "title": "Dom Casmurro",
@@ -182,9 +178,7 @@ def test_public_profile_shows_counts_and_public_lists(client, auth_headers):
     assert client.get("/users/999").status_code == 404
 
 
-def test_public_list_includes_books_when_legacy_book_repository_is_empty(
-    client, auth_headers
-):
+def test_public_list_includes_books(client, auth_headers):
     user_id = client.get("/auth/me", headers=auth_headers).json()["id"]
     book_id = make_book(client, auth_headers)
     created = client.post(
@@ -197,8 +191,6 @@ def test_public_list_includes_books_when_legacy_book_repository_is_empty(
         json={"book_id": book_id},
         headers=auth_headers,
     )
-    app.dependency_overrides[get_book_m_repository] = InMemoryBookRepository
-
     response = client.get(f"/users/{user_id}/lists")
 
     assert response.status_code == 200

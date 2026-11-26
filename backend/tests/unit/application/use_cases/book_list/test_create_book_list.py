@@ -19,7 +19,7 @@ def create_book_list_use_case(book_list_repository):
     return CreateBookListUseCase(book_list_repository)
 
 
-def test_should_create_book_list_successfully(create_book_list_use_case):
+async def test_should_create_book_list_successfully(create_book_list_use_case):
     book_list_data = BookList(
         owner=1,
         name="Minhas leituras",
@@ -28,12 +28,12 @@ def test_should_create_book_list_successfully(create_book_list_use_case):
         books=[1, 2, 3],
     )
 
-    result = create_book_list_use_case.execute(book_list_data)
+    result = await create_book_list_use_case.execute(book_list_data)
 
     assert book_list_data == result
 
 
-def test_should_raise_error_when_list_name_exists(create_book_list_use_case):
+async def test_should_raise_error_when_list_name_exists(create_book_list_use_case):
     book_list_1 = BookList(
         owner=1,
         name="Minhas leituras",
@@ -42,7 +42,7 @@ def test_should_raise_error_when_list_name_exists(create_book_list_use_case):
         books=[1],
     )
 
-    create_book_list_use_case.execute(book_list_1)
+    await create_book_list_use_case.execute(book_list_1)
 
     book_list_2 = BookList(
         owner=2,
@@ -53,4 +53,4 @@ def test_should_raise_error_when_list_name_exists(create_book_list_use_case):
     )
 
     with pytest.raises(ValueError, match="Nome da lista já cadastrado"):
-        create_book_list_use_case.execute(book_list_2)
+        await create_book_list_use_case.execute(book_list_2)

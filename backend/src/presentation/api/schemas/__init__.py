@@ -2,6 +2,7 @@ from .book_list_schema import (
     AddBookToListSchema,
     BookListResponseSchema,
     CreateBookListSchema,
+    UpdateBookListSchema,
 )
 from .book_schema import BookResponseSchema, CreateBookSchema
 from .user_schema import (
@@ -19,6 +20,7 @@ __all__ = [
     "AddBookToListSchema",
     "BookListResponseSchema",
     "CreateBookListSchema",
+    "UpdateBookListSchema",
     "BookResponseSchema",
     "CreateBookSchema",
     "LoginSchema",

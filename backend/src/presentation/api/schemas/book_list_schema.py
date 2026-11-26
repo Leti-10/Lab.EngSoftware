@@ -9,6 +9,12 @@ class CreateBookListSchema(BaseModel):
     private: bool = False
 
 
+class UpdateBookListSchema(BaseModel):
+    name: str
+    description: str
+    private: bool = False
+
+
 class AddBookToListSchema(BaseModel):
     book_id: int
 

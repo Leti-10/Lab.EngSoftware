@@ -1,8 +1,3 @@
-from src.infrastructure.persistence.repositories import InMemoryBookRepository
-from src.presentation.api.main import app
-from src.presentation.api.routes.book_router import get_book_m_repository
-
-
 def test_vote_endpoints_require_authentication(client):
     payload = {
         "status": "like",
@@ -237,8 +232,6 @@ def test_favorites_use_the_book_repository(client, auth_headers):
         },
     )
     assert created_book.status_code == 201
-    app.dependency_overrides[get_book_m_repository] = InMemoryBookRepository
-
     book_id = created_book.json()["id"]
     favorited = client.put(
         f"/votes/favorites/{book_id}",

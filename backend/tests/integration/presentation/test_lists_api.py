@@ -1,7 +1,3 @@
-from src.infrastructure.persistence.repositories import InMemoryBookRepository
-from src.presentation.api.main import app
-from src.presentation.api.routes.book_router import get_book_m_repository
-
 BOOK = {
     "isbn": "9788535902778",
     "title": "Dom Casmurro",
@@ -47,10 +43,78 @@ def test_duplicate_list_name_returns_409(client, auth_headers):
     assert client.post("/lists", json=LIST, headers=auth_headers).status_code == 409
 
 
+def test_update_list_changes_details_and_preserves_books(client, auth_headers):
+    book = client.post("/books", json=BOOK, headers=auth_headers).json()
+    created = client.post("/lists", json=LIST, headers=auth_headers).json()
+    client.post(
+        f"/lists/{created['id']}/books",
+        json={"book_id": book["id"]},
+        headers=auth_headers,
+    )
+
+    response = client.put(
+        f"/lists/{created['id']}",
+        json={
+            "name": "Leituras favoritas",
+            "description": "Uma seleção especial",
+            "private": True,
+        },
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 200
+    assert response.json()["name"] == "Leituras favoritas"
+    assert response.json()["description"] == "Uma seleção especial"
+    assert response.json()["private"] is True
+    assert [item["id"] for item in response.json()["books"]] == [book["id"]]
+
+
+def test_update_list_rejects_another_lists_name(client, auth_headers):
+    first = client.post("/lists", json=LIST, headers=auth_headers).json()
+    second = client.post(
+        "/lists", json={**LIST, "name": "Outra lista"}, headers=auth_headers
+    ).json()
+
+    response = client.put(
+        f"/lists/{second['id']}",
+        json={**LIST, "private": False},
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 409
+    assert client.get(f"/lists/{first['id']}", headers=auth_headers).status_code == 200
+
+
+def test_cannot_update_or_delete_someone_elses_list(client, auth_headers):
+    created = client.post("/lists", json=LIST, headers=auth_headers).json()
+    other_user = _other_user_headers(client)
+
+    update = client.put(
+        f"/lists/{created['id']}",
+        json={**LIST, "name": "Lista alterada"},
+        headers=other_user,
+    )
+    delete = client.delete(f"/lists/{created['id']}", headers=other_user)
+
+    assert update.status_code == 403
+    assert delete.status_code == 403
+    still_exists = client.get(f"/lists/{created['id']}", headers=auth_headers)
+    assert still_exists.status_code == 200
+
+
+def test_delete_list_removes_it(client, auth_headers):
+    created = client.post("/lists", json=LIST, headers=auth_headers).json()
+
+    response = client.delete(f"/lists/{created['id']}", headers=auth_headers)
+
+    assert response.status_code == 204
+    missing = client.get(f"/lists/{created['id']}", headers=auth_headers)
+    assert missing.status_code == 404
+
+
 def test_add_book_to_list(client, auth_headers):
     book = client.post("/books", json=BOOK, headers=auth_headers).json()
     created = client.post("/lists", json=LIST, headers=auth_headers).json()
-    app.dependency_overrides[get_book_m_repository] = InMemoryBookRepository
 
     response = client.post(
         f"/lists/{created['id']}/books",

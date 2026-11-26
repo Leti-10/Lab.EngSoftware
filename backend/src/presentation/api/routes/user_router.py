@@ -62,5 +62,5 @@ async def get_public_lists(
     books: BookRepository = Depends(get_book_repository),
 ) -> list[BookListResponseSchema]:
     await _require_user(user_id, users)
-    public = [item for item in lists.list_by_owner(user_id) if not item.private]
+    public = [item for item in await lists.list_by_owner(user_id) if not item.private]
     return [await list_to_response(item, books) for item in public]
