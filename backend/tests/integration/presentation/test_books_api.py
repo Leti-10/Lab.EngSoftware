@@ -1,5 +1,5 @@
 BOOK = {
-    "isbn": "9788535902778",
+    "isbn": "0000000000000",
     "title": "Dom Casmurro",
     "publisher": "Companhia das Letras",
     "authors": ["Machado de Assis"],
@@ -39,13 +39,18 @@ def test_list_books_is_public_and_filters(client, auth_headers):
     client.post("/books", json=BOOK, headers=auth_headers)
     client.post(
         "/books",
-        json={**BOOK, "isbn": "9788542603835", "title": "One Piece", "genre": ["Mangá"]},
+        json={
+            **BOOK,
+            "isbn": "9788542603835",
+            "title": "One Piece",
+            "genre": ["Mangá"],
+        },
         headers=auth_headers,
     )
 
     everything = client.get("/books")
     searched = client.get("/books", params={"q": "casmurro"})
-    by_genre = client.get("/books", params={"genre": "Mangá"})
+    by_genre = client.get("/books", params={"q": "Mangá"})
 
     assert [b["title"] for b in everything.json()] == ["Dom Casmurro", "One Piece"]
     assert [b["title"] for b in searched.json()] == ["Dom Casmurro"]
@@ -69,7 +74,9 @@ def test_update_book(client, auth_headers):
     created = client.post("/books", json=BOOK, headers=auth_headers).json()
 
     response = client.put(
-        f"/books/{created['id']}", json={**BOOK, "title": "Novo título"}, headers=auth_headers
+        f"/books/{created['id']}",
+        json={**BOOK, "title": "Novo título"},
+        headers=auth_headers,
     )
 
     assert response.status_code == 200

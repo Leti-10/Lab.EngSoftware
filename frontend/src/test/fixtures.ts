@@ -50,4 +50,5 @@ export const review: Review = {
   likes: 2,
   liked_by_me: false,
   like_vote_id: null,
+  created_at: '2024-06-15T12:00:00Z',
 }

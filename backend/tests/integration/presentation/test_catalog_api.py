@@ -40,7 +40,9 @@ def test_search_requires_login(client, provider):
 
 
 def test_search_returns_normalized_results(client, auth_headers, provider):
-    response = client.get("/catalog/search", params={"q": "  jogos vorazes "}, headers=auth_headers)
+    response = client.get(
+        "/catalog/search", params={"q": "  jogos vorazes "}, headers=auth_headers
+    )
 
     assert response.status_code == 200
     assert response.json() == [
@@ -56,7 +58,9 @@ def test_search_returns_normalized_results(client, auth_headers, provider):
     assert provider.queries == ["jogos vorazes"]
 
 
-def test_search_rejects_short_query_without_calling_the_provider(client, auth_headers, provider):
+def test_search_rejects_short_query_without_calling_the_provider(
+    client, auth_headers, provider
+):
     response = client.get("/catalog/search", params={"q": "a"}, headers=auth_headers)
 
     assert response.status_code == 422

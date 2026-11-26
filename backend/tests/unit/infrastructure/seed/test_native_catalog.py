@@ -26,7 +26,7 @@ async def test_seed_adds_every_native_book():
     added = await seed_native_catalog(repository)
 
     assert added == len(NATIVE_BOOKS)
-    assert len(await repository.find_by_filter()) == len(NATIVE_BOOKS)
+    assert len(await repository.get_all()) == len(NATIVE_BOOKS)
 
 
 async def test_seed_is_idempotent():
@@ -34,7 +34,7 @@ async def test_seed_is_idempotent():
     await seed_native_catalog(repository)
 
     assert await seed_native_catalog(repository) == 0
-    assert len(await repository.find_by_filter()) == len(NATIVE_BOOKS)
+    assert len(await repository.get_all()) == len(NATIVE_BOOKS)
 
 
 async def test_seed_keeps_books_registered_by_users():
@@ -43,4 +43,7 @@ async def test_seed_keeps_books_registered_by_users():
 
     await seed_native_catalog(repository)
 
-    assert (await repository.get_by_isbn(NATIVE_BOOKS[0]["isbn"])).title == "Edição da comunidade"
+    book = await repository.get_by_isbn(NATIVE_BOOKS[0]["isbn"])
+
+    assert book is not None
+    assert book.title == "Edição da comunidade"

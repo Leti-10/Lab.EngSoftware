@@ -41,15 +41,17 @@ class RecommendBooksUseCase:
 
         weights: dict[int, float] = {}
         for review in reviews:
-            if review.rating >= MIN_LIKED_RATING:
-                weights[review.book_id] = max(
-                    weights.get(review.book_id, 0), review.rating / 5
-                )
+            if review:
+                if review.rating >= MIN_LIKED_RATING:
+                    weights[review.book_id] = max(
+                        weights.get(review.book_id, 0), review.rating / 5
+                    )
         for reading in readings:
+            status = EnumReadingStatus(reading.status)
             weights[reading.book_id] = max(
-                weights.get(reading.book_id, 0), READING_WEIGHT[reading.status]
+                weights.get(reading.book_id, 0), READING_WEIGHT[status]
             )
-        seen = {review.book_id for review in reviews} | {
+        seen = {review.book_id for review in reviews if review} | {
             reading.book_id for reading in readings
         }
 
@@ -65,7 +67,7 @@ class RecommendBooksUseCase:
                 author_weight[author] = author_weight.get(author, 0) + weight
 
         scored: list[tuple[float, int, Recommendation]] = []
-        for book in await self.book_repository.find_by_filter():
+        for book in await self.book_repository.get_all():
             if book is None or book.id in seen:
                 continue
             author_hits = [a for a in _authors(book) if a in author_weight]
@@ -80,7 +82,8 @@ class RecommendBooksUseCase:
             else:
                 best = max(genre_hits, key=lambda g: genre_weight[g])
                 reason = f"Porque você curte {best}"
-            scored.append((score, book.id, Recommendation(book, reason)))
+            if book.id:
+                scored.append((score, book.id, Recommendation(book, reason)))
 
         scored.sort(key=lambda item: (-item[0], item[1]))
         return [item[2] for item in scored[:limit]]

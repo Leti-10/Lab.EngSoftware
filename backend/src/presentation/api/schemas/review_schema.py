@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -29,6 +31,7 @@ class ReviewResponseSchema(BaseModel):
     isSpoiler: bool
     user_id: int
     book_id: int
+    created_at: datetime
     username: str | None = None
     likes: int = 0
     liked_by_me: bool = False

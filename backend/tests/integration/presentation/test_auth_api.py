@@ -24,7 +24,9 @@ def test_register_duplicate_email_returns_409(client):
 def test_login_and_me_flow(client):
     _register(client)
 
-    login = client.post("/auth/login", json={"email": "ana@example.com", "password": "senha123"})
+    login = client.post(
+        "/auth/login", json={"email": "ana@example.com", "password": "senha123"}
+    )
     assert login.status_code == 200
 
     token = login.json()["access_token"]
@@ -36,7 +38,9 @@ def test_login_and_me_flow(client):
 def test_login_with_wrong_password_returns_401(client):
     _register(client)
 
-    response = client.post("/auth/login", json={"email": "ana@example.com", "password": "errada"})
+    response = client.post(
+        "/auth/login", json={"email": "ana@example.com", "password": "errada"}
+    )
 
     assert response.status_code == 401
 

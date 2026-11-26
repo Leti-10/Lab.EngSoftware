@@ -2,7 +2,7 @@
 
 ## Diagrama Entidade-Relacionamento (DER)
 
-![DER](../img/der.png)
+![DER](./img/der.png)
 
 Versão textual do mesmo modelo, renderizada pelo GitHub:
 

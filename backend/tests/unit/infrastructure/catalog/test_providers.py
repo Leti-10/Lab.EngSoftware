@@ -5,7 +5,10 @@ from src.domain.exceptions import CatalogUnavailableError
 from src.domain.services import BookCatalogProvider
 from src.infrastructure.catalog import FallbackCatalogProvider
 from src.infrastructure.catalog.google_books_provider import parse_google_books
-from src.infrastructure.catalog.open_library_provider import parse_open_library, pick_isbn
+from src.infrastructure.catalog.open_library_provider import (
+    parse_open_library,
+    pick_isbn,
+)
 
 
 class Working(BookCatalogProvider):
@@ -27,7 +30,9 @@ class Broken(BookCatalogProvider):
 
 
 def test_open_library_picks_first_isbn_13():
-    assert pick_isbn(["8532530788", "9788532530783", "9781407157863"]) == "9788532530783"
+    assert (
+        pick_isbn(["8532530788", "9788532530783", "9781407157863"]) == "9788532530783"
+    )
     assert pick_isbn(["8532530788"]) is None
 
 
@@ -69,7 +74,11 @@ def test_open_library_parser_skips_docs_without_isbn_or_title_and_duplicates():
 
 
 def test_open_library_parser_respects_limit_and_handles_missing_optional_fields():
-    payload = {"docs": [{"title": f"Livro {i}", "isbn": [f"97885005070{i:02d}"]} for i in range(5)]}
+    payload = {
+        "docs": [
+            {"title": f"Livro {i}", "isbn": [f"97885005070{i:02d}"]} for i in range(5)
+        ]
+    }
 
     results = parse_open_library(payload, limit=2)
 
@@ -112,7 +121,9 @@ def test_google_books_parser_falls_back_to_isbn_10_and_skips_without_isbn():
             {
                 "volumeInfo": {
                     "title": "Só ISBN 10",
-                    "industryIdentifiers": [{"type": "ISBN_10", "identifier": "8532524931"}],
+                    "industryIdentifiers": [
+                        {"type": "ISBN_10", "identifier": "8532524931"}
+                    ],
                 }
             },
         ]

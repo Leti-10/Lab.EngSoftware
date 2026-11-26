@@ -48,7 +48,9 @@ def test_add_book_to_list(client, auth_headers):
     created = client.post("/lists", json=LIST, headers=auth_headers).json()
 
     response = client.post(
-        f"/lists/{created['id']}/books", json={"book_id": book["id"]}, headers=auth_headers
+        f"/lists/{created['id']}/books",
+        json={"book_id": book["id"]},
+        headers=auth_headers,
     )
 
     assert response.status_code == 200
@@ -61,7 +63,10 @@ def test_add_same_book_twice_returns_409(client, auth_headers):
     url = f"/lists/{created['id']}/books"
     client.post(url, json={"book_id": book["id"]}, headers=auth_headers)
 
-    assert client.post(url, json={"book_id": book["id"]}, headers=auth_headers).status_code == 409
+    assert (
+        client.post(url, json={"book_id": book["id"]}, headers=auth_headers).status_code
+        == 409
+    )
 
 
 def test_add_unknown_book_returns_404(client, auth_headers):
@@ -87,8 +92,12 @@ def test_cannot_change_someone_elses_list(client, auth_headers):
 
 
 def test_private_list_is_hidden_from_others(client, auth_headers):
-    created = client.post("/lists", json={**LIST, "private": True}, headers=auth_headers).json()
+    created = client.post(
+        "/lists", json={**LIST, "private": True}, headers=auth_headers
+    ).json()
     other = _other_user_headers(client)
 
     assert client.get(f"/lists/{created['id']}", headers=other).status_code == 404
-    assert client.get(f"/lists/{created['id']}", headers=auth_headers).status_code == 200
+    assert (
+        client.get(f"/lists/{created['id']}", headers=auth_headers).status_code == 200
+    )

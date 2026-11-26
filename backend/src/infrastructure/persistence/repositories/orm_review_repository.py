@@ -10,13 +10,15 @@ from src.infrastructure.persistence.models import (
     ReviewModelSQLAlchemy,
     UserModelSQLAlchemy,
 )
+from src.infrastructure.telemetry import logger_decorator
 
 
 class SQLAlchemyReviewRepository(ReviewRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def save(self, review: Review) -> Review | None:
+    @logger_decorator
+    async def save(self, review: Review) -> Review:
         try:
             model = ReviewMapper.to_sqlalchemy(review)
             self.session.add(model)
@@ -25,12 +27,13 @@ class SQLAlchemyReviewRepository(ReviewRepository):
             if model is None:
                 raise ValueError(
                     "Failed to save the review. The model is None."
-                )  # TODO: Handle correctly the case when the model is None
+                )
             return ReviewMapper.to_domain(model)
         except IntegrityError:
             await self.session.rollback()
             raise
 
+    @logger_decorator
     async def update(self, review: Review) -> Review | None:
         if review.id is None:
             return None
@@ -54,6 +57,7 @@ class SQLAlchemyReviewRepository(ReviewRepository):
 
         return ReviewMapper.to_domain(model)
 
+    @logger_decorator
     async def get_by_id(self, review_id: int) -> Review | None:
         result = await self.session.execute(
             select(ReviewModelSQLAlchemy).where(ReviewModelSQLAlchemy.id == review_id)
@@ -63,6 +67,24 @@ class SQLAlchemyReviewRepository(ReviewRepository):
             return None
         return ReviewMapper.to_domain(model)
 
+    @logger_decorator
+    async def get_all(self, order_by: str = "id") -> list[Review]:
+        query = select(ReviewModelSQLAlchemy)
+        if order_by == "rating":
+            query = query.order_by(ReviewModelSQLAlchemy.rating.desc())
+        elif order_by == "created_at":
+            query = query.order_by(ReviewModelSQLAlchemy.created_at.desc())
+        else:
+            query = query.order_by(ReviewModelSQLAlchemy.id)
+
+        result = await self.session.execute(query)
+        return [
+            domain
+            for model in result.scalars().all()
+            if (domain := ReviewMapper.to_domain(model)) is not None
+        ]
+
+    @logger_decorator
     async def find_by_filter(
         self,
         rating: int | None = None,

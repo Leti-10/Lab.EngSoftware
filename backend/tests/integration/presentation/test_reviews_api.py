@@ -28,6 +28,7 @@ def test_create_review_uses_logged_user_and_returns_username(client, auth_header
 
     assert response.status_code == 201
     body = response.json()
+    assert body["created_at"]
     assert body["isSpoiler"] is False
     assert body["username"] == "ana"
     assert body["likes"] == 0
@@ -52,7 +53,7 @@ def test_create_second_review_for_same_book_returns_409(client, auth_headers):
 
 
 def test_filter_reviews_by_book_id(client, auth_headers):
-    client.post("/reviews", json=REVIEW, headers=auth_headers)
+    created = client.post("/reviews", json=REVIEW, headers=auth_headers).json()
     other = register(client, "bia")
     client.post("/reviews", json={**REVIEW, "book_id": 2}, headers=other)
 
@@ -60,6 +61,8 @@ def test_filter_reviews_by_book_id(client, auth_headers):
 
     assert response.status_code == 200
     assert [item["username"] for item in response.json()] == ["bia"]
+    response = client.get("/reviews", params={"book_id": REVIEW["book_id"]})
+    assert response.json()[0]["created_at"] == created["created_at"]
 
 
 def test_filter_reviews_by_user_id(client, auth_headers):
@@ -112,15 +115,14 @@ def test_update_review_accepts_is_spoiler(client, auth_headers):
     assert response.json()["isSpoiler"] is True
     assert response.json()["user_id"] == created["user_id"]
     assert response.json()["book_id"] == REVIEW["book_id"]
+    assert response.json()["created_at"] == created["created_at"]
 
 
 def test_update_review_of_another_user_returns_403(client, auth_headers):
     created = client.post("/reviews", json=REVIEW, headers=auth_headers).json()
     other = register(client, "bia")
 
-    put = client.put(
-        f"/reviews/{created['id']}", json={"rating": 1}, headers=other
-    )
+    put = client.put(f"/reviews/{created['id']}", json={"rating": 1}, headers=other)
     patch = client.patch(
         f"/reviews/{created['id']}/spoiler", json={"isSpoiler": True}, headers=other
     )

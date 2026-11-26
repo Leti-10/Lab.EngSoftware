@@ -33,7 +33,9 @@ def parse_open_library(payload: dict, limit: int) -> list[CatalogBook]:
                 authors=list(doc.get("author_name") or []),
                 publisher=publishers[0],
                 cover_url=(
-                    f"https://covers.openlibrary.org/b/id/{cover_id}-M.jpg" if cover_id else None
+                    f"https://covers.openlibrary.org/b/id/{cover_id}-M.jpg"
+                    if cover_id
+                    else None
                 ),
             )
         )
@@ -48,6 +50,8 @@ class OpenLibraryProvider(BookCatalogProvider):
         self.timeout = timeout
 
     async def search(self, query: str, limit: int) -> list[CatalogBook]:
-        params = urllib.parse.urlencode({"q": query, "limit": limit * 3, "fields": FIELDS})
+        params = urllib.parse.urlencode(
+            {"q": query, "limit": limit * 3, "fields": FIELDS}
+        )
         payload = await fetch_json(f"{SEARCH_URL}?{params}", self.timeout)
         return parse_open_library(payload, limit)

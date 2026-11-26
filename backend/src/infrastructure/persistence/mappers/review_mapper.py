@@ -4,7 +4,7 @@ from src.infrastructure.persistence.models import ReviewModelSQLAlchemy
 
 class ReviewMapper:
     @staticmethod
-    def to_sqlalchemy(domain: Review) -> ReviewModelSQLAlchemy | None:
+    def to_sqlalchemy(domain: Review) -> ReviewModelSQLAlchemy:
         if domain is None:
             return None
 
@@ -15,10 +15,11 @@ class ReviewMapper:
             isSpoiler=domain.isSpoiler,
             user_id=domain.user_id,
             book_id=domain.book_id,
+            created_at=domain.created_at,
         )
 
     @staticmethod
-    def to_domain(db_model: ReviewModelSQLAlchemy) -> Review | None:
+    def to_domain(db_model: ReviewModelSQLAlchemy) -> Review:
         if db_model is None:
             return None
 
@@ -29,4 +30,5 @@ class ReviewMapper:
             isSpoiler=db_model.isSpoiler,
             user_id=db_model.user_id,
             book_id=db_model.book_id,
+            created_at=db_model.created_at,
         )

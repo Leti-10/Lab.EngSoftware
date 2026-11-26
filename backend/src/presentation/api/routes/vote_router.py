@@ -28,7 +28,7 @@ from src.presentation.api.dependencies import (
     get_review_repository,
 )
 from src.presentation.api.routes.book_list_router import get_book_list_repository
-from src.presentation.api.routes.book_router import get_book_m_repository, to_response
+from src.presentation.api.routes.book_router import get_book_repository, to_response
 from src.presentation.api.schemas.book_schema import BookResponseSchema
 from src.presentation.api.schemas.vote_schema import (
     CreateVoteSchema,
@@ -75,10 +75,7 @@ async def create_vote(
                 user_id=current_user.id,
             )
         )
-        if (
-            payload.status == "like"
-            and payload.target_entity == EnumVoteTarget.REVIEW
-        ):
+        if payload.status == "like" and payload.target_entity == EnumVoteTarget.REVIEW:
             review = await reviews.get_by_id(payload.target_id)
             if review is not None:
                 await NotifyUseCase(notifications, preferences).execute(
@@ -106,7 +103,7 @@ async def create_vote(
 async def list_favorites(
     current_user: User = Depends(get_current_user),
     repository: VoteRepository = Depends(get_vote_repository),
-    book_repository: BookRepository = Depends(get_book_m_repository),
+    book_repository: BookRepository = Depends(get_book_repository),
 ) -> list[BookResponseSchema]:
     votes = await FilterVotesUseCase(repository).execute(
         status="favorite",
@@ -126,7 +123,7 @@ async def add_favorite(
     book_id: int,
     current_user: User = Depends(get_current_user),
     repository: VoteRepository = Depends(get_vote_repository),
-    book_repository: BookRepository = Depends(get_book_m_repository),
+    book_repository: BookRepository = Depends(get_book_repository),
 ) -> None:
     book = await book_repository.get_by_id(book_id)
     if book is None:
@@ -138,9 +135,7 @@ async def add_favorite(
         target_type=EnumVoteTarget.BOOK,
         user_id=current_user.id,
     )
-    existing_vote = next(
-        (vote for vote in existing if vote.target_id == book_id), None
-    )
+    existing_vote = next((vote for vote in existing if vote.target_id == book_id), None)
     if existing_vote is not None and existing_vote.status == "favorite":
         return
 

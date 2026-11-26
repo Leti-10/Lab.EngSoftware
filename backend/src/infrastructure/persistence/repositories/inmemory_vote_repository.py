@@ -81,7 +81,7 @@ class InMemoryVoteRepository(VoteRepository):
                 normalized_target_name is None
                 or normalized_target_name
                 in self.target_names.get(
-                    (vote.target_entity, vote.target_id), ""
+                    (EnumVoteTarget(vote.target_entity), vote.target_id), ""
                 ).casefold()
             )
         ]

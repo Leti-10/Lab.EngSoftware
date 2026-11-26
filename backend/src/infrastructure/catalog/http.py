@@ -17,5 +17,10 @@ def _get(url: str, timeout: float) -> dict:
 async def fetch_json(url: str, timeout: float = 8.0) -> dict:
     try:
         return await asyncio.to_thread(_get, url, timeout)
-    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, OSError) as error:
+    except (
+        urllib.error.URLError,
+        TimeoutError,
+        json.JSONDecodeError,
+        OSError,
+    ) as error:
         raise CatalogUnavailableError() from error

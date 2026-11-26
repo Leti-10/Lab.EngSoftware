@@ -139,6 +139,7 @@ async def update_review(
         isSpoiler=payload.isSpoiler,
         user_id=review.user_id,
         book_id=review.book_id,
+        created_at=review.created_at,
     )
     try:
         updated = await UpdateReviewUseCase(repository).execute(

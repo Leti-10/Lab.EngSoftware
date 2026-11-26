@@ -23,8 +23,8 @@ class Vote:
         if not isinstance(self.target_entity, EnumVoteTarget):
             try:
                 self.target_entity = EnumVoteTarget(self.target_entity)
-            except ValueError:
-                raise InvalidVoteTargetError(self.target_entity)
+            except ValueError as err:
+                raise InvalidVoteTargetError(self.target_entity) from err
 
         if self.target_id <= 0:
             raise InvalidVoteTargetError(self.target_id)

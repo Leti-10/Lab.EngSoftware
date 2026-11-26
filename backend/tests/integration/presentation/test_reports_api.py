@@ -14,9 +14,7 @@ class InMemoryReportRepository:
         return report
 
     async def get_by_id(self, report_id: int) -> Report | None:
-        return next(
-            (report for report in self.reports if report.id == report_id), None
-        )
+        return next((report for report in self.reports if report.id == report_id), None)
 
     async def find_by_filter(
         self,
@@ -123,14 +121,17 @@ def test_create_report_rejects_invalid_target(client, auth_headers):
 
 
 def test_report_routes_require_authentication(client):
-    assert client.post(
-        "/reports",
-        json={
-            "target_id": 2,
-            "target_entity": "user",
-            "description": "Abuso no perfil",
-        },
-    ).status_code == 401
+    assert (
+        client.post(
+            "/reports",
+            json={
+                "target_id": 2,
+                "target_entity": "user",
+                "description": "Abuso no perfil",
+            },
+        ).status_code
+        == 401
+    )
     assert client.get("/reports/1").status_code == 401
     assert client.get("/reports").status_code == 401
 

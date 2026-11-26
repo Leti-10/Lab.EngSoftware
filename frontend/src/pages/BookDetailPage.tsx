@@ -137,7 +137,7 @@ function BookDetail({ id }: { id?: string }) {
       </Link>
 
       <div className="mt-6 grid gap-8 md:grid-cols-[200px_1fr] lg:grid-cols-[200px_1fr_250px]">
-        <div className="mx-auto w-full max-w-[200px] md:mx-0">
+        <div className="mx-auto w-full max-w-50 md:mx-0">
           <BookCover book={book} className="w-full" />
           <p className="mt-3 text-center text-xs text-ink-soft">{kind}</p>
         </div>

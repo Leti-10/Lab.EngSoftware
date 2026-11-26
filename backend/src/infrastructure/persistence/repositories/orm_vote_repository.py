@@ -11,6 +11,7 @@ from src.infrastructure.persistence.models.book_model import BookModelSQLAlchemy
 from src.infrastructure.persistence.models.review_model import ReviewModelSQLAlchemy
 from src.infrastructure.persistence.models.user_model import UserModelSQLAlchemy
 from src.infrastructure.persistence.models.vote_model import VoteModelSQLAlchemy
+from src.infrastructure.telemetry import logger_decorator
 
 
 class SQLAlchemyVoteRepository(VoteRepository):
@@ -22,6 +23,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
         self.session = session
         self.book_list_repository = book_list_repository
 
+    @logger_decorator
     async def save(self, vote: Vote) -> Vote:
         duplicate_query = select(VoteModelSQLAlchemy.id).where(
             VoteModelSQLAlchemy.user_id == vote.user_id,
@@ -29,9 +31,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
             VoteModelSQLAlchemy.target_id == vote.target_id,
         )
         if vote.id is not None:
-            duplicate_query = duplicate_query.where(
-                VoteModelSQLAlchemy.id != vote.id
-            )
+            duplicate_query = duplicate_query.where(VoteModelSQLAlchemy.id != vote.id)
         if await self.session.scalar(duplicate_query) is not None:
             raise VoteAlreadyExistsError()
 
@@ -63,6 +63,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
             raise
         return VoteMapper.to_domain(model)
 
+    @logger_decorator
     async def get_by_id(self, vote_id: int) -> Vote | None:
         result = await self.session.execute(
             select(VoteModelSQLAlchemy).where(VoteModelSQLAlchemy.id == vote_id)
@@ -72,6 +73,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
             return None
         return VoteMapper.to_domain(model)
 
+    @logger_decorator
     async def delete(self, vote_id: int) -> bool:
         model = await self.session.get(VoteModelSQLAlchemy, vote_id)
         if model is None:
@@ -81,6 +83,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
         await self.session.commit()
         return True
 
+    @logger_decorator
     async def delete_by_target(
         self,
         user_id: int,
@@ -99,6 +102,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
         await self.session.commit()
         return bool(result.rowcount)
 
+    @logger_decorator
     async def find_by_filter(
         self,
         status: str | None = None,
@@ -121,9 +125,7 @@ class SQLAlchemyVoteRepository(VoteRepository):
                 )
             )
         if target_type is not None:
-            query = query.where(
-                VoteModelSQLAlchemy.target_entity == target_type.value
-            )
+            query = query.where(VoteModelSQLAlchemy.target_entity == target_type.value)
         if target_name:
             pattern = f"%{target_name}%"
             target_filters = []
